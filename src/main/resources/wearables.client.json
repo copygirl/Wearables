@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "net.mcft.copy.wearables.client.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ContainerScreenMixin",
+    "IContainerScreenAccessor",
+    "PlayerInventoryScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

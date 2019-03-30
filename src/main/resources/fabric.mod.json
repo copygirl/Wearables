@@ -1,0 +1,17 @@
+{
+  "id": "wearables",
+  "name": "Wearables",
+  "description": "API which allows adding and accessing additional, configurable equipment slots.",
+  "version": "${version}",
+  "side": "universal",
+  "initializers": [
+    "net.mcft.copy.wearables.WearablesMod"
+  ],
+  "requires": {
+    "fabric": "*"
+  },
+  "mixins": {
+    "client": "wearables.client.json",
+    "common": "wearables.common.json"
+  }
+}
