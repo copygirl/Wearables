@@ -126,28 +126,28 @@ public final class WearablesAPI
 		if ((name == null) || name.isEmpty())
 			throw new IllegalArgumentException("name is null or empty");
 		
-			int endIndex = name.indexOf(':');
-			if (endIndex < 0) throw new IllegalArgumentException("fullName must contain a colon (:)");
-			String regionName      = name.substring(0, endIndex);
-			WearablesRegion region = getRegion(regionName);
-			if (region == null) return null;
-			
-			WearablesSlotSettings result = null;
-			WearablesSlotSettings parent = null;
-			int startIndex = endIndex + 1;
-			for (; startIndex > 0; startIndex = endIndex + 1) {
-				endIndex = name.indexOf('/', startIndex);
-				CharSequence partName = (endIndex > 0)
-					? name.subSequence(startIndex, endIndex)
-					: name.subSequence(startIndex, name.length() - 1);
-				if (partName.length() == 0) throw new IllegalArgumentException("name contains an empty part");
-				parent = ((parent != null) ? parent.children : region.children)
-					.stream().filter(s -> partName.equals(s.name))
-					.findFirst().orElse(null);
-				if (parent == null) break;
-				else if (parent.isEnabled()) result = parent;
-			}
-			return result;
+		int endIndex = name.indexOf(':');
+		if (endIndex < 0) throw new IllegalArgumentException("fullName must contain a colon (:)");
+		String regionName      = name.substring(0, endIndex);
+		WearablesRegion region = getRegion(regionName);
+		if (region == null) return null;
+		
+		WearablesSlotSettings result = null;
+		WearablesSlotSettings parent = null;
+		int startIndex = endIndex + 1;
+		for (; startIndex > 0; startIndex = endIndex + 1) {
+			endIndex = name.indexOf('/', startIndex);
+			CharSequence partName = (endIndex > 0)
+				? name.subSequence(startIndex, endIndex)
+				: name.subSequence(startIndex, name.length());
+			if (partName.length() == 0) throw new IllegalArgumentException("name contains an empty part");
+			parent = ((parent != null) ? parent.children : region.children)
+				.stream().filter(s -> partName.equals(s.name))
+				.findFirst().orElse(null);
+			if (parent == null) break;
+			else if (parent.isEnabled()) result = parent;
+		}
+		return result;
 	}
 	
 	
