@@ -7,7 +7,7 @@ import net.mcft.copy.wearables.api.WearablesAPI;
 import net.mcft.copy.wearables.api.WearablesRegion;
 import net.mcft.copy.wearables.client.WearablesRegionPopup;
 
-import net.minecraft.client.gui.InputListener;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.ingame.AbstractPlayerInventoryScreen;
 import net.minecraft.client.gui.ingame.PlayerInventoryScreen;
 import net.minecraft.client.gui.ingame.RecipeBookProvider;
@@ -38,7 +38,7 @@ public abstract class PlayerInventoryScreenMixin
 	@Inject(method="render", remap=false, at=@At("HEAD"))
 	public void render(int mouseX, int mouseY, float tickDelta, CallbackInfo info)
 	{
-		for (InputListener child : this.children)
+		for (Element child : this.children)
 			if (child instanceof WearablesRegionPopup)
 				((WearablesRegionPopup)child).update(mouseX, mouseY);
 	}
@@ -46,7 +46,7 @@ public abstract class PlayerInventoryScreenMixin
 	@Inject(method="drawBackground", at=@At("TAIL"))
 	public void drawBackground(float tickDelta, int mouseX, int mouseY, CallbackInfo info)
 	{ 
-		for (InputListener child : this.children)
+		for (Element child : this.children)
 			if (child instanceof WearablesRegionPopup)
 				((WearablesRegionPopup)child).render(mouseX, mouseY, tickDelta);
 	}

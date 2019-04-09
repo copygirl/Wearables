@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 
 import net.minecraft.client.gui.ContainerProvider;
 import net.minecraft.client.gui.ContainerScreen;
-import net.minecraft.client.gui.MultiInputListener;
+import net.minecraft.client.gui.ParentElement;
 import net.minecraft.container.Container;
 import net.minecraft.container.Slot;
 
@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Environment(EnvType.CLIENT)
 @Mixin(ContainerScreen.class)
 public interface IContainerScreenAccessor<T extends Container>
-	extends ContainerProvider<T>, MultiInputListener
+	extends ContainerProvider<T>, ParentElement
 {
 	@Accessor
 	public int getLeft();

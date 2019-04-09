@@ -18,13 +18,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.ContainerScreen;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.InputListener;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.render.GuiLighting;
 import net.minecraft.container.Slot;
 import net.minecraft.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
-public class WearablesRegionPopup extends DrawableHelper implements Drawable, InputListener
+public class WearablesRegionPopup extends DrawableHelper implements Drawable, Element
 {
 	public static final GuiTexture REGION_TEX = new GuiTexture("region", 64);
 	public static final int SLOT_SIZE = 18;
@@ -114,7 +114,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, In
 		if (isVisible && !isWithinBounds(mouseX, mouseY))
 			isVisible = false;
 		
-		if (!isVisible && isOverOriginBounds(mouseX, mouseY) && (screen.method_19355(mouseX, mouseY) == null))
+		if (!isVisible && isOverOriginBounds(mouseX, mouseY) && !screen.method_19355(mouseX, mouseY).isPresent())
 			isVisible = true;
 		
 		// TODO: This seems expensive. Only call "getValidSlots" once globally when the stack changes.
@@ -136,7 +136,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, In
 			GlStateManager.disableLighting();
 			REGION_TEX.bind();
 			REGION_TEX.drawBordered(x, y, getWidth(), getHeight(),
-											0, 0, Z_LEVEL, 4, 30, 30, 2, false);
+			                        0, 0, Z_LEVEL, 4, 30, 30, 2, false);
 			
 			// for (int i = 0; i < this.slots.size(); i++)
 			// 	drawSlot(this.x + 4 + i * SLOT_SIZE, this.y + 4);
