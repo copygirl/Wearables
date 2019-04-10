@@ -7,31 +7,35 @@ import java.util.Set;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 
-public class WearablesSlotSettings
+public class WearablesSlot
 {
 	public final WearablesRegion region;
-	public final WearablesSlotSettings parent;
+	public final WearablesSlot parent;
 	public final String name;
 	public final String fullName;
 	
+	protected int order = 500;
+	public int getOrder() { return order; }
+	public WearablesSlot setOrder(int value) { this.order = value; return this; }
+	
 	protected int numSlots = 1;
 	public int getNumSlots() { return numSlots; }
-	public WearablesSlotSettings setNumSlots(int value)
-		{ numSlots = value; return this;}
-	public WearablesSlotSettings setMinNumSlots(int value)
-		{ if (value > numSlots) numSlots = value; return this;}
+	public WearablesSlot setNumSlots(int value)
+		{ this.numSlots = value; return this;}
+	public WearablesSlot setMinNumSlots(int value)
+		{ if (value > this.numSlots) this.numSlots = value; return this;}
 	
 	protected EquipmentSlot vanillaSlot = null;
-	public EquipmentSlot getVanillaSlot() { return vanillaSlot; }
-	protected WearablesSlotSettings setVanillaSlot(EquipmentSlot value)
-		{ vanillaSlot = value; return this; }
+	public EquipmentSlot getVanilla() { return vanillaSlot; }
+	protected WearablesSlot setVanilla(EquipmentSlot value)
+		{ this.vanillaSlot = value; return this; }
 	
-	protected final Set<WearablesSlotSettings> children = new HashSet<>();
-	public Set<WearablesSlotSettings> getChildren()
+	protected final Set<WearablesSlot> children = new HashSet<>();
+	public Set<WearablesSlot> getChildren()
 		{ return Collections.unmodifiableSet(children); }
 	
 	
-	protected WearablesSlotSettings(WearablesRegion region, WearablesSlotSettings parent, String name)
+	protected WearablesSlot(WearablesRegion region, WearablesSlot parent, String name)
 	{
 		if (region == null) throw new IllegalArgumentException("region is null");
 		if (name == null) throw new IllegalArgumentException("name is null");

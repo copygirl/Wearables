@@ -2,6 +2,7 @@ package net.mcft.copy.wearables.client;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -11,7 +12,7 @@ import net.fabricmc.api.Environment;
 
 import net.mcft.copy.wearables.api.WearablesAPI;
 import net.mcft.copy.wearables.api.WearablesRegion;
-import net.mcft.copy.wearables.api.WearablesSlotSettings;
+import net.mcft.copy.wearables.api.WearablesSlot;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
 
 import net.minecraft.client.MinecraftClient;
@@ -31,17 +32,18 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	public static final int Z_LEVEL = 300;
 	
 	
-	private final List<WearablesSlotSettings> slots = new ArrayList<>();
+	private final List<WearablesSlot> slots = new ArrayList<>();
 	
 	public final IContainerScreenAccessor<?> screen;
 	public final WearablesRegion region;
 	public final Slot originSlot;
 	public final int originX, originY;
+	public final int x, y;
 	
 	public boolean isVisible = false;
 	
 	private boolean highlight = false;
-	// private Set<WearablesSlotSettings> highlightedSlots = new HashSet<>();
+	// private Set<WearablesSlot> highlightedSlots = new HashSet<>();
 	
 	
 	public WearablesRegionPopup(ContainerScreen<?> screen, WearablesRegion region)
@@ -65,10 +67,23 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		}
 		
 		region.getChildren().forEach(this::addSlotOrChildren);
+		this.slots.sort(Comparator.comparing(WearablesSlot::getOrder)
+		                          .thenComparing(slot -> slot.fullName));
+		int centerIndex = -1;
+		int minAbsOrder = Integer.MAX_VALUE;
+		for (int i = 0; i < this.slots.size(); i++) {
+			int order = Math.abs(this.slots.get(i).getOrder());
+			if (order >= minAbsOrder) break;
+			centerIndex = i;
+			minAbsOrder = order;
+		}
+		
+		this.x = this.originX - 4 - SLOT_SIZE * centerIndex;
+		this.y = this.originY - 4;
 	}
 	
 	// TODO: This is not the final logic of which slots should be present / visible.
-	private void addSlotOrChildren(WearablesSlotSettings slot)
+	private void addSlotOrChildren(WearablesSlot slot)
 	{
 		if (slot.getChildren().isEmpty()) {
 			if (slot.isEnabled()) this.slots.add(slot);
@@ -76,8 +91,8 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	}
 	
 	
-	public int getX() { return originX - 4; }
-	public int getY() { return originY - 4; }
+	public int getX() { return this.x; }
+	public int getY() { return this.y; }
 	public int getWidth() { return 8 + SLOT_SIZE * this.slots.size(); }
 	public int getHeight() { return 8 + SLOT_SIZE; }
 	
@@ -145,8 +160,8 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		if (highlight) {
 			GlStateManager.enableBlend();
 			REGION_TEX.bind();
-			REGION_TEX.drawQuad(screen.getLeft() + originX - 1,
-			                    screen.getTop()  + originY - 1,
+			REGION_TEX.drawQuad(screen.getLeft() + this.originX - 1,
+			                    screen.getTop()  + this.originY - 1,
 			                    20, 20, 25, 31, Z_LEVEL - (this.isVisible ? 0 : 50));
 			GlStateManager.disableBlend();
 		}

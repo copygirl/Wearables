@@ -30,8 +30,8 @@ public class WearablesRegion
 	protected WearablesRegion setVanilla(EquipmentSlot slot, String hint)
 		{ this.vanillaSlot = slot; this.containerSlotHint = hint; return this; }
 	
-	protected final Set<WearablesSlotSettings> children = new HashSet<>();
-	public Set<WearablesSlotSettings> getChildren()
+	protected final Set<WearablesSlot> children = new HashSet<>();
+	public Set<WearablesSlot> getChildren()
 		{ return Collections.unmodifiableSet(children); }
 	
 	

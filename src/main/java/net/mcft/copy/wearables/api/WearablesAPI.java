@@ -36,23 +36,22 @@ public final class WearablesAPI
 		_regions.put("back", WearablesRegion.BACK);
 		_regions.put("arms", WearablesRegion.ARMS);
 		
+		WearablesAPI.registerOrGetSlot( "head:armor/helmet"    ).setOrder(0).setVanilla(EquipmentSlot.HEAD );
+		WearablesAPI.registerOrGetSlot("chest:armor/chestplate").setOrder(0).setVanilla(EquipmentSlot.CHEST);
+		WearablesAPI.registerOrGetSlot( "legs:armor/leggings"  ).setOrder(0).setVanilla(EquipmentSlot.LEGS );
+		WearablesAPI.registerOrGetSlot( "feet:armor/boots"     ).setOrder(0).setVanilla(EquipmentSlot.FEET );
 		
-		registerOrGetSlot( "head:armor/helmet"    ).setVanillaSlot(EquipmentSlot.HEAD);
-		registerOrGetSlot("chest:armor/chestplate").setVanillaSlot(EquipmentSlot.CHEST);
-		registerOrGetSlot( "legs:armor/leggings"  ).setVanillaSlot(EquipmentSlot.LEGS);
-		registerOrGetSlot( "feet:armor/boots"     ).setVanillaSlot(EquipmentSlot.FEET);
+		WearablesAPI.registerOrGetSlot( "head:clothing/hat"  );
+		WearablesAPI.registerOrGetSlot("chest:clothing/shirt");
+		WearablesAPI.registerOrGetSlot( "legs:clothing/pants");
+		WearablesAPI.registerOrGetSlot( "feet:clothing/socks");
 		
-		registerOrGetSlot( "head:clothing/hat");
-		registerOrGetSlot("chest:clothing/shirt");
-		registerOrGetSlot( "legs:clothing/pants");
-		registerOrGetSlot( "feet:clothing/socks");
+		WearablesAPI.registerOrGetSlot("chest:neck/amulet").setOrder(-500);
+		WearablesAPI.registerOrGetSlot( "legs:waist/belt" ).setOrder(-500);
 		
-		registerOrGetSlot("chest:neck/amulet");
-		registerOrGetSlot( "legs:waist/belt");
-		
-		registerOrGetSlot("back:tool").setNumSlots(2);
-		registerOrGetSlot("back:carry");
-		registerOrGetSlot("arms:hands/gloves");
+		WearablesAPI.registerOrGetSlot("back:tool"        ).setNumSlots(2);
+		WearablesAPI.registerOrGetSlot("back:carry"       ).setOrder(100);
+		WearablesAPI.registerOrGetSlot("arms:hands/gloves").setOrder(100);
 	}
 	
 	
@@ -92,7 +91,7 @@ public final class WearablesAPI
 	}
 	
 	
-	public static WearablesSlotSettings registerOrGetSlot(String fullName)
+	public static WearablesSlot registerOrGetSlot(String fullName)
 	{
 		if ((fullName == null) || fullName.isEmpty())
 			throw new IllegalArgumentException("fullName is null or empty");
@@ -103,7 +102,7 @@ public final class WearablesAPI
 		WearablesRegion region = getRegion(regionName);
 		if (region == null) throw new IllegalStateException("region '" + regionName+ "' does not exist");
 		
-		WearablesSlotSettings parent = null;
+		WearablesSlot parent = null;
 		int startIndex = endIndex + 1;
 		for (; (endIndex = fullName.indexOf('/', startIndex)) >= 0; startIndex = endIndex + 1) {
 			final int finalEndIndex = endIndex; // Fuck Java.
@@ -114,12 +113,12 @@ public final class WearablesAPI
 				.orElseGet(() -> registerOrGetSlot(fullName.substring(0, finalEndIndex)));
 		}
 		
-		WearablesSlotSettings result = new WearablesSlotSettings(region, parent, fullName.substring(startIndex));
+		WearablesSlot result = new WearablesSlot(region, parent, fullName.substring(startIndex));
 		((parent != null) ? parent.children : region.children).add(result);
 		return result;
 	}
 	
-	public static WearablesSlotSettings findSlot(String name)
+	public static WearablesSlot findSlot(String name)
 	{
 		if ((name == null) || name.isEmpty())
 			throw new IllegalArgumentException("name is null or empty");
@@ -130,8 +129,8 @@ public final class WearablesAPI
 		WearablesRegion region = getRegion(regionName);
 		if (region == null) return null;
 		
-		WearablesSlotSettings result = null;
-		WearablesSlotSettings parent = null;
+		WearablesSlot result = null;
+		WearablesSlot parent = null;
 		int startIndex = endIndex + 1;
 		for (; startIndex > 0; startIndex = endIndex + 1) {
 			endIndex = name.indexOf('/', startIndex);
@@ -158,7 +157,7 @@ public final class WearablesAPI
 		return Collections.emptyList();
 	}
 	
-	public static List<WearablesSlotSettings> getValidSlots(ItemStack stack)
+	public static List<WearablesSlot> getValidSlots(ItemStack stack)
 	{
 		return getAppropriateSlotNames(stack).stream()
 			.map(WearablesAPI::findSlot)
