@@ -8,13 +8,15 @@ import net.minecraft.entity.EquipmentSlot;
 
 public class WearablesRegion
 {
-	public static final WearablesRegion HEAD  = WearablesAPI.getRegion("head");
-	public static final WearablesRegion CHEST = WearablesAPI.getRegion("chest");
-	public static final WearablesRegion LEGS  = WearablesAPI.getRegion("legs");
-	public static final WearablesRegion FEET  = WearablesAPI.getRegion("feet");
+	// Equipment regions based on Vanilla armor slots.
+	public static final WearablesRegion HEAD  = new WearablesRegion( "head").setVanilla(EquipmentSlot.HEAD , "helmet"    );
+	public static final WearablesRegion CHEST = new WearablesRegion("chest").setVanilla(EquipmentSlot.CHEST, "chestplate");
+	public static final WearablesRegion LEGS  = new WearablesRegion( "legs").setVanilla(EquipmentSlot.LEGS , "leggings"  );
+	public static final WearablesRegion FEET  = new WearablesRegion( "feet").setVanilla(EquipmentSlot.FEET , "boots"     );
 	
-	public static final WearablesRegion BACK  = WearablesAPI.getRegion("back");
-	public static final WearablesRegion ARMS  = WearablesAPI.getRegion("arms");
+	// Custom equipment regions, visible above off-hand slot.
+	public static final WearablesRegion BACK = new WearablesRegion("back");
+	public static final WearablesRegion ARMS = new WearablesRegion("arms");
 	
 	
 	public final String name;

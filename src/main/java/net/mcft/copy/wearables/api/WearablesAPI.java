@@ -28,15 +28,13 @@ public final class WearablesAPI
 	
 	static
 	{
-		// Equipment regions based on Vanilla armor slots.
-		registerOrGetRegion( "head").setVanilla(EquipmentSlot.HEAD , "helmet"    );
-		registerOrGetRegion("chest").setVanilla(EquipmentSlot.CHEST, "chestplate");
-		registerOrGetRegion( "legs").setVanilla(EquipmentSlot.LEGS , "leggings"  );
-		registerOrGetRegion( "feet").setVanilla(EquipmentSlot.FEET , "boots"     );
+		_regions.put("head" , WearablesRegion.HEAD);
+		_regions.put("chest", WearablesRegion.CHEST);
+		_regions.put("legs" , WearablesRegion.LEGS);
+		_regions.put("feet" , WearablesRegion.FEET);
 		
-		// Custom equipment regions, visible above off-hand slot.
-		registerOrGetRegion("back");
-		registerOrGetRegion("arms");
+		_regions.put("back", WearablesRegion.BACK);
+		_regions.put("arms", WearablesRegion.ARMS);
 		
 		
 		registerOrGetSlot( "head:armor/helmet"    ).setVanillaSlot(EquipmentSlot.HEAD);
