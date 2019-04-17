@@ -1,5 +1,6 @@
 package net.mcft.copy.wearables.api;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,9 +31,9 @@ public class WearablesRegion
 	protected WearablesRegion setVanilla(EquipmentSlot slot, String hint)
 		{ this.vanillaSlot = slot; this.containerSlotHint = hint; return this; }
 	
-	protected final Set<WearablesSlot> children = new HashSet<>();
-	public Set<WearablesSlot> getChildren()
-		{ return Collections.unmodifiableSet(children); }
+	protected final Set<WearablesSlotType> children = new HashSet<>();
+	public Collection<WearablesSlotType> getChildren()
+		{ return Collections.unmodifiableCollection(children); }
 	
 	
 	protected WearablesRegion(String name)

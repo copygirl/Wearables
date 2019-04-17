@@ -1,18 +1,21 @@
 package net.mcft.copy.wearables.client;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import net.mcft.copy.wearables.api.IWearablesEntity;
+import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.api.WearablesAPI;
 import net.mcft.copy.wearables.api.WearablesRegion;
-import net.mcft.copy.wearables.api.WearablesSlot;
+import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
 
 import net.minecraft.client.MinecraftClient;
@@ -32,18 +35,18 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	public static final int Z_LEVEL = 300;
 	
 	
-	private final List<WearablesSlot> slots = new ArrayList<>();
+	private final List<IWearablesSlot> _slots = new ArrayList<>();
 	
 	public final IContainerScreenAccessor<?> screen;
 	public final WearablesRegion region;
 	public final Slot originSlot;
 	public final int originX, originY;
+	public final int centerSlot;
 	public final int x, y;
 	
 	public boolean isVisible = false;
 	
-	private boolean highlight = false;
-	// private Set<WearablesSlot> highlightedSlots = new HashSet<>();
+	private Set<WearablesSlotType> _highlightedSlots = new HashSet<>();
 	
 	
 	public WearablesRegionPopup(ContainerScreen<?> screen, WearablesRegion region)
@@ -66,34 +69,28 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			this.originY    = -10000;
 		}
 		
-		region.getChildren().forEach(this::addSlotOrChildren);
-		this.slots.sort(Comparator.comparing(WearablesSlot::getOrder)
-		                          .thenComparing(slot -> slot.fullName));
+		((IWearablesEntity)MinecraftClient.getInstance().player)
+			.getWearablesSlots(region).forEach(this._slots::add);
+		this._slots.sort(Comparator.comparing(IWearablesSlot::getOrder)
+		                          .thenComparing(slot -> slot.getSlotType().fullName));
 		int centerIndex = -1;
 		int minAbsOrder = Integer.MAX_VALUE;
-		for (int i = 0; i < this.slots.size(); i++) {
-			int order = Math.abs(this.slots.get(i).getOrder());
+		for (int i = 0; i < this._slots.size(); i++) {
+			int order = Math.abs(this._slots.get(i).getOrder());
 			if (order >= minAbsOrder) break;
 			centerIndex = i;
 			minAbsOrder = order;
 		}
 		
+		this.centerSlot = centerIndex;
 		this.x = this.originX - 4 - SLOT_SIZE * centerIndex;
 		this.y = this.originY - 4;
-	}
-	
-	// TODO: This is not the final logic of which slots should be present / visible.
-	private void addSlotOrChildren(WearablesSlot slot)
-	{
-		if (slot.getChildren().isEmpty()) {
-			if (slot.isEnabled()) this.slots.add(slot);
-		} else slot.getChildren().forEach(this::addSlotOrChildren);
 	}
 	
 	
 	public int getX() { return this.x; }
 	public int getY() { return this.y; }
-	public int getWidth() { return 8 + SLOT_SIZE * this.slots.size(); }
+	public int getWidth() { return 8 + SLOT_SIZE * this._slots.size(); }
 	public int getHeight() { return 8 + SLOT_SIZE; }
 	
 	
@@ -137,8 +134,13 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			.player.inventory.getCursorStack();
 		if (cursorOrFocusedStack.isEmpty() && (screen.getFocusedSlot() != null))
 			cursorOrFocusedStack = screen.getFocusedSlot().getStack();
-		highlight = !Collections.disjoint(WearablesAPI.getValidSlots(cursorOrFocusedStack), this.slots);
+		
+		_highlightedSlots.clear();
+		WearablesAPI.getValidSlots(cursorOrFocusedStack).stream()
+			.filter(slotType -> (slotType.region == region))
+			.forEach(_highlightedSlots::add);
 	}
+	
 	
 	@Override
 	public void render(int mouseX, int mouseY, float tickDelta)
@@ -153,11 +155,20 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			REGION_TEX.drawBordered(x, y, getWidth(), getHeight(),
 			                        0, 0, Z_LEVEL, 4, 30, 30, 2, false);
 			
-			// for (int i = 0; i < this.slots.size(); i++)
-			// 	drawSlot(this.x + 4 + i * SLOT_SIZE, this.y + 4);
-		}
-		
-		if (highlight) {
+			for (int i = 0; i < this._slots.size(); i++) {
+				IWearablesSlot slot = this._slots.get(i);
+				if ((this.originSlot == null) || (i != this.centerSlot))
+					drawSlot(x + 4 + i * SLOT_SIZE, y + 4);
+				
+				if (this._highlightedSlots.contains(slot.getSlotType())) {
+					GlStateManager.enableBlend();
+					REGION_TEX.bind();
+					REGION_TEX.drawQuad(x + 3 + i * SLOT_SIZE, y + 3,
+					                    20, 20, 25, 31, Z_LEVEL);
+					GlStateManager.disableBlend();
+				}
+			}
+		} else if (!this._highlightedSlots.isEmpty()) {
 			GlStateManager.enableBlend();
 			REGION_TEX.bind();
 			REGION_TEX.drawQuad(screen.getLeft() + this.originX - 1,

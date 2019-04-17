@@ -1,8 +1,9 @@
 {
   "required": true,
-  "package": "net.mcft.copy.wearables.mixin",
+  "package": "net.mcft.copy.wearables.common.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "LivingEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -7,35 +7,35 @@ import java.util.Set;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 
-public class WearablesSlot
+public class WearablesSlotType
 {
 	public final WearablesRegion region;
-	public final WearablesSlot parent;
+	public final WearablesSlotType parent;
 	public final String name;
 	public final String fullName;
 	
 	protected int order = 500;
 	public int getOrder() { return order; }
-	public WearablesSlot setOrder(int value) { this.order = value; return this; }
+	public WearablesSlotType setOrder(int value) { this.order = value; return this; }
 	
 	protected int numSlots = 1;
 	public int getNumSlots() { return numSlots; }
-	public WearablesSlot setNumSlots(int value)
+	public WearablesSlotType setNumSlots(int value)
 		{ this.numSlots = value; return this;}
-	public WearablesSlot setMinNumSlots(int value)
+	public WearablesSlotType setMinNumSlots(int value)
 		{ if (value > this.numSlots) this.numSlots = value; return this;}
 	
 	protected EquipmentSlot vanillaSlot = null;
 	public EquipmentSlot getVanilla() { return vanillaSlot; }
-	protected WearablesSlot setVanilla(EquipmentSlot value)
+	protected WearablesSlotType setVanilla(EquipmentSlot value)
 		{ this.vanillaSlot = value; return this; }
 	
-	protected final Set<WearablesSlot> children = new HashSet<>();
-	public Set<WearablesSlot> getChildren()
+	protected final Set<WearablesSlotType> children = new HashSet<>();
+	public Set<WearablesSlotType> getChildren()
 		{ return Collections.unmodifiableSet(children); }
 	
 	
-	protected WearablesSlot(WearablesRegion region, WearablesSlot parent, String name)
+	protected WearablesSlotType(WearablesRegion region, WearablesSlotType parent, String name)
 	{
 		if (region == null) throw new IllegalArgumentException("region is null");
 		if (name == null) throw new IllegalArgumentException("name is null");
@@ -51,11 +51,11 @@ public class WearablesSlot
 	}
 	
 	
-	// TODO: For the moment, if slot has no children, it automatically "exists" and is enabled.
+	// TODO: For the moment, if slot type has no children, it automatically "exists" and is enabled.
 	public boolean isEnabled()
 		{ return children.isEmpty(); }
 	
-	/** Returns if the specified stack may be worn in this slot. */
+	/** Returns if the specified stack may be worn in this type of slot. */
 	public boolean isValid(ItemStack stack)
 	{
 		return !stack.isEmpty() && isEnabled()

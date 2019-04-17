@@ -36,22 +36,22 @@ public final class WearablesAPI
 		_regions.put("back", WearablesRegion.BACK);
 		_regions.put("arms", WearablesRegion.ARMS);
 		
-		WearablesAPI.registerOrGetSlot( "head:armor/helmet"    ).setOrder(0).setVanilla(EquipmentSlot.HEAD );
-		WearablesAPI.registerOrGetSlot("chest:armor/chestplate").setOrder(0).setVanilla(EquipmentSlot.CHEST);
-		WearablesAPI.registerOrGetSlot( "legs:armor/leggings"  ).setOrder(0).setVanilla(EquipmentSlot.LEGS );
-		WearablesAPI.registerOrGetSlot( "feet:armor/boots"     ).setOrder(0).setVanilla(EquipmentSlot.FEET );
+		WearablesAPI.registerOrGetSlotType( "head:armor/helmet"    ).setOrder(0).setVanilla(EquipmentSlot.HEAD );
+		WearablesAPI.registerOrGetSlotType("chest:armor/chestplate").setOrder(0).setVanilla(EquipmentSlot.CHEST);
+		WearablesAPI.registerOrGetSlotType( "legs:armor/leggings"  ).setOrder(0).setVanilla(EquipmentSlot.LEGS );
+		WearablesAPI.registerOrGetSlotType( "feet:armor/boots"     ).setOrder(0).setVanilla(EquipmentSlot.FEET );
 		
-		WearablesAPI.registerOrGetSlot( "head:clothing/hat"  );
-		WearablesAPI.registerOrGetSlot("chest:clothing/shirt");
-		WearablesAPI.registerOrGetSlot( "legs:clothing/pants");
-		WearablesAPI.registerOrGetSlot( "feet:clothing/socks");
+		WearablesAPI.registerOrGetSlotType( "head:clothing/hat"  );
+		WearablesAPI.registerOrGetSlotType("chest:clothing/shirt");
+		WearablesAPI.registerOrGetSlotType( "legs:clothing/pants");
+		WearablesAPI.registerOrGetSlotType( "feet:clothing/socks");
 		
-		WearablesAPI.registerOrGetSlot("chest:neck/amulet").setOrder(-500);
-		WearablesAPI.registerOrGetSlot( "legs:waist/belt" ).setOrder(-500);
+		WearablesAPI.registerOrGetSlotType("chest:neck/amulet").setOrder(-500);
+		WearablesAPI.registerOrGetSlotType( "legs:waist/belt" ).setOrder(-500);
 		
-		WearablesAPI.registerOrGetSlot("back:tool"        ).setNumSlots(2);
-		WearablesAPI.registerOrGetSlot("back:carry"       ).setOrder(100);
-		WearablesAPI.registerOrGetSlot("arms:hands/gloves").setOrder(100);
+		WearablesAPI.registerOrGetSlotType("back:tool"        ).setNumSlots(2);
+		WearablesAPI.registerOrGetSlotType("back:carry"       ).setOrder(100);
+		WearablesAPI.registerOrGetSlotType("arms:hands/gloves").setOrder(100);
 	}
 	
 	
@@ -66,6 +66,7 @@ public final class WearablesAPI
 	 * 
 	 * @param nameOrSlot A name or slot identifier such as {@code "chest"} or {@code "chest:neck/amulet"}.
 	 * @return A region such as {@link WearablesRegion#CHEST WearablesRegion.CHEST} or null.
+	 * @exception IllegalArgumentException Thrown if nameOrSlot is null or empty.
 	 **/
 	public static WearablesRegion getRegion(String nameOrSlot)
 	{
@@ -91,7 +92,7 @@ public final class WearablesAPI
 	}
 	
 	
-	public static WearablesSlot registerOrGetSlot(String fullName)
+	public static WearablesSlotType registerOrGetSlotType(String fullName)
 	{
 		if ((fullName == null) || fullName.isEmpty())
 			throw new IllegalArgumentException("fullName is null or empty");
@@ -102,7 +103,7 @@ public final class WearablesAPI
 		WearablesRegion region = getRegion(regionName);
 		if (region == null) throw new IllegalStateException("region '" + regionName+ "' does not exist");
 		
-		WearablesSlot parent = null;
+		WearablesSlotType parent = null;
 		int startIndex = endIndex + 1;
 		for (; (endIndex = fullName.indexOf('/', startIndex)) >= 0; startIndex = endIndex + 1) {
 			final int finalEndIndex = endIndex; // Fuck Java.
@@ -110,15 +111,15 @@ public final class WearablesAPI
 			if (partName.length() == 0) throw new IllegalArgumentException("fullName contains an empty part");
 			parent = ((parent != null) ? parent.children : region.children)
 				.stream().filter(s -> partName.equals(s.name)).findFirst()
-				.orElseGet(() -> registerOrGetSlot(fullName.substring(0, finalEndIndex)));
+				.orElseGet(() -> registerOrGetSlotType(fullName.substring(0, finalEndIndex)));
 		}
 		
-		WearablesSlot result = new WearablesSlot(region, parent, fullName.substring(startIndex));
+		WearablesSlotType result = new WearablesSlotType(region, parent, fullName.substring(startIndex));
 		((parent != null) ? parent.children : region.children).add(result);
 		return result;
 	}
 	
-	public static WearablesSlot findSlot(String name)
+	public static WearablesSlotType findSlotType(String name)
 	{
 		if ((name == null) || name.isEmpty())
 			throw new IllegalArgumentException("name is null or empty");
@@ -129,8 +130,8 @@ public final class WearablesAPI
 		WearablesRegion region = getRegion(regionName);
 		if (region == null) return null;
 		
-		WearablesSlot result = null;
-		WearablesSlot parent = null;
+		WearablesSlotType result = null;
+		WearablesSlotType parent = null;
 		int startIndex = endIndex + 1;
 		for (; startIndex > 0; startIndex = endIndex + 1) {
 			endIndex = name.indexOf('/', startIndex);
@@ -157,10 +158,10 @@ public final class WearablesAPI
 		return Collections.emptyList();
 	}
 	
-	public static List<WearablesSlot> getValidSlots(ItemStack stack)
+	public static List<WearablesSlotType> getValidSlots(ItemStack stack)
 	{
 		return getAppropriateSlotNames(stack).stream()
-			.map(WearablesAPI::findSlot)
+			.map(WearablesAPI::findSlotType)
 			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
 	}
