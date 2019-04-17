@@ -19,12 +19,16 @@ import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.ContainerScreen;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.GuiLighting;
+import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.container.Slot;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
@@ -113,11 +117,34 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		{ return isWithinScreenSpace(this.originX, this.originY, SLOT_SIZE, SLOT_SIZE, pointX, pointY); }
 	
 	private boolean isWithinScreenSpace(int x, int y, int width, int height, double pointX, double pointY)
+		{ return isWithinGlobalSpace(x + screen.getLeft(), y + screen.getTop(), width, height, pointX, pointY); }
+	
+	private boolean isWithinGlobalSpace(int x, int y, int width, int height, double pointX, double pointY)
+		{ return ((pointX >= x) && (pointX < x + width) && (pointY >= y) && (pointY < y + height)); }
+	
+	
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button)
 	{
-		x += screen.getLeft();
-		y += screen.getTop();
-		return ((pointX >= x) && (pointX < x + width)
-		     && (pointY >= y) && (pointY < y + height));
+		if (!isMouseOver(mouseX, mouseY)) return false;
+		int y = (int)mouseY - (screen.getTop() + getY() + 4);
+		if ((y < 0) || (y >= SLOT_SIZE)) return false;
+		int slotIndex = ((int)mouseX - (screen.getLeft() + getX() + 4)) / SLOT_SIZE;
+		if ((slotIndex < 0) || (slotIndex >= this._slots.size())) return false;
+		IWearablesSlot slot = this._slots.get(slotIndex);
+		
+		if (!slot.canUnequip()) return false;
+		PlayerInventory inventory = MinecraftClient.getInstance().player.inventory;
+		ItemStack cursorStack     = inventory.getCursorStack();
+		ItemStack currentEquipped = slot.get();
+		if (cursorStack.isEmpty() && currentEquipped.isEmpty()) return false;
+		if (!slot.canEquip(cursorStack)) return false;
+		
+		// FIXME: Handle ItemStacks with amount > 1 properly.
+		inventory.setCursorStack(currentEquipped);
+		slot.set(cursorStack);
+		
+		return true;
 	}
 	
 	
@@ -155,10 +182,37 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			REGION_TEX.drawBordered(x, y, getWidth(), getHeight(),
 			                        0, 0, Z_LEVEL, 4, 30, 30, 2, false);
 			
+			ClientPlayerEntity player = MinecraftClient.getInstance().player;
+			
 			for (int i = 0; i < this._slots.size(); i++) {
 				IWearablesSlot slot = this._slots.get(i);
-				if ((this.originSlot == null) || (i != this.centerSlot))
-					drawSlot(x + 4 + i * SLOT_SIZE, y + 4);
+				if ((this.originSlot == null) || (i != this.centerSlot)) {
+					int xx = x + 4 + i * SLOT_SIZE;
+					int yy = y + 4;
+					REGION_TEX.bind();
+					drawSlot(xx, yy);
+					
+					ItemStack stack = slot.get();
+					if (!stack.isEmpty()) {
+						ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
+						TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+						GlStateManager.enableDepthTest();
+						itemRenderer.zOffset = 200.0F;
+						itemRenderer.renderGuiItem(player, stack, xx + 1, yy + 1);
+						itemRenderer.renderGuiItemOverlay(textRenderer, stack, xx + 1, yy + 1, null);
+						itemRenderer.zOffset = 0.0F;
+					}
+					
+					if (isWithinGlobalSpace(xx, yy, SLOT_SIZE, SLOT_SIZE, mouseX, mouseY)) {
+						GlStateManager.disableLighting();
+						GlStateManager.disableDepthTest();
+						GlStateManager.colorMask(true, true, true, false);
+						fillGradient(xx + 1, yy + 1, xx + SLOT_SIZE - 1, yy + SLOT_SIZE - 1, -2130706433, -2130706433);
+						GlStateManager.colorMask(true, true, true, true);
+						GlStateManager.enableLighting();
+						GlStateManager.enableDepthTest();
+					}
+				}
 				
 				if (this._highlightedSlots.contains(slot.getSlotType())) {
 					GlStateManager.enableBlend();

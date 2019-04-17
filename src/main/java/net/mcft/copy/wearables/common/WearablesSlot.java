@@ -47,20 +47,14 @@ public class WearablesSlot
 			.set(this._slotType, this._index, value);
 	}
 	
+	// TODO: Actual checking if item can be equipped.
 	@Override
 	public boolean canEquip(ItemStack stack)
-	{
-		if (stack.isEmpty()) return false;
-		// TODO: Actual checking if item can be equipped.
-		return true;
-	}
+		{ return true; }
 	
 	@Override
 	public boolean canUnequip()
-	{
-		ItemStack stack = get();
-		return !stack.isEmpty() && !EnchantmentHelper.hasBindingCurse(stack);
-	}
+		{ return !EnchantmentHelper.hasBindingCurse(get()); }
 	
 	
 	@Override
