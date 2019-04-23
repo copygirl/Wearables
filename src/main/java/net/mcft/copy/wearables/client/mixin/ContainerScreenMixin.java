@@ -32,4 +32,13 @@ public abstract class ContainerScreenMixin<T extends Container>
 			if (child.isMouseOver(pointX, pointY))
 				info.setReturnValue(false);
 	}
+	
+	@Inject(method="mouseReleased", at=@At("HEAD"), cancellable=true)
+	public void mouseReleased(double mouseX, double mouseY, int button,
+	                          CallbackInfoReturnable<Boolean> info)
+	{
+		// FIXME: Fix messing with dragging due to cancellation.
+		if (super.mouseReleased(mouseX, mouseY, button))
+			info.setReturnValue(true);
+	}
 }

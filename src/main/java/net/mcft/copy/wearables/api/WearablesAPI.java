@@ -25,6 +25,7 @@ public final class WearablesAPI
 	};
 	
 	private static Map<String, WearablesRegion> _regions = new HashMap<>();
+	// TODO: I have the feeling a slot map would be useful.
 	
 	static
 	{

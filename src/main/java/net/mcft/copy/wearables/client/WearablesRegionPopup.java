@@ -17,6 +17,9 @@ import net.mcft.copy.wearables.api.WearablesAPI;
 import net.mcft.copy.wearables.api.WearablesRegion;
 import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
+import net.mcft.copy.wearables.common.WearablesSlot;
+import net.mcft.copy.wearables.common.network.NetworkUtil;
+import net.mcft.copy.wearables.common.network.WearablesInteractPacket;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -76,7 +79,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		((IWearablesEntity)MinecraftClient.getInstance().player)
 			.getWearablesSlots(region).forEach(this._slots::add);
 		this._slots.sort(Comparator.comparing(IWearablesSlot::getOrder)
-		                          .thenComparing(slot -> slot.getSlotType().fullName));
+		                           .thenComparing(slot -> slot.getSlotType().fullName));
 		int centerIndex = -1;
 		int minAbsOrder = Integer.MAX_VALUE;
 		for (int i = 0; i < this._slots.size(); i++) {
@@ -128,24 +131,33 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	{
 		if (!isMouseOver(mouseX, mouseY)) return false;
 		int y = (int)mouseY - (screen.getTop() + getY() + 4);
-		if ((y < 0) || (y >= SLOT_SIZE)) return false;
+		if ((y < 0) || (y >= SLOT_SIZE)) return true;
 		int slotIndex = ((int)mouseX - (screen.getLeft() + getX() + 4)) / SLOT_SIZE;
-		if ((slotIndex < 0) || (slotIndex >= this._slots.size())) return false;
+		if ((slotIndex < 0) || (slotIndex >= this._slots.size())) return true;
 		IWearablesSlot slot = this._slots.get(slotIndex);
 		
-		if (!slot.canUnequip()) return false;
+		if (!slot.canUnequip()) return true;
 		PlayerInventory inventory = MinecraftClient.getInstance().player.inventory;
 		ItemStack cursorStack     = inventory.getCursorStack();
 		ItemStack currentEquipped = slot.get();
-		if (cursorStack.isEmpty() && currentEquipped.isEmpty()) return false;
-		if (!slot.canEquip(cursorStack)) return false;
+		if (cursorStack.isEmpty() && currentEquipped.isEmpty()) return true;
+		if (!slot.canEquip(cursorStack)) return true;
 		
 		// FIXME: Handle ItemStacks with amount > 1 properly.
 		inventory.setCursorStack(currentEquipped);
 		slot.set(cursorStack);
 		
+		if (slot instanceof WearablesSlot) {
+			WearablesSlot slot2 = (WearablesSlot)slot;
+			NetworkUtil.sendToServer(new WearablesInteractPacket(slot.getSlotType().fullName, slot2.getIndex()));
+		}
+		
 		return true;
 	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button)
+		{ return isMouseOver(mouseX, mouseY); }
 	
 	
 	public void update(int mouseX, int mouseY)
@@ -215,20 +227,18 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 				}
 				
 				if (this._highlightedSlots.contains(slot.getSlotType())) {
-					GlStateManager.enableBlend();
+					GlStateManager.disableDepthTest();
 					REGION_TEX.bind();
-					REGION_TEX.drawQuad(x + 3 + i * SLOT_SIZE, y + 3,
-					                    20, 20, 25, 31, Z_LEVEL);
-					GlStateManager.disableBlend();
+					REGION_TEX.drawQuad(x + 4 + i * SLOT_SIZE, y + 4,
+					                    18, 18, 26, 32, Z_LEVEL);
+					GlStateManager.enableDepthTest();
 				}
 			}
 		} else if (!this._highlightedSlots.isEmpty()) {
-			GlStateManager.enableBlend();
 			REGION_TEX.bind();
-			REGION_TEX.drawQuad(screen.getLeft() + this.originX - 1,
-			                    screen.getTop()  + this.originY - 1,
-			                    20, 20, 25, 31, Z_LEVEL - (this.isVisible ? 0 : 50));
-			GlStateManager.disableBlend();
+			REGION_TEX.drawQuad(screen.getLeft() + this.originX,
+			                    screen.getTop()  + this.originY,
+			                    18, 18, 26, 32, Z_LEVEL - (this.isVisible ? 0 : 50));
 		}
 	}
 	

@@ -3,7 +3,9 @@
   "package": "net.mcft.copy.wearables.common.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "LivingEntityMixin"
+    "EntityTrackerEntryMixin",
+    "LivingEntityMixin",
+    "PlayerManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

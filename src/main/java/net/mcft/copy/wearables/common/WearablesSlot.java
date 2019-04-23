@@ -14,6 +14,9 @@ public class WearablesSlot
 	private final WearablesSlotType _slotType;
 	private final int _index;
 	
+	public int getIndex() { return _index; }
+	
+	
 	public WearablesSlot(LivingEntity entity, WearablesSlotType slotType, int index)
 	{
 		if (entity == null) throw new IllegalArgumentException("entity is null");

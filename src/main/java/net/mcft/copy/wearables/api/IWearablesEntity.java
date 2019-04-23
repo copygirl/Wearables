@@ -4,6 +4,9 @@ import java.util.stream.Stream;
 
 public interface IWearablesEntity
 {
+	public boolean hasWearables();
+	
+	
 	public IWearablesSlot getWearablesSlot(WearablesSlotType slotType, int index);
 	
 	
