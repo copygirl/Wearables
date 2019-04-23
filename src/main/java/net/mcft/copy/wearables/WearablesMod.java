@@ -8,7 +8,7 @@ import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.api.WearablesAPI;
 import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.common.WearablesEntry;
-import net.mcft.copy.wearables.common.network.NetworkUtil;
+import net.mcft.copy.wearables.common.network.NetUtil;
 import net.mcft.copy.wearables.common.network.WearablesInteractPacket;
 import net.mcft.copy.wearables.common.network.WearablesUpdatePacket;
 
@@ -16,7 +16,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
-public class WearablesMod implements ModInitializer, ClientModInitializer
+public class WearablesMod
+	implements ModInitializer
+	         , ClientModInitializer
 {
 	public final static String MOD_ID = "wearables";
 	
@@ -24,7 +26,7 @@ public class WearablesMod implements ModInitializer, ClientModInitializer
 	@Override
 	public void onInitialize()
 	{
-		NetworkUtil.registerClientToServer(WearablesInteractPacket.class, (context, packet) -> {
+		NetUtil.registerClientToServer(WearablesInteractPacket.class, (context, packet) -> {
 			PlayerEntity player = context.getPlayer();
 			WearablesSlotType slotType = WearablesAPI.findSlotType(packet.slotType);
 			if (slotType == null) throw new RuntimeException("slotType '" + packet.slotType + "' not found");
@@ -46,7 +48,7 @@ public class WearablesMod implements ModInitializer, ClientModInitializer
 	@Override
 	public void onInitializeClient()
 	{
-		NetworkUtil.registerServerToClient(WearablesUpdatePacket.class, (context, packet) -> {
+		NetUtil.registerServerToClient(WearablesUpdatePacket.class, (context, packet) -> {
 			Entity entity = context.getPlayer().world.getEntityById(packet.entityId);
 			if (entity == null) throw new RuntimeException(
 				"Got WearablesUpdatePacket for non-existent entity");

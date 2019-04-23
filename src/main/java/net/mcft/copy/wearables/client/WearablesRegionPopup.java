@@ -18,7 +18,7 @@ import net.mcft.copy.wearables.api.WearablesRegion;
 import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
 import net.mcft.copy.wearables.common.WearablesSlot;
-import net.mcft.copy.wearables.common.network.NetworkUtil;
+import net.mcft.copy.wearables.common.network.NetUtil;
 import net.mcft.copy.wearables.common.network.WearablesInteractPacket;
 
 import net.minecraft.client.MinecraftClient;
@@ -149,7 +149,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		
 		if (slot instanceof WearablesSlot) {
 			WearablesSlot slot2 = (WearablesSlot)slot;
-			NetworkUtil.sendToServer(new WearablesInteractPacket(slot.getSlotType().fullName, slot2.getIndex()));
+			NetUtil.sendToServer(new WearablesInteractPacket(slot.getSlotType().fullName, slot2.getIndex()));
 		}
 		
 		return true;

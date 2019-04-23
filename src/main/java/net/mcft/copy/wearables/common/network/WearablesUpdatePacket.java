@@ -27,7 +27,9 @@ public class WearablesUpdatePacket implements IPacket
 	
 	public int entityId;
 	
+	
 	public WearablesUpdatePacket() {  }
+	
 	public WearablesUpdatePacket(Entity entity)
 	{
 		this.entityId = entity.getEntityId();
@@ -38,16 +40,22 @@ public class WearablesUpdatePacket implements IPacket
 			.forEach(data::add);
 	}
 	
+	public WearablesUpdatePacket(WearablesSlot slot)
+	{
+		this.entityId = slot.getEntity().getEntityId();
+		data.add(new WearablesEntry(slot));
+	}
 	
-	/** If necessary, creates a WearablesUpdatePacket for the specified entity
-	 *  and sends it using the provided Consumer. Will not send a packet if the
+	
+	/** If necessary, creates a WearablesUpdatePacket for all of the the specified entity's
+	 *  Wearables and sends it using the provided Consumer. Will not send a packet if the
 	 *  specified entity isn't an IWearablesEntity or has no equipped Wearables. */
 	public static void sendForEntity(Entity entity, Consumer<Packet<?>> sendPacket)
 	{
 		if (!(entity instanceof IWearablesEntity)) return;
 		IWearablesEntity wearablesEntity = (IWearablesEntity)entity;
 		if (!wearablesEntity.hasWearables()) return;
-		sendPacket.accept(NetworkUtil.toVanillaPacket(
+		sendPacket.accept(NetUtil.toVanillaPacket(
 			ServerSidePacketRegistry.INSTANCE,
 			new WearablesUpdatePacket(entity)));
 	}

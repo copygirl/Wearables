@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import net.mcft.copy.wearables.common.misc.INbtSerializable;
 import net.mcft.copy.wearables.common.misc.NbtUtil;
-import net.mcft.copy.wearables.common.network.INetworkSerializable;
+import net.mcft.copy.wearables.common.network.INetSerializable;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
@@ -12,7 +12,7 @@ import net.minecraft.util.PacketByteBuf;
 
 public final class WearablesEntry
 	implements INbtSerializable<CompoundTag>
-	         , INetworkSerializable
+	         , INetSerializable
 {
 	public String slotTypeName;
 	public int index;

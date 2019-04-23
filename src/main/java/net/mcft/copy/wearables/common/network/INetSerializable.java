@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import net.minecraft.util.PacketByteBuf;
 
-public interface INetworkSerializable
+public interface INetSerializable
 {
 	public void read(PacketByteBuf buffer)
 		throws IOException;

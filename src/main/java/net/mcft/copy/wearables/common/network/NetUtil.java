@@ -10,14 +10,16 @@ import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.PacketRegistry;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.Packet;
+import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
-public final class NetworkUtil
+public final class NetUtil
 {
-	private NetworkUtil() {  }
+	private NetUtil() {  }
 	
 	
 	// Registry
@@ -60,12 +62,29 @@ public final class NetworkUtil
 	
 	public static void sendToPlayer(PlayerEntity player, IPacket packet)
 	{
+		if (player == null) throw new IllegalArgumentException("player is null");
+		if (packet == null) throw new IllegalArgumentException("packet is null");
 		ServerSidePacketRegistry.INSTANCE.sendToPlayer(player,
 			toVanillaPacket(ServerSidePacketRegistry.INSTANCE, packet));
 	}
 	
+	public static void sendToPlayersTracking(Entity entity, IPacket packet, boolean sendToSelf)
+	{
+		if (entity == null) throw new IllegalArgumentException("entity is null");
+		if (packet == null) throw new IllegalArgumentException("packet is null");
+		if (entity.world == null) throw new IllegalArgumentException("entity.world is null");
+		if (entity.world.isClient) throw new IllegalStateException("Called on client-side");
+		
+		ServerChunkManager chunkManager = (ServerChunkManager)entity.world.getChunkManager();
+		Packet<?> vanillaPacket = toVanillaPacket(ServerSidePacketRegistry.INSTANCE, packet);
+		
+		if (sendToSelf) chunkManager.sendToNearbyPlayers(entity, vanillaPacket);
+		else chunkManager.sendToOtherNearbyPlayers(entity, vanillaPacket);
+	}
+	
 	public static void sendToServer(IPacket packet)
 	{
+		if (packet == null) throw new IllegalArgumentException("packet is null");
 		ClientSidePacketRegistry.INSTANCE.sendToServer(
 			toVanillaPacket(ClientSidePacketRegistry.INSTANCE, packet));
 	}

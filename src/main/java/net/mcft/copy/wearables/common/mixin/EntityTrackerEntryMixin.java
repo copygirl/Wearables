@@ -22,5 +22,5 @@ public abstract class EntityTrackerEntryMixin
 	
 	@Inject(method="sendPackets", at=@At("TAIL"))
 	public void sendPackets(Consumer<Packet<?>> sendPacket, CallbackInfo info)
-		{ WearablesUpdatePacket.sendForEntity(entity, sendPacket); }
+		{ WearablesUpdatePacket.sendForEntity(this.entity, sendPacket); }
 }

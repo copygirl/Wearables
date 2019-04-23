@@ -2,6 +2,8 @@ package net.mcft.copy.wearables.common;
 
 import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.api.WearablesSlotType;
+import net.mcft.copy.wearables.common.network.NetUtil;
+import net.mcft.copy.wearables.common.network.WearablesUpdatePacket;
 
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -48,6 +50,11 @@ public class WearablesSlot
 	{
 		((WearablesMap.IAccessor)this._entity).getWearablesMap(true)
 			.set(this._slotType, this._index, value);
+		
+		// When called server-side, syncronize the change to players tracking
+		// the slot's entity (including, if the entity is a player, themselves).
+		if ((this._entity.world != null) && !this._entity.world.isClient)
+			NetUtil.sendToPlayersTracking(this._entity, new WearablesUpdatePacket(this), true);
 	}
 	
 	// TODO: Actual checking if item can be equipped.
