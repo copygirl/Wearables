@@ -236,9 +236,11 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			}
 		} else if (!this._highlightedSlots.isEmpty()) {
 			REGION_TEX.bind();
+			GlStateManager.enableBlend();
 			REGION_TEX.drawQuad(screen.getLeft() + this.originX,
 			                    screen.getTop()  + this.originY,
 			                    18, 18, 26, 32, Z_LEVEL - (this.isVisible ? 0 : 50));
+			GlStateManager.disableBlend();
 		}
 	}
 	
