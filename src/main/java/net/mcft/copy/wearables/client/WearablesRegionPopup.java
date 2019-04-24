@@ -165,7 +165,8 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		if (isVisible && !isWithinBounds(mouseX, mouseY))
 			isVisible = false;
 		
-		if (!isVisible && isOverOriginBounds(mouseX, mouseY) && !screen.method_19355(mouseX, mouseY).isPresent())
+		if (!isVisible && isOverOriginBounds(mouseX, mouseY) &&
+		    !screen.hoveredElement(mouseX, mouseY).isPresent())
 			isVisible = true;
 		
 		// TODO: This seems expensive. Only call "getValidSlots" once globally when the stack changes.
