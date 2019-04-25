@@ -30,11 +30,11 @@ public class GuiTexture extends Identifier
 	public GuiTexture(String name, int defaultSize)
 		{ this(name, defaultSize, defaultSize); }
 	
-		
+	
 	public void bind()
 		{ MinecraftClient.getInstance().getTextureManager().bindTexture(this); }
 	
-		
+	
 	public void drawQuad(int x, int y, int w, int h, int u, int v, float zLevel)
 	{
 		Tessellator tess = Tessellator.getInstance();

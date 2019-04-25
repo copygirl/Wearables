@@ -34,6 +34,7 @@ import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.container.Slot;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class WearablesRegionPopup extends DrawableHelper implements Drawable, Element
@@ -202,8 +203,8 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 				if ((this.originSlot == null) || (i != this.centerSlot)) {
 					int xx = x + 4 + i * SLOT_SIZE;
 					int yy = y + 4;
-					REGION_TEX.bind();
-					drawSlot(xx, yy, Z_LEVEL);
+					Identifier icon = (slot.get().isEmpty() ? slot.getSlotType().icon : null);
+					drawSlot(xx, yy, Z_LEVEL, icon);
 					drawItemStack(xx + 1, yy + 1, slot.get());
 					
 					if (isWithinGlobalSpace(xx, yy, SLOT_SIZE, SLOT_SIZE, mouseX, mouseY)) {
@@ -230,9 +231,10 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 				int x = screen.getLeft() + this.originX;
 				int y = screen.getTop()  + this.originY;
 				
-				REGION_TEX.bind();
-				drawSlot(x, y, 0);
-				drawItemStack(x + 1, y + 1, _slots.get(centerSlot).get());
+				IWearablesSlot slot = _slots.get(centerSlot);
+				Identifier icon     = (slot.get().isEmpty() ? slot.getSlotType().icon : null);
+				drawSlot(x, y, 0, icon);
+				drawItemStack(x + 1, y + 1, slot.get());
 			}
 			
 			if (!this._highlightedSlots.isEmpty()) {
@@ -246,8 +248,15 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		}
 	}
 	
-	private void drawSlot(int x, int y, int zLevel)
-		{ REGION_TEX.drawQuad(x, y, SLOT_SIZE, SLOT_SIZE, 6, 32, zLevel); }
+	private void drawSlot(int x, int y, int zLevel, Identifier icon)
+	{
+		REGION_TEX.bind();
+		REGION_TEX.drawQuad(x, y, SLOT_SIZE, SLOT_SIZE, 6, 32, zLevel);
+		if (icon != null) {
+			MinecraftClient.getInstance().getTextureManager().bindTexture(icon);
+			innerBlit(x + 1, x + 17, y + 1, y + 17, zLevel, 0.0F, 1.0F, 0.0F, 1.0F);
+		}
+	}
 	
 	private void drawItemStack(int x, int y, ItemStack stack)
 	{

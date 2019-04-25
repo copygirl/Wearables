@@ -6,6 +6,7 @@ import java.util.Set;
 
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 
 public class WearablesSlotType
 {
@@ -13,6 +14,7 @@ public class WearablesSlotType
 	public final WearablesSlotType parent;
 	public final String name;
 	public final String fullName;
+	public final Identifier icon;
 	
 	private int _order = 500;
 	public int getOrder() { return _order; }
@@ -49,6 +51,9 @@ public class WearablesSlotType
 			fullName += parent.name + "/";
 		fullName += name;
 		this.fullName = fullName;
+		
+		this.icon = new Identifier("wearables", "textures/gui/icons/" +
+			fullName.replace(':', '_').replace('/', '_') + ".png");
 	}
 	
 	
