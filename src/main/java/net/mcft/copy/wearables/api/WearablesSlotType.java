@@ -14,25 +14,25 @@ public class WearablesSlotType
 	public final String name;
 	public final String fullName;
 	
-	protected int order = 500;
-	public int getOrder() { return order; }
-	public WearablesSlotType setOrder(int value) { this.order = value; return this; }
+	private int _order = 500;
+	public int getOrder() { return _order; }
+	public WearablesSlotType setOrder(int value) { this._order = value; return this; }
 	
-	protected int numSlots = 1;
-	public int getNumSlots() { return numSlots; }
+	private int _numSlots = 1;
+	public int getNumSlots() { return _numSlots; }
 	public WearablesSlotType setNumSlots(int value)
-		{ this.numSlots = value; return this;}
+		{ this._numSlots = value; return this; }
 	public WearablesSlotType setMinNumSlots(int value)
-		{ if (value > this.numSlots) this.numSlots = value; return this;}
+		{ if (value > this._numSlots) setNumSlots(value); return this; }
 	
-	protected EquipmentSlot vanillaSlot = null;
-	public EquipmentSlot getVanilla() { return vanillaSlot; }
+	private EquipmentSlot _vanillaSlot = null;
+	public EquipmentSlot getVanilla() { return _vanillaSlot; }
 	protected WearablesSlotType setVanilla(EquipmentSlot value)
-		{ this.vanillaSlot = value; return this; }
+		{ this._vanillaSlot = value; setOrder(0); return this; }
 	
-	protected final Set<WearablesSlotType> children = new HashSet<>();
+	protected final Set<WearablesSlotType> _children = new HashSet<>();
 	public Set<WearablesSlotType> getChildren()
-		{ return Collections.unmodifiableSet(children); }
+		{ return Collections.unmodifiableSet(_children); }
 	
 	
 	protected WearablesSlotType(WearablesRegion region, WearablesSlotType parent, String name)
@@ -53,7 +53,7 @@ public class WearablesSlotType
 	
 	// TODO: For the moment, if slot type has no children, it automatically "exists" and is enabled.
 	public boolean isEnabled()
-		{ return children.isEmpty(); }
+		{ return _children.isEmpty(); }
 	
 	/** Returns if the specified stack may be worn in this type of slot. */
 	public boolean isValid(ItemStack stack)

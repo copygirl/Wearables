@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.minecraft.client.gui.ingame.PlayerInventoryScreen;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
@@ -37,10 +38,13 @@ public final class WearablesAPI
 		_regions.put("back", WearablesRegion.BACK);
 		_regions.put("arms", WearablesRegion.ARMS);
 		
-		WearablesAPI.registerOrGetSlotType( "head:armor/helmet"    ).setOrder(0).setVanilla(EquipmentSlot.HEAD );
-		WearablesAPI.registerOrGetSlotType("chest:armor/chestplate").setOrder(0).setVanilla(EquipmentSlot.CHEST);
-		WearablesAPI.registerOrGetSlotType( "legs:armor/leggings"  ).setOrder(0).setVanilla(EquipmentSlot.LEGS );
-		WearablesAPI.registerOrGetSlotType( "feet:armor/boots"     ).setOrder(0).setVanilla(EquipmentSlot.FEET );
+		WearablesRegion.BACK.setPosition(PlayerInventoryScreen.class, 76, 25);
+		WearablesRegion.ARMS.setPosition(PlayerInventoryScreen.class, 76, 43);
+		
+		WearablesAPI.registerOrGetSlotType( "head:armor/helmet"    ).setVanilla(EquipmentSlot.HEAD );
+		WearablesAPI.registerOrGetSlotType("chest:armor/chestplate").setVanilla(EquipmentSlot.CHEST);
+		WearablesAPI.registerOrGetSlotType( "legs:armor/leggings"  ).setVanilla(EquipmentSlot.LEGS );
+		WearablesAPI.registerOrGetSlotType( "feet:armor/boots"     ).setVanilla(EquipmentSlot.FEET );
 		
 		WearablesAPI.registerOrGetSlotType( "head:clothing/hat"  );
 		WearablesAPI.registerOrGetSlotType("chest:clothing/shirt");
@@ -110,13 +114,13 @@ public final class WearablesAPI
 			final int finalEndIndex = endIndex; // Fuck Java.
 			CharSequence partName = fullName.subSequence(startIndex, endIndex);
 			if (partName.length() == 0) throw new IllegalArgumentException("fullName contains an empty part");
-			parent = ((parent != null) ? parent.children : region.children)
+			parent = ((parent != null) ? parent._children : region.getChildren())
 				.stream().filter(s -> partName.equals(s.name)).findFirst()
 				.orElseGet(() -> registerOrGetSlotType(fullName.substring(0, finalEndIndex)));
 		}
 		
 		WearablesSlotType result = new WearablesSlotType(region, parent, fullName.substring(startIndex));
-		((parent != null) ? parent.children : region.children).add(result);
+		((parent != null) ? parent._children : region._children).add(result);
 		return result;
 	}
 	
@@ -140,7 +144,7 @@ public final class WearablesAPI
 				? name.subSequence(startIndex, endIndex)
 				: name.subSequence(startIndex, name.length());
 			if (partName.length() == 0) throw new IllegalArgumentException("name contains an empty part");
-			parent = ((parent != null) ? parent.children : region.children)
+			parent = ((parent != null) ? parent._children : region.getChildren())
 				.stream().filter(s -> partName.equals(s.name))
 				.findFirst().orElse(null);
 			if (parent == null) break;

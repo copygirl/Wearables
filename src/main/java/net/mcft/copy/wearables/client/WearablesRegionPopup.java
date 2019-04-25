@@ -16,6 +16,7 @@ import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.api.WearablesAPI;
 import net.mcft.copy.wearables.api.WearablesRegion;
 import net.mcft.copy.wearables.api.WearablesSlotType;
+import net.mcft.copy.wearables.api.WearablesRegion.Position;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
 import net.mcft.copy.wearables.common.WearablesSlot;
 import net.mcft.copy.wearables.common.network.NetUtil;
@@ -72,8 +73,9 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			this.originY = this.originSlot.yPosition - 1;
 		} else {
 			this.originSlot = null;
-			this.originX    = -10000;
-			this.originY    = -10000;
+			Position position = region.getPosition(screen.getClass());
+			this.originX    = (position != null) ? position.x : -10000;
+			this.originY    = (position != null) ? position.y : -10000;
 		}
 		
 		((IWearablesEntity)MinecraftClient.getInstance().player)
@@ -185,6 +187,14 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	@Override
 	public void render(int mouseX, int mouseY, float tickDelta)
 	{
+		if (this.originX > -10000) {
+			int x = screen.getLeft() + this.originX;
+			int y = screen.getTop()  + this.originY;
+			
+			REGION_TEX.bind();
+			REGION_TEX.drawQuad(x, y, 18, 18, 6, 32);
+		}
+		
 		if (this.isVisible) {
 			int x = screen.getLeft() + getX();
 			int y = screen.getTop()  + getY();
