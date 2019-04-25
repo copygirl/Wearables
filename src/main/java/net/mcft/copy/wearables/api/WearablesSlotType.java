@@ -16,7 +16,8 @@ public class WearablesSlotType
 	
 	private int _order = 500;
 	public int getOrder() { return _order; }
-	public WearablesSlotType setOrder(int value) { this._order = value; return this; }
+	public WearablesSlotType setOrder(int value)
+		{ this._order = value; return this; }
 	
 	private int _numSlots = 1;
 	public int getNumSlots() { return _numSlots; }

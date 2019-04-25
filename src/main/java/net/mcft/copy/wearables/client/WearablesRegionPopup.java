@@ -187,14 +187,6 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	@Override
 	public void render(int mouseX, int mouseY, float tickDelta)
 	{
-		if (this.originX > -10000) {
-			int x = screen.getLeft() + this.originX;
-			int y = screen.getTop()  + this.originY;
-			
-			REGION_TEX.bind();
-			REGION_TEX.drawQuad(x, y, 18, 18, 6, 32);
-		}
-		
 		if (this.isVisible) {
 			int x = screen.getLeft() + getX();
 			int y = screen.getTop()  + getY();
@@ -205,26 +197,14 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			REGION_TEX.drawBordered(x, y, getWidth(), getHeight(),
 			                        0, 0, Z_LEVEL, 4, 30, 30, 2, false);
 			
-			ClientPlayerEntity player = MinecraftClient.getInstance().player;
-			
 			for (int i = 0; i < this._slots.size(); i++) {
 				IWearablesSlot slot = this._slots.get(i);
 				if ((this.originSlot == null) || (i != this.centerSlot)) {
 					int xx = x + 4 + i * SLOT_SIZE;
 					int yy = y + 4;
 					REGION_TEX.bind();
-					drawSlot(xx, yy);
-					
-					ItemStack stack = slot.get();
-					if (!stack.isEmpty()) {
-						ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
-						TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-						GlStateManager.enableDepthTest();
-						itemRenderer.zOffset = 200.0F;
-						itemRenderer.renderGuiItem(player, stack, xx + 1, yy + 1);
-						itemRenderer.renderGuiItemOverlay(textRenderer, stack, xx + 1, yy + 1, null);
-						itemRenderer.zOffset = 0.0F;
-					}
+					drawSlot(xx, yy, Z_LEVEL);
+					drawItemStack(xx + 1, yy + 1, slot.get());
 					
 					if (isWithinGlobalSpace(xx, yy, SLOT_SIZE, SLOT_SIZE, mouseX, mouseY)) {
 						GlStateManager.disableLighting();
@@ -245,16 +225,40 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 					GlStateManager.enableDepthTest();
 				}
 			}
-		} else if (!this._highlightedSlots.isEmpty()) {
-			REGION_TEX.bind();
-			GlStateManager.enableBlend();
-			REGION_TEX.drawQuad(screen.getLeft() + this.originX,
-			                    screen.getTop()  + this.originY,
-			                    18, 18, 26, 32, Z_LEVEL - (this.isVisible ? 0 : 50));
-			GlStateManager.disableBlend();
+		} else {
+			if ((this.originSlot == null) && (this.originX > -10000)) {
+				int x = screen.getLeft() + this.originX;
+				int y = screen.getTop()  + this.originY;
+				
+				REGION_TEX.bind();
+				drawSlot(x, y, 0);
+				drawItemStack(x + 1, y + 1, _slots.get(centerSlot).get());
+			}
+			
+			if (!this._highlightedSlots.isEmpty()) {
+				REGION_TEX.bind();
+				GlStateManager.enableBlend();
+				REGION_TEX.drawQuad(screen.getLeft() + this.originX,
+				                    screen.getTop()  + this.originY,
+				                    18, 18, 26, 32, Z_LEVEL - (this.isVisible ? 0 : 50));
+				GlStateManager.disableBlend();
+			}
 		}
 	}
 	
-	private void drawSlot(int x, int y)
-		{ REGION_TEX.drawQuad(x, y, SLOT_SIZE, SLOT_SIZE, 6, 32, Z_LEVEL); }
+	private void drawSlot(int x, int y, int zLevel)
+		{ REGION_TEX.drawQuad(x, y, SLOT_SIZE, SLOT_SIZE, 6, 32, zLevel); }
+	
+	private void drawItemStack(int x, int y, ItemStack stack)
+	{
+		if (stack.isEmpty()) return;
+		ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
+		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+		GlStateManager.enableDepthTest();
+		itemRenderer.zOffset = 200.0F;
+		itemRenderer.renderGuiItem(player, stack, x, y);
+		itemRenderer.renderGuiItemOverlay(textRenderer, stack, x, y, null);
+		itemRenderer.zOffset = 0.0F;
+	}
 }
