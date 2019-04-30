@@ -5,7 +5,6 @@ import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.common.network.NetUtil;
 import net.mcft.copy.wearables.common.network.WearablesUpdatePacket;
 
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 
@@ -61,10 +60,6 @@ public class WearablesSlot
 	@Override
 	public boolean canEquip(ItemStack stack)
 		{ return true; }
-	
-	@Override
-	public boolean canUnequip()
-		{ return !EnchantmentHelper.hasBindingCurse(get()); }
 	
 	
 	@Override

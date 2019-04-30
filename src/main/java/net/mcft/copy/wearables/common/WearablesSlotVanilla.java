@@ -2,7 +2,7 @@ package net.mcft.copy.wearables.common;
 
 import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.api.WearablesSlotType;
-import net.minecraft.enchantment.EnchantmentHelper;
+
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
@@ -46,14 +46,7 @@ public class WearablesSlotVanilla
 	
 	@Override
 	public boolean canEquip(ItemStack stack)
-		{ return !stack.isEmpty() && (MobEntity.getPreferredEquipmentSlot(stack) == this._equipmentSlot); }
-	
-	@Override
-	public boolean canUnequip()
-	{
-		ItemStack stack = get();
-		return !stack.isEmpty() && !EnchantmentHelper.hasBindingCurse(stack);
-	}
+		{ return stack.isEmpty() || (MobEntity.getPreferredEquipmentSlot(stack) == this._equipmentSlot); }
 	
 	
 	@Override

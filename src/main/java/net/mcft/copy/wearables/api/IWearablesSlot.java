@@ -1,5 +1,6 @@
 package net.mcft.copy.wearables.api;
 
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 
@@ -33,5 +34,6 @@ public interface IWearablesSlot
 	public boolean canEquip(ItemStack stack);
 	
 	/** Returns if the currently contained stack can be unequipped. */
-	public boolean canUnequip();
+	public default boolean canUnequip()
+		{ return !EnchantmentHelper.hasBindingCurse(get()); }
 }
