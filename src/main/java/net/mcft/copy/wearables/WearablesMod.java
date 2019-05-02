@@ -1,13 +1,18 @@
 package net.mcft.copy.wearables;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
+import net.mcft.copy.wearables.api.IWearablesData;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesSlot;
-import net.mcft.copy.wearables.api.WearablesAPI;
-import net.mcft.copy.wearables.api.WearablesSlotType;
+import net.mcft.copy.wearables.api.IWearablesSlotType;
 import net.mcft.copy.wearables.common.WearablesEntry;
+import net.mcft.copy.wearables.common.data.DataManager;
 import net.mcft.copy.wearables.common.network.NetUtil;
 import net.mcft.copy.wearables.common.network.WearablesInteractPacket;
 import net.mcft.copy.wearables.common.network.WearablesUpdatePacket;
@@ -15,20 +20,25 @@ import net.mcft.copy.wearables.common.network.WearablesUpdatePacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.resource.ResourceType;
 
 public class WearablesMod
 	implements ModInitializer
 	         , ClientModInitializer
 {
-	public final static String MOD_ID = "wearables";
+	public static final String MOD_ID = "wearables";
+	
+	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 	
 	
 	@Override
 	public void onInitialize()
 	{
+		ResourceManagerHelper.get(ResourceType.DATA).registerReloadListener(new DataManager());
+		
 		NetUtil.registerClientToServer(WearablesInteractPacket.class, (context, packet) -> {
 			PlayerEntity player = context.getPlayer();
-			WearablesSlotType slotType = WearablesAPI.findSlotType(packet.slotType);
+			IWearablesSlotType slotType = IWearablesData.INSTANCE.getSlotType(packet.slotType);
 			if (slotType == null) throw new RuntimeException("slotType '" + packet.slotType + "' not found");
 			IWearablesSlot slot = ((IWearablesEntity)player).getWearablesSlot(slotType, packet.index);
 			
@@ -57,7 +67,7 @@ public class WearablesMod
 			IWearablesEntity wearablesEntity = (IWearablesEntity)entity;
 			
 			for (WearablesEntry entry : packet.data) {
-				WearablesSlotType slotType = WearablesAPI.findSlotType(entry.slotTypeName);
+				IWearablesSlotType slotType = IWearablesData.INSTANCE.getSlotType(entry.slotTypeName);
 				if (slotType == null) throw new RuntimeException("slotType '" + entry.slotTypeName + "' not found");
 				wearablesEntity.getWearablesSlot(slotType, entry.index).set(entry.stack);
 			}

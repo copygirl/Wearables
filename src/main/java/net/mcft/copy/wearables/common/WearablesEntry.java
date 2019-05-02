@@ -2,6 +2,7 @@ package net.mcft.copy.wearables.common;
 
 import java.io.IOException;
 
+import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.common.misc.INbtSerializable;
 import net.mcft.copy.wearables.common.misc.NbtUtil;
 import net.mcft.copy.wearables.common.network.INetSerializable;
@@ -19,8 +20,8 @@ public final class WearablesEntry
 	public ItemStack stack;
 	
 	public WearablesEntry() {  }
-	public WearablesEntry(WearablesSlot slot)
-		{ this(slot.getSlotType().fullName, slot.getIndex(), slot.get()); }
+	public WearablesEntry(IWearablesSlot slot)
+		{ this(slot.getSlotType().getFullName(), slot.getIndex(), slot.get()); }
 	public WearablesEntry(String slotTypeName, int index, ItemStack stack)
 		{ this.slotTypeName = slotTypeName; this.index = index; this.stack = stack; }
 	

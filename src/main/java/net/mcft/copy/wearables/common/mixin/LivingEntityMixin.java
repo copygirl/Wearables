@@ -1,27 +1,24 @@
 package net.mcft.copy.wearables.common.mixin;
 
 import java.util.Collection;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import net.fabricmc.fabric.api.util.NbtType;
+import net.mcft.copy.wearables.api.IWearablesData;
 import net.mcft.copy.wearables.api.IWearablesEntity;
+import net.mcft.copy.wearables.api.IWearablesRegion;
 import net.mcft.copy.wearables.api.IWearablesSlot;
-import net.mcft.copy.wearables.api.WearablesAPI;
-import net.mcft.copy.wearables.api.WearablesRegion;
-import net.mcft.copy.wearables.api.WearablesSlotType;
+import net.mcft.copy.wearables.api.IWearablesSlotType;
+import net.mcft.copy.wearables.common.WearablesEntityData;
 import net.mcft.copy.wearables.common.WearablesEntry;
-import net.mcft.copy.wearables.common.WearablesMap;
-import net.mcft.copy.wearables.common.WearablesSlot;
-import net.mcft.copy.wearables.common.WearablesSlotVanilla;
-import net.mcft.copy.wearables.common.WearablesMap.ByIndex;
-import net.mcft.copy.wearables.common.WearablesMap.BySlotType;
+import net.mcft.copy.wearables.common.impl.WearablesSlotImpl;
+import net.mcft.copy.wearables.common.impl.WearablesSlotImplVanilla;
 import net.mcft.copy.wearables.common.misc.NbtUtil;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,153 +28,104 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin
 	extends Entity
-	implements IWearablesEntity, WearablesMap.IAccessor
+	implements IWearablesEntity
+	         , WearablesEntityData.IAccessor
 {
 	private LivingEntityMixin()
 		{ super(null, null); }
 	
 	
-	// WearablesMap.IAccessor implementation
-	
-	private WearablesMap _wearables;
+	private WearablesEntityData _wearablesData;
 	
 	@Override
-	public WearablesMap getWearablesMap(boolean create)
+	public WearablesEntityData getWearablesData(boolean create)
 	{
-		if (this._wearables == null)
-			this._wearables = new WearablesMap();
-		return this._wearables;
+		if (this._wearablesData == null)
+			this._wearablesData = new WearablesEntityData();
+		return this._wearablesData;
 	}
 	
 	
-	// Writing / reading Wearables data to / from NBT.
+	// Writing / reading WearablesEntityData to / from NBT.
 	
 	@Inject(method="writeCustomDataToTag", at=@At("HEAD"))
 	public void writeCustomDataToTag(CompoundTag entityData, CallbackInfo info)
 	{
-		if (this._wearables == null) return;
-		ListTag slots = getEquippedWearables()
-			.filter(WearablesSlot.class::isInstance)
-			.map(WearablesSlot.class::cast)
-			.map(WearablesEntry::new)
-			.collect(NbtUtil.toList());
-		if (slots.size() > 0)
-			NbtUtil.set(entityData, slots, "wearables:map", "slots");
+		if (hasWearables()) entityData.put("wearables:data", this._wearablesData.serializeToTag());
 	}
 	
 	@Inject(method="readCustomDataFromTag", at=@At("HEAD"))
 	public void readCustomDataFromTag(CompoundTag entityData, CallbackInfo info)
 	{
-		if (!entityData.containsKey("wearables:map")) return;
-		if (this._wearables != null) this._wearables.clear();
-		else this._wearables = new WearablesMap();
-		
-		ListTag list = NbtUtil.getList(entityData, "wearables:map", "slots");
-		for (WearablesEntry entry : NbtUtil.asList(list, WearablesEntry::new)) {
-			WearablesSlotType slotType = WearablesAPI.findSlotType(entry.slotTypeName);
-			if (slotType == null) { throw new RuntimeException("Slot type '" + entry.slotTypeName + "' not found"); }
-			this._wearables.set(slotType, entry.index, entry.stack);
-		}
+		this._wearablesData = entityData.containsKey("wearables:data")
+			? NbtUtil.asValue(entityData.getList("wearables:data", NbtType.COMPOUND), new WearablesEntityData())
+			: null;
 	}
 	
 	
 	// IWearablesEntity implementation
 	
 	@Override
-	public boolean hasWearables()
-		{ return (_wearables != null) && getEquippedWearables().findAny().isPresent(); }
+	public Collection<IWearablesRegion> getWearablesRegions()
+		{ return IWearablesData.INSTANCE.getRegions(); }
+	
+	@Override
+	public Collection<IWearablesSlotType> getWearablesSlotTypes()
+		{ return IWearablesData.INSTANCE.getSlotTypes(); }
+	
+	@Override
+	public Collection<IWearablesSlotType> getWearablesSlotTypes(IWearablesRegion region)
+	{
+		if (region == null) throw new IllegalArgumentException("region is null");
+		return region.getSlotTypes();
+	}
 	
 	
 	@Override
-	public IWearablesSlot getWearablesSlot(WearablesSlotType slotType, int index)
+	public boolean hasWearables()
+		{ return (this._wearablesData != null) && (this._wearablesData.getNumStacks() > 0); }
+	
+	
+	@Override
+	public IWearablesSlot getWearablesSlot(IWearablesSlotType slotType, int index)
 	{
 		if (slotType == null) throw new IllegalArgumentException("slotType is null");
 		if (index < 0) throw new IllegalArgumentException("index is negative");
+		// TODO: Throw if slotType is not valid for this entity.
 		
 		EquipmentSlot vanillaSlot = slotType.getVanilla();
 		return ((vanillaSlot != null) && (index == 0))
-			? new WearablesSlotVanilla((LivingEntity)(Object)this, slotType)
-			: new WearablesSlot((LivingEntity)(Object)this, slotType, index);
-	}
-	
-	
-	// TODO: Should different types of entities have different slots?
-	
-	@Override
-	public Stream<IWearablesSlot> getWearablesSlots()
-		{ return WearablesAPI.getRegions().stream().flatMap(this::getWearablesSlots); }
-	
-	@Override
-	public Stream<IWearablesSlot> getWearablesSlots(WearablesRegion region)
-	{
-		if (region == null) throw new IllegalArgumentException("region is null");
-		return wearables_getSlots(wearables_getEnabledSlotTypes(region.getChildren()));
-	}
-	
-	@Override
-	public Stream<IWearablesSlot> getWearablesSlots(WearablesSlotType slotType)
-	{
-		if (slotType == null) throw new IllegalArgumentException("slotType is null");
-		return wearables_getSlots(wearables_getEnabledSlotTypes(slotType));
+			? new WearablesSlotImplVanilla((LivingEntity)(Object)this, slotType)
+			: new WearablesSlotImpl((LivingEntity)(Object)this, slotType, index);
 	}
 	
 	
 	@Override
 	public Stream<IWearablesSlot> getEquippedWearables()
 	{
-		if (this._wearables == null) return Stream.empty();
-		return this._wearables.values().stream().flatMap(
-			bySlotType -> bySlotType.entrySet().stream().flatMap(
-				bySlotTypeEntry -> bySlotTypeEntry.getValue().entrySet().stream().map(
-					byIndexEntry -> getWearablesSlot(bySlotTypeEntry.getKey(), byIndexEntry.getKey()))));
+		return hasWearables()
+			? this._wearablesData.getEntries().map(this::toSlot)
+			: Stream.empty();
 	}
 	
 	@Override
-	public Stream<IWearablesSlot> getEquippedWearables(WearablesRegion region)
+	public Stream<IWearablesSlot> getEquippedWearables(IWearablesRegion region)
 	{
 		if (region == null) throw new IllegalArgumentException("region is null");
-		
-		if (this._wearables == null) return Stream.empty();
-		BySlotType bySlotType = this._wearables.get(region);
-		if (bySlotType == null) return Stream.empty();
-		
-		return bySlotType.entrySet().stream().flatMap(
-			bySlotTypeEntry -> bySlotTypeEntry.getValue().entrySet().stream().map(
-				byIndexEntry -> getWearablesSlot(bySlotTypeEntry.getKey(), byIndexEntry.getKey())));
+		return getEquippedWearables()
+			.filter(slot -> (slot.getRegion() == region));
 	}
 	
 	@Override
-	public Stream<IWearablesSlot> getEquippedWearables(WearablesSlotType slotType)
+	public Stream<IWearablesSlot> getEquippedWearables(IWearablesSlotType slotType)
 	{
 		if (slotType == null) throw new IllegalArgumentException("slotType is null");
-		
-		if (this._wearables == null) return Stream.empty();
-		BySlotType bySlotType = this._wearables.get(slotType.region);
-		if (bySlotType == null) return Stream.empty();
-		ByIndex byIndex = bySlotType.get(slotType);
-		if (byIndex == null) return Stream.empty();
-		
-		return byIndex.entrySet().stream().map(
-			byIndexEntry -> getWearablesSlot(slotType, byIndexEntry.getKey()));
+		return hasWearables()
+			? this._wearablesData.getEntries(slotType.getFullName()).map(this::toSlot)
+			: Stream.empty();
 	}
 	
 	
-	// Utility methods
-	
-	private Stream<WearablesSlotType> wearables_getEnabledSlotTypes(WearablesSlotType slotType)
-	{
-		return slotType.isEnabled()
-			? Stream.concat(Stream.of(slotType), wearables_getEnabledSlotTypes(slotType.getChildren()))
-			: wearables_getEnabledSlotTypes(slotType.getChildren());
-	}
-	
-	private Stream<WearablesSlotType> wearables_getEnabledSlotTypes(Collection<WearablesSlotType> slotTypes)
-		{ return slotTypes.stream().flatMap(this::wearables_getEnabledSlotTypes); }
-	
-	private Stream<IWearablesSlot> wearables_getSlots(Stream<WearablesSlotType> slotTypes)
-	{
-		return slotTypes.flatMap(slotType ->
-			IntStream.range(0, slotType.getNumSlots())
-			         .mapToObj(i -> getWearablesSlot(slotType, i)));
-	}
+	private IWearablesSlot toSlot(WearablesEntry entry)
+		{ return getWearablesSlot(IWearablesData.INSTANCE.getSlotType(entry.slotTypeName), entry.index); }
 }

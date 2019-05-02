@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.mcft.copy.wearables.WearablesMod;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.common.WearablesEntry;
-import net.mcft.copy.wearables.common.WearablesSlot;
+import net.mcft.copy.wearables.common.impl.WearablesSlotImpl;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
@@ -34,13 +34,12 @@ public class WearablesUpdatePacket implements IPacket
 	{
 		this.entityId = entity.getEntityId();
 		((IWearablesEntity)entity).getEquippedWearables()
-			.filter(WearablesSlot.class::isInstance)
-			.map(WearablesSlot.class::cast)
+			.filter(slot -> !slot.getSlotType().isVanilla())
 			.map(WearablesEntry::new)
 			.forEach(data::add);
 	}
 	
-	public WearablesUpdatePacket(WearablesSlot slot)
+	public WearablesUpdatePacket(WearablesSlotImpl slot)
 	{
 		this.entityId = slot.getEntity().getEntityId();
 		data.add(new WearablesEntry(slot));

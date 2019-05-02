@@ -3,6 +3,7 @@ package net.mcft.copy.wearables.common.network;
 import java.io.IOException;
 
 import net.mcft.copy.wearables.WearablesMod;
+import net.mcft.copy.wearables.api.IWearablesSlot;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
@@ -17,6 +18,8 @@ public class WearablesInteractPacket implements IPacket
 	public int index;
 	
 	public WearablesInteractPacket() {  }
+	public WearablesInteractPacket(IWearablesSlot slot)
+		{ this(slot.getSlotType().getFullName(), slot.getIndex()); }
 	public WearablesInteractPacket(String slotType, int index)
 	{
 		if ((slotType == null) || slotType.isEmpty())

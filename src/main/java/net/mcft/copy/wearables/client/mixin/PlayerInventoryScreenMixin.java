@@ -3,8 +3,8 @@ package net.mcft.copy.wearables.client.mixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.mcft.copy.wearables.api.WearablesAPI;
-import net.mcft.copy.wearables.api.WearablesRegion;
+import net.mcft.copy.wearables.api.IWearablesEntity;
+import net.mcft.copy.wearables.api.IWearablesRegion;
 import net.mcft.copy.wearables.client.WearablesRegionPopup;
 
 import net.minecraft.client.gui.Element;
@@ -31,7 +31,8 @@ public abstract class PlayerInventoryScreenMixin
 	@Inject(method="init", at=@At("TAIL"))
 	protected void init(CallbackInfo info)
 	{
-		for (WearablesRegion region : WearablesAPI.getRegions())
+		IWearablesEntity entity = (IWearablesEntity)playerInventory.player;
+		for (IWearablesRegion region : entity.getWearablesRegions())
 			this.children.add(new WearablesRegionPopup(this, region));
 	}
 	

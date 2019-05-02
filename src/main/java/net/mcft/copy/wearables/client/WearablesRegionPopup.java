@@ -11,14 +11,14 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import net.mcft.copy.wearables.api.IWearablesData;
 import net.mcft.copy.wearables.api.IWearablesEntity;
+import net.mcft.copy.wearables.api.IWearablesRegion;
 import net.mcft.copy.wearables.api.IWearablesSlot;
-import net.mcft.copy.wearables.api.WearablesAPI;
-import net.mcft.copy.wearables.api.WearablesRegion;
-import net.mcft.copy.wearables.api.WearablesSlotType;
-import net.mcft.copy.wearables.api.WearablesRegion.Position;
+import net.mcft.copy.wearables.api.IWearablesSlotType;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
-import net.mcft.copy.wearables.common.WearablesSlot;
+import net.mcft.copy.wearables.common.impl.WearablesRegionImpl.Position;
+import net.mcft.copy.wearables.common.impl.WearablesRegionImpl;
 import net.mcft.copy.wearables.common.network.NetUtil;
 import net.mcft.copy.wearables.common.network.WearablesInteractPacket;
 
@@ -47,7 +47,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	private final List<IWearablesSlot> _slots = new ArrayList<>();
 	
 	public final IContainerScreenAccessor<?> screen;
-	public final WearablesRegion region;
+	public final WearablesRegionImpl region;
 	public final Slot originSlot;
 	public final int originX, originY;
 	public final int centerSlot;
@@ -55,15 +55,15 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	
 	public boolean isVisible = false;
 	
-	private Set<WearablesSlotType> _highlightedSlots = new HashSet<>();
+	private Set<IWearablesSlotType> _highlightedSlots = new HashSet<>();
 	
 	
-	public WearablesRegionPopup(ContainerScreen<?> screen, WearablesRegion region)
+	public WearablesRegionPopup(ContainerScreen<?> screen, IWearablesRegion region)
 	{
 		this.screen = (IContainerScreenAccessor<?>)screen;
-		this.region = region;
+		this.region = (WearablesRegionImpl)region;
 		
-		String slotHint = region.getContainerSlotHint();
+		String slotHint = this.region.containerSlotHint;
 		if (slotHint != null) {
 			this.originSlot = screen.getContainer().slotList.stream()
 				.filter(slot -> (slot.getMaxStackAmount() == 1)
@@ -74,15 +74,15 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			this.originY = this.originSlot.yPosition - 1;
 		} else {
 			this.originSlot = null;
-			Position position = region.getPosition(screen.getClass());
+			Position position = this.region.position.get(screen.getClass());
 			this.originX    = (position != null) ? position.x : -10000;
 			this.originY    = (position != null) ? position.y : -10000;
 		}
 		
 		((IWearablesEntity)MinecraftClient.getInstance().player)
-			.getWearablesSlots(region).forEach(this._slots::add);
+			.getAvailableWearablesSlots(region).forEach(this._slots::add);
 		this._slots.sort(Comparator.comparing(IWearablesSlot::getOrder)
-		                           .thenComparing(slot -> slot.getSlotType().fullName));
+		                           .thenComparing(slot -> slot.getSlotType().getFullName()));
 		int centerIndex = -1;
 		int minAbsOrder = Integer.MAX_VALUE;
 		for (int i = 0; i < this._slots.size(); i++) {
@@ -150,10 +150,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		inventory.setCursorStack(currentEquipped);
 		slot.set(cursorStack);
 		
-		if (slot instanceof WearablesSlot) {
-			WearablesSlot slot2 = (WearablesSlot)slot;
-			NetUtil.sendToServer(new WearablesInteractPacket(slot.getSlotType().fullName, slot2.getIndex()));
-		}
+		NetUtil.sendToServer(new WearablesInteractPacket(slot));
 		
 		return true;
 	}
@@ -165,6 +162,9 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	
 	public void update(int mouseX, int mouseY)
 	{
+		if (this._slots.isEmpty())
+			{ isVisible = false; return; }
+		
 		if (isVisible && !isWithinBounds(mouseX, mouseY))
 			isVisible = false;
 		
@@ -178,16 +178,18 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		if (cursorOrFocusedStack.isEmpty() && (screen.getFocusedSlot() != null))
 			cursorOrFocusedStack = screen.getFocusedSlot().getStack();
 		
-		_highlightedSlots.clear();
-		WearablesAPI.getValidSlots(cursorOrFocusedStack).stream()
-			.filter(slotType -> (slotType.region == region))
-			.forEach(_highlightedSlots::add);
+		this._highlightedSlots.clear();
+		IWearablesData.INSTANCE.getValidSlots(cursorOrFocusedStack).stream()
+			.filter(slotType -> (slotType.getRegion() == region))
+			.forEach(this._highlightedSlots::add);
 	}
 	
 	
 	@Override
 	public void render(int mouseX, int mouseY, float tickDelta)
 	{
+		if (this._slots.isEmpty()) return;
+		
 		if (this.isVisible) {
 			int x = screen.getLeft() + getX();
 			int y = screen.getTop()  + getY();
@@ -203,7 +205,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 				if ((this.originSlot == null) || (i != this.centerSlot)) {
 					int xx = x + 4 + i * SLOT_SIZE;
 					int yy = y + 4;
-					Identifier icon = (slot.get().isEmpty() ? slot.getSlotType().icon : null);
+					Identifier icon = (slot.get().isEmpty() ? slot.getSlotType().getIcon() : null);
 					drawSlot(xx, yy, Z_LEVEL, icon);
 					drawItemStack(xx + 1, yy + 1, slot.get());
 					
@@ -232,7 +234,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 				int y = screen.getTop()  + this.originY;
 				
 				IWearablesSlot slot = _slots.get(centerSlot);
-				Identifier icon     = (slot.get().isEmpty() ? slot.getSlotType().icon : null);
+				Identifier icon     = (slot.get().isEmpty() ? slot.getSlotType().getIcon() : null);
 				drawSlot(x, y, 0, icon);
 				drawItemStack(x + 1, y + 1, slot.get());
 			}
@@ -247,6 +249,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			}
 		}
 	}
+	
 	
 	private void drawSlot(int x, int y, int zLevel, Identifier icon)
 	{

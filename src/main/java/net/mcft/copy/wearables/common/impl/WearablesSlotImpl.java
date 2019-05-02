@@ -1,24 +1,23 @@
-package net.mcft.copy.wearables.common;
+package net.mcft.copy.wearables.common.impl;
 
 import net.mcft.copy.wearables.api.IWearablesSlot;
-import net.mcft.copy.wearables.api.WearablesSlotType;
+import net.mcft.copy.wearables.api.IWearablesSlotType;
+import net.mcft.copy.wearables.common.WearablesEntityData;
 import net.mcft.copy.wearables.common.network.NetUtil;
 import net.mcft.copy.wearables.common.network.WearablesUpdatePacket;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 
-public class WearablesSlot
+public class WearablesSlotImpl
 	implements IWearablesSlot
 {
 	private final LivingEntity _entity;
-	private final WearablesSlotType _slotType;
+	private final IWearablesSlotType _slotType;
 	private final int _index;
 	
-	public int getIndex() { return _index; }
 	
-	
-	public WearablesSlot(LivingEntity entity, WearablesSlotType slotType, int index)
+	public WearablesSlotImpl(LivingEntity entity, IWearablesSlotType slotType, int index)
 	{
 		if (entity == null) throw new IllegalArgumentException("entity is null");
 		if (slotType == null) throw new IllegalArgumentException("slotType is null");
@@ -29,26 +28,44 @@ public class WearablesSlot
 	
 	
 	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof WearablesSlotImpl)) return false;
+		WearablesSlotImpl slot = (WearablesSlotImpl)obj;
+		return (slot._entity   == this._entity)
+		    && (slot._slotType == this._slotType)
+		    && (slot._index    == this._index);
+	}
+	
+	@Override
+	public String toString()
+		{ return this._slotType + ":" + this._index; }
+	
+	
+	// IWearablesSlot implementation
+	
+	@Override
 	public LivingEntity getEntity() { return this._entity; }
 	
 	@Override
-	public WearablesSlotType getSlotType() { return this._slotType; }
+	public IWearablesSlotType getSlotType() { return this._slotType; }
 	
+	@Override
+	public int getIndex() { return _index; }
 	
-	// TODO: Handle Vanilla armor slots properly.
 	
 	@Override
 	public ItemStack get()
 	{
-		WearablesMap map = ((WearablesMap.IAccessor)this._entity).getWearablesMap(false);
-		return (map != null) ? map.get(this._slotType, this._index) : ItemStack.EMPTY;
+		WearablesEntityData data = ((WearablesEntityData.IAccessor)this._entity).getWearablesData(false);
+		return (data != null) ? data.get(this._slotType.getFullName(), this._index) : ItemStack.EMPTY;
 	}
 	
 	@Override
 	public void set(ItemStack value)
 	{
-		((WearablesMap.IAccessor)this._entity).getWearablesMap(true)
-			.set(this._slotType, this._index, value);
+		((WearablesEntityData.IAccessor)this._entity).getWearablesData(true)
+			.set(this._slotType.getFullName(), this._index, value);
 		
 		// When called server-side, syncronize the change to players tracking
 		// the slot's entity (including, if the entity is a player, themselves).
@@ -60,15 +77,4 @@ public class WearablesSlot
 	@Override
 	public boolean canEquip(ItemStack stack)
 		{ return true; }
-	
-	
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (!(obj instanceof WearablesSlot)) return false;
-		WearablesSlot slot = (WearablesSlot)obj;
-		return (slot._entity == slot._entity)
-		    && (slot._slotType == slot._slotType)
-		    && (slot._index == slot._index);
-	}
 }

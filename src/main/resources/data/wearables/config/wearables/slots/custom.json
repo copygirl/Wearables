@@ -1,0 +1,9 @@
+[
+	{ "name": "chest:neck/amulet", "order": -500 },
+	{ "name": "legs:waist/belt"  , "order": -500 },
+	
+	{ "name": "back:carry", "order": 100 },
+	{ "name": "back:tool" , "numSlots": 2 },
+	
+	{ "name": "arms:hands/gloves", "order": 100 }
+]
