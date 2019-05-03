@@ -1,17 +1,40 @@
 {
+  "schemaVersion": 1,
   "id": "wearables",
+  "version": "${version}",
+  
   "name": "Wearables",
   "description": "API which allows adding and accessing additional, configurable equipment slots.",
-  "version": "${version}",
-  "side": "universal",
-  "initializers": [
-    "net.mcft.copy.wearables.WearablesMod"
+  "authors": [
+    { "name": "copygirl", "contact": {
+      "homepage": "https://copy.mcft.net/",
+      "twitter": "https://twitter.com/koppeh",
+      "fediverse": "https://fedi.anarchy.moe/copygirl" } }
   ],
-  "requires": {
+  "contributors": [  ],
+  "contact": {
+    "homepage": "https://github.com/copygirl/Wearables",
+    "sources": "https://github.com/copygirl/Wearables",
+    "issues": "https://github.com/copygirl/Wearables/issues",
+    "irc": "irc://irc.esper.net/obsidian"
+  },
+  "license": "Unlicense",
+  
+  "environment": "*",
+  "entrypoints": {
+    "main": [ "net.mcft.copy.wearables.WearablesMod" ]
+  },
+  "mixins": [
+    { "config": "wearables.common.json", "environment": "*" },
+    { "config": "wearables.client.json", "environment": "client" }
+  ],
+  
+  "depends": {
+    "fabricloader": ">=0.4.0",
     "fabric": "*"
   },
-  "mixins": {
-    "client": "wearables.client.json",
-    "common": "wearables.common.json"
-  }
+  "recommends": {  },
+  "suggests": {  },
+  "conflicts": {  },
+  "breaks": {  }
 }
