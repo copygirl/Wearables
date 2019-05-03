@@ -79,10 +79,10 @@ public class DataManager
 			
 			if (slotTypeData.order != null)
 				slotType.order = slotTypeData.order;
-			if (slotTypeData.numSlots != null)
-				slotType.numSlots = slotTypeData.numSlots;
-			if ((slotTypeData.minNumSlots != null) && (slotTypeData.minNumSlots > slotType.numSlots))
-				slotType.numSlots = slotTypeData.minNumSlots;
+			if (slotTypeData.slotCount != null)
+				slotType.slotCount = slotTypeData.slotCount;
+			if ((slotTypeData.minSlotCount != null) && (slotTypeData.minSlotCount > slotType.slotCount))
+				slotType.slotCount = slotTypeData.minSlotCount;
 		}
 		
 		// Add slot types to regions.
@@ -100,7 +100,7 @@ public class DataManager
 	{
 		public String name;
 		public Integer order;
-		public Integer numSlots;
-		public Integer minNumSlots;
+		public Integer slotCount;
+		public Integer minSlotCount;
 	}
 }

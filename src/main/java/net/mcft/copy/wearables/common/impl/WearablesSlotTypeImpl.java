@@ -18,8 +18,8 @@ public class WearablesSlotTypeImpl
 	private final Identifier _icon;
 	private final EquipmentSlot _vanillaSlot;
 	
-	public int order    = 500;
-	public int numSlots = 1;
+	public int order     = 500;
+	public int slotCount = 1;
 	
 	
 	public WearablesSlotTypeImpl(String fullName)
@@ -72,5 +72,5 @@ public class WearablesSlotTypeImpl
 	public int getOrder() { return this.order; }
 	
 	@Override
-	public int getNumSlots() { return this.numSlots; }
+	public int getSlotCount() { return this.slotCount; }
 }

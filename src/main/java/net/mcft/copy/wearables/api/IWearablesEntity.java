@@ -58,7 +58,7 @@ public interface IWearablesEntity
 	{
 		if (slotType == null) throw new IllegalArgumentException("slotType is null");
 		// TODO: Throw if slotType is not valid for this entity?
-		return IntStream.range(0, slotType.getNumSlots())
+		return IntStream.range(0, slotType.getSlotCount())
 			.mapToObj(index -> getWearablesSlot(slotType, index));
 	}
 	

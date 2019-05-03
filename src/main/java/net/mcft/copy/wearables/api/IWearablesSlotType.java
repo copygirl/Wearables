@@ -33,7 +33,7 @@ public interface IWearablesSlotType
 	public int getOrder();
 	
 	/** Gets the number of slots of this type. For example, multiple rings may be equipped. */
-	public int getNumSlots();
+	public int getSlotCount();
 	
 	
 	/** Gets the Vanilla {@link EquipmentSlot} this slot is equivalent with,
