@@ -34,7 +34,7 @@ public class WearablesMod
 	@Override
 	public void onInitialize()
 	{
-		ResourceManagerHelper.get(ResourceType.DATA).registerReloadListener(new DataManager());
+		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new DataManager());
 		
 		NetUtil.registerClientToServer(WearablesInteractPacket.class, (context, packet) -> {
 			PlayerEntity player = context.getPlayer();
