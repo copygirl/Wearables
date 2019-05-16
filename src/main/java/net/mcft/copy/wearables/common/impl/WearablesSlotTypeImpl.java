@@ -47,6 +47,17 @@ public class WearablesSlotTypeImpl
 	
 	
 	@Override
+	public boolean equals(Object obj)
+	{
+		return (obj instanceof WearablesSlotTypeImpl)
+		    && ((WearablesSlotTypeImpl)obj)._fullName.equals(_fullName);
+	}
+	
+	@Override
+	public int hashCode()
+		{ return _fullName.hashCode(); }
+	
+	@Override
 	public String toString()
 		{ return this._fullName; }
 	

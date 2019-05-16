@@ -46,7 +46,7 @@ public abstract class LivingEntityMixin
 	}
 	
 	
-	// Writing / reading WearablesEntityData to / from NBT.
+	// Writing / reading WearablesEntityData to / from NBT
 	
 	@Inject(method="writeCustomDataToTag", at=@At("HEAD"))
 	public void writeCustomDataToTag(CompoundTag entityData, CallbackInfo info)

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import net.mcft.copy.wearables.api.IWearablesData;
 import net.mcft.copy.wearables.api.IWearablesRegion;
@@ -12,12 +13,16 @@ import net.mcft.copy.wearables.api.IWearablesSlotType;
 import net.minecraft.client.gui.ingame.PlayerInventoryScreen;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 public final class WearablesDataImpl
 	implements IWearablesData
 {
 	public final Map<String, WearablesRegionImpl> regions = new HashMap<>();
 	public final Map<String, WearablesSlotTypeImpl> slotTypes = new HashMap<>();
+	
+	public final Map<Identifier, Set<IWearablesSlotType>> itemToValidSlots = new HashMap<>();
 	
 	public WearablesDataImpl()
 	{
@@ -66,10 +71,12 @@ public final class WearablesDataImpl
 	}
 	
 	@Override
-	public Collection<IWearablesSlotType> getValidSlots(ItemStack stack)
+	public Set<IWearablesSlotType> getValidSlots(ItemStack stack)
 	{
-		// FIXME: Implement me!
-		return Collections.emptyList();
+		Identifier itemId = Registry.ITEM.getId(stack.getItem());
+		Set<IWearablesSlotType> validSlots = itemToValidSlots.get(itemId);
+		if (validSlots != null) return validSlots;
+		else return Collections.emptySet();
 	}
 	
 	// private String[][] _vanillaSlotLookup = {

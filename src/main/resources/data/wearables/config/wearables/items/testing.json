@@ -1,0 +1,3 @@
+{
+	"minecraft:dirt": { "validSlots": [ "head:clothing/hat" ] }
+}

@@ -1,5 +1,6 @@
 package net.mcft.copy.wearables.common.impl;
 
+import net.mcft.copy.wearables.api.IWearablesData;
 import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.api.IWearablesSlotType;
 import net.mcft.copy.wearables.common.WearablesEntityData;
@@ -73,8 +74,7 @@ public class WearablesSlotImpl
 			NetUtil.sendToPlayersTracking(this._entity, new WearablesUpdatePacket(this), true);
 	}
 	
-	// TODO: Actual checking if item can be equipped.
 	@Override
 	public boolean canEquip(ItemStack stack)
-		{ return true; }
+		{ return (stack.isEmpty() || IWearablesData.INSTANCE.getValidSlots(stack).contains(getSlotType())); }
 }

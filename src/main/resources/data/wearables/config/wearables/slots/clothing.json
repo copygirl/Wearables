@@ -1,6 +1,6 @@
-[
-	{ "name": "head:clothing/hat" },
-	{ "name": "chest:clothing/shirt" },
-	{ "name": "legs:clothing/pants" },
-	{ "name": "feet:clothing/socks" }
-]
+{
+	"head:clothing/hat"   : {  },
+	"chest:clothing/shirt": {  },
+	"legs:clothing/pants" : {  },
+	"feet:clothing/socks" : {  }
+}

@@ -1,6 +1,7 @@
 package net.mcft.copy.wearables.api;
 
 import java.util.Collection;
+import java.util.Set;
 
 import net.mcft.copy.wearables.common.impl.WearablesDataImpl;
 
@@ -47,12 +48,12 @@ public interface IWearablesData
 	public IWearablesSlotType getSlotType(String fullName);
 	
 	/**
-	 * Returns a collection of {@link WearablesSlotType} into
+	 * Returns a set of {@link WearablesSlotType} into
 	 * which the specified {@link ItemStack} may be equipped.
 	 * 
 	 * @param stack The {@link ItemStack} to be checked.
-	 * @return A collection of slot types the stack is valid in, or an empty collection if none.
+	 * @return A set of slot types the stack is valid in, or an empty set if none.
 	 * @exception IllegalArgumentException Thrown if stack is {@value null}.
 	 */
-	public Collection<IWearablesSlotType> getValidSlots(ItemStack stack);
+	public Set<IWearablesSlotType> getValidSlots(ItemStack stack);
 }
