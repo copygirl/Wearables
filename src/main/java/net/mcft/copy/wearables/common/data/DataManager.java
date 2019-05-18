@@ -17,6 +17,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 
 import net.mcft.copy.wearables.WearablesMod;
@@ -28,6 +29,7 @@ import net.mcft.copy.wearables.common.impl.WearablesSlotTypeImpl;
 
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.profiler.Profiler;
@@ -38,6 +40,9 @@ public class DataManager
 	@Override
 	public Identifier getFabricId()
 		{ return new Identifier(WearablesMod.MOD_ID, "data"); }
+	
+	public void registerReloadListener()
+		{ ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(this); }
 	
 	@Override
 	public CompletableFuture<Data> load(ResourceManager manager, Profiler profiler, Executor executor)
