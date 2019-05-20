@@ -3,15 +3,13 @@ package net.mcft.copy.wearables;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 
 import net.mcft.copy.wearables.common.data.DataManager;
 import net.mcft.copy.wearables.common.network.NetworkHandler;
 
-public class WearablesMod
+public class WearablesCommon
 	implements ModInitializer
-	         , ClientModInitializer
 {
 	public static final String MOD_ID = "wearables";
 	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
@@ -25,11 +23,5 @@ public class WearablesMod
 	{
 		DATA.registerReloadListener();
 		NETWORK.initializeCommon();
-	}
-	
-	@Override
-	public void onInitializeClient()
-	{
-		NETWORK.initializeClient();
 	}
 }

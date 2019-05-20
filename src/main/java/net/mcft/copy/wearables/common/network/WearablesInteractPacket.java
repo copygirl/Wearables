@@ -2,7 +2,7 @@ package net.mcft.copy.wearables.common.network;
 
 import java.io.IOException;
 
-import net.mcft.copy.wearables.WearablesMod;
+import net.mcft.copy.wearables.WearablesCommon;
 import net.mcft.copy.wearables.api.IWearablesSlot;
 
 import net.minecraft.util.Identifier;
@@ -10,7 +10,7 @@ import net.minecraft.util.PacketByteBuf;
 
 public class WearablesInteractPacket implements IPacket
 {
-	public static final Identifier ID = new Identifier(WearablesMod.MOD_ID, "interact");
+	public static final Identifier ID = new Identifier(WearablesCommon.MOD_ID, "interact");
 	@Override public Identifier getID() { return ID; }
 	
 	

@@ -7,22 +7,23 @@
   "description": "API which allows adding and accessing additional, configurable equipment slots.",
   "authors": [
     { "name": "copygirl", "contact": {
-      "homepage": "https://copy.mcft.net/",
-      "twitter": "https://twitter.com/koppeh",
+      "homepage" : "https://copy.mcft.net/",
+      "twitter"  : "https://twitter.com/koppeh",
       "fediverse": "https://fedi.anarchy.moe/copygirl" } }
   ],
   "contributors": [  ],
   "contact": {
     "homepage": "https://github.com/copygirl/Wearables",
-    "sources": "https://github.com/copygirl/Wearables",
-    "issues": "https://github.com/copygirl/Wearables/issues",
-    "irc": "irc://irc.esper.net/obsidian"
+    "sources" : "https://github.com/copygirl/Wearables",
+    "issues"  : "https://github.com/copygirl/Wearables/issues",
+    "irc"     : "irc://irc.esper.net/obsidian"
   },
   "license": "Unlicense",
   
   "environment": "*",
   "entrypoints": {
-    "main": [ "net.mcft.copy.wearables.WearablesMod" ]
+    "main"  : [ "net.mcft.copy.wearables.WearablesCommon" ],
+    "client": [ "net.mcft.copy.wearables.WearablesClient" ]
   },
   "mixins": [
     { "config": "wearables.common.json", "environment": "*" },
@@ -31,10 +32,10 @@
   
   "depends": {
     "fabricloader": ">=0.4.0",
-    "fabric": "*"
+    "fabric"      : "*"
   },
   "recommends": {  },
-  "suggests": {  },
-  "conflicts": {  },
-  "breaks": {  }
+  "suggests"  : {  },
+  "conflicts" : {  },
+  "breaks"    : {  }
 }

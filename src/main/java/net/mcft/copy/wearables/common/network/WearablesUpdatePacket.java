@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
-import net.mcft.copy.wearables.WearablesMod;
+import net.mcft.copy.wearables.WearablesCommon;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.common.WearablesEntry;
 import net.mcft.copy.wearables.common.impl.WearablesSlotImpl;
@@ -19,7 +19,7 @@ import net.minecraft.util.PacketByteBuf;
 
 public class WearablesUpdatePacket implements IPacket
 {
-	public static final Identifier ID = new Identifier(WearablesMod.MOD_ID, "update");
+	public static final Identifier ID = new Identifier(WearablesCommon.MOD_ID, "update");
 	@Override public Identifier getID() { return ID; }
 	
 	

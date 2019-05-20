@@ -5,7 +5,7 @@ import org.lwjgl.opengl.GL11;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.mcft.copy.wearables.WearablesMod;
+import net.mcft.copy.wearables.WearablesCommon;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
@@ -21,7 +21,7 @@ public class GuiTexture extends Identifier
 	
 	public GuiTexture(String name, int defaultWidth, int defaultHeight)
 	{
-		super(WearablesMod.MOD_ID, "textures/gui/" + name + ".png");
+		super(WearablesCommon.MOD_ID, "textures/gui/" + name + ".png");
 		this.defaultWidth  = defaultWidth;
 		this.defaultHeight = defaultHeight;
 		this.scaleX = 1.0F / defaultWidth;

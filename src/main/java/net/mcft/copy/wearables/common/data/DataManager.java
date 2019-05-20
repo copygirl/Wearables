@@ -20,7 +20,7 @@ import com.google.gson.reflect.TypeToken;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 
-import net.mcft.copy.wearables.WearablesMod;
+import net.mcft.copy.wearables.WearablesCommon;
 import net.mcft.copy.wearables.api.IWearablesData;
 import net.mcft.copy.wearables.api.IWearablesSlotType;
 import net.mcft.copy.wearables.common.impl.WearablesDataImpl;
@@ -39,7 +39,7 @@ public class DataManager
 {
 	@Override
 	public Identifier getFabricId()
-		{ return new Identifier(WearablesMod.MOD_ID, "data"); }
+		{ return new Identifier(WearablesCommon.MOD_ID, "data"); }
 	
 	public void registerReloadListener()
 		{ ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(this); }
@@ -67,11 +67,11 @@ public class DataManager
 					InputStreamReader reader = new InputStreamReader(manager.getResource(id).getInputStream());
 					if (id.getPath().startsWith("config/wearables/slots/")) loadSlotTypesResource(id, reader);
 					else if (id.getPath().startsWith("config/wearables/items/")) loadItemsResource(id, reader);
-					else WearablesMod.LOGGER.warn("[Wearables:DataManager] Unknown resource '{}'", id);
+					else WearablesCommon.LOGGER.warn("[Wearables:DataManager] Unknown resource '{}'", id);
 				} catch (JsonIOException | JsonSyntaxException ex) {
-					WearablesMod.LOGGER.error("[Wearables:DataManager] Error while parsing resource '{}'", id, ex);
+					WearablesCommon.LOGGER.error("[Wearables:DataManager] Error while parsing resource '{}'", id, ex);
 				} catch (IOException ex) {
-					WearablesMod.LOGGER.error("[Wearables:DataManager] Error reading resource '{}'", id, ex);
+					WearablesCommon.LOGGER.error("[Wearables:DataManager] Error reading resource '{}'", id, ex);
 				}
 			}
 		}
@@ -82,7 +82,7 @@ public class DataManager
 			Map<String, TValue> map = GSON.fromJson(reader, type);
 			for (Map.Entry<String, TValue> entry : map.entrySet())
 				try { dstMap.put(entry.getValue().load(entry.getKey()), entry.getValue()); }
-				catch (Exception ex) { WearablesMod.LOGGER.error("[Wearables:DataManager] Error loading resource '{}': {}", id, ex.getMessage()); }
+				catch (Exception ex) { WearablesCommon.LOGGER.error("[Wearables:DataManager] Error loading resource '{}': {}", id, ex.getMessage()); }
 		}
 		
 		private void loadSlotTypesResource(Identifier id, InputStreamReader reader)
