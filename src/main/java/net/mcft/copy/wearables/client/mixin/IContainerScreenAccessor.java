@@ -3,9 +3,9 @@ package net.mcft.copy.wearables.client.mixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.minecraft.client.gui.ContainerProvider;
-import net.minecraft.client.gui.ContainerScreen;
 import net.minecraft.client.gui.ParentElement;
+import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ContainerProvider;
 import net.minecraft.container.Container;
 import net.minecraft.container.Slot;
 
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ContainerScreen.class)
+@Mixin(AbstractContainerScreen.class)
 public interface IContainerScreenAccessor<T extends Container>
 	extends ContainerProvider<T>, ParentElement
 {

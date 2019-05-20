@@ -3,10 +3,10 @@ package net.mcft.copy.wearables.client.mixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.minecraft.client.gui.ContainerProvider;
-import net.minecraft.client.gui.ContainerScreen;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Screen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ContainerProvider;
 import net.minecraft.container.Container;
 import net.minecraft.container.Slot;
 
@@ -16,11 +16,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ContainerScreen.class)
-public abstract class ContainerScreenMixin<T extends Container>
+@Mixin(AbstractContainerScreen.class)
+public abstract class AbstractContainerScreenMixin<T extends Container>
 	extends Screen implements ContainerProvider<T>
 {
-	private ContainerScreenMixin()
+	private AbstractContainerScreenMixin()
 		{ super(null); }
 	
 	

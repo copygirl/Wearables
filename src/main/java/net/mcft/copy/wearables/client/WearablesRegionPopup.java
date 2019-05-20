@@ -24,10 +24,10 @@ import net.mcft.copy.wearables.common.network.WearablesInteractPacket;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.ContainerScreen;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.GuiLighting;
 import net.minecraft.client.render.item.ItemRenderer;
@@ -58,7 +58,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	private Set<IWearablesSlotType> _highlightedSlots = new HashSet<>();
 	
 	
-	public WearablesRegionPopup(ContainerScreen<?> screen, IWearablesRegion region)
+	public WearablesRegionPopup(AbstractContainerScreen<?> screen, IWearablesRegion region)
 	{
 		this.screen = (IContainerScreenAccessor<?>)screen;
 		this.region = (WearablesRegionImpl)region;

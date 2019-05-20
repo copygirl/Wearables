@@ -10,7 +10,7 @@ import net.mcft.copy.wearables.api.IWearablesData;
 import net.mcft.copy.wearables.api.IWearablesRegion;
 import net.mcft.copy.wearables.api.IWearablesSlotType;
 
-import net.minecraft.client.gui.ingame.PlayerInventoryScreen;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -34,11 +34,11 @@ public final class WearablesDataImpl
 		this.regions.put("back", new WearablesRegionImpl("back"));
 		this.regions.put("arms", new WearablesRegionImpl("arms"));
 		
-		this.regions.get("back").position.put(PlayerInventoryScreen.class, new WearablesRegionImpl.Position(76, 25));
-		this.regions.get("arms").position.put(PlayerInventoryScreen.class, new WearablesRegionImpl.Position(76, 43));
+		this.regions.get("back").position.put(InventoryScreen.class, new WearablesRegionImpl.Position(76, 25));
+		this.regions.get("arms").position.put(InventoryScreen.class, new WearablesRegionImpl.Position(76, 43));
 		
-		// this.regions.get("back").position.put(CreativePlayerInventoryScreen.class, new WearablesRegionImpl.Position(126,  9));
-		// this.regions.get("arms").position.put(CreativePlayerInventoryScreen.class, new WearablesRegionImpl.Position(126, 28));
+		// this.regions.get("back").position.put(CreativeInventoryScreen.class, new WearablesRegionImpl.Position(126,  9));
+		// this.regions.get("arms").position.put(CreativeInventoryScreen.class, new WearablesRegionImpl.Position(126, 28));
 	}
 	
 	

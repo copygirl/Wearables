@@ -8,9 +8,9 @@ import net.mcft.copy.wearables.api.IWearablesRegion;
 import net.mcft.copy.wearables.client.WearablesRegionPopup;
 
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.ingame.AbstractPlayerInventoryScreen;
-import net.minecraft.client.gui.ingame.PlayerInventoryScreen;
-import net.minecraft.client.gui.ingame.RecipeBookProvider;
+import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.screen.recipebook.RecipeBookProvider;
 import net.minecraft.container.PlayerContainer;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,12 +19,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(PlayerInventoryScreen.class)
-public abstract class PlayerInventoryScreenMixin
-	extends AbstractPlayerInventoryScreen<PlayerContainer>
+@Mixin(InventoryScreen.class)
+public abstract class InventoryScreenMixin
+	extends AbstractInventoryScreen<PlayerContainer>
 	implements RecipeBookProvider
 {
-	private PlayerInventoryScreenMixin()
+	private InventoryScreenMixin()
 		{ super(null, null, null); }
 	
 	
