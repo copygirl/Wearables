@@ -15,7 +15,7 @@ public class WearablesSlotTypeImpl
 	private final IWearablesRegion _region;
 	private final String _fullName;
 	private final String _name;
-	private final Identifier _icon;
+	private final Identifier _icon; // TODO: Use sprite atlas?
 	private final EquipmentSlot _vanillaSlot;
 	
 	public int order     = 500;

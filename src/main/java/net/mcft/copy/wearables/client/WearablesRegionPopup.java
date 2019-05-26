@@ -104,19 +104,11 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	public int getHeight() { return 8 + SLOT_SIZE; }
 	
 	
-	public boolean isWithinBounds(double pointX, double pointY)
-	{	
-		return (isVisible && isWithinScreenSpace(
-			getX(), getY(), getWidth(), getHeight(), pointX, pointY));
-	}
-	
-	/** Returns if the specified point is within the bounds of this popup, but
-	 *  not over the origin slot. This allows the slot to still be interacted with. */
 	@Override
 	public boolean isMouseOver(double pointX, double pointY)
 	{
-		return isWithinBounds(pointX, pointY)
-		    && ((this.originSlot == null) || !isOverOriginBounds(pointX, pointY));
+		return isVisible && isWithinScreenSpace(
+			getX(), getY(), getWidth(), getHeight(), pointX, pointY);
 	}
 	
 	private boolean isOverOriginBounds(double pointX, double pointY)
@@ -126,7 +118,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		{ return isWithinGlobalSpace(x + screen.getLeft(), y + screen.getTop(), width, height, pointX, pointY); }
 	
 	private boolean isWithinGlobalSpace(int x, int y, int width, int height, double pointX, double pointY)
-		{ return ((pointX >= x) && (pointX < x + width) && (pointY >= y) && (pointY < y + height)); }
+		{ return (pointX >= x) && (pointX < x + width) && (pointY >= y) && (pointY < y + height); }
 	
 	
 	@Override
@@ -165,7 +157,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 		if (this._slots.isEmpty())
 			{ isVisible = false; return; }
 		
-		if (isVisible && !isWithinBounds(mouseX, mouseY))
+		if (isVisible && !isMouseOver(mouseX, mouseY))
 			isVisible = false;
 		
 		if (!isVisible && isOverOriginBounds(mouseX, mouseY) &&
@@ -202,22 +194,20 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			
 			for (int i = 0; i < this._slots.size(); i++) {
 				IWearablesSlot slot = this._slots.get(i);
-				if ((this.originSlot == null) || (i != this.centerSlot)) {
-					int xx = x + 4 + i * SLOT_SIZE;
-					int yy = y + 4;
-					Identifier icon = (slot.get().isEmpty() ? slot.getSlotType().getIcon() : null);
-					drawSlot(xx, yy, Z_LEVEL, icon);
-					drawItemStack(xx + 1, yy + 1, slot.get());
-					
-					if (isWithinGlobalSpace(xx, yy, SLOT_SIZE, SLOT_SIZE, mouseX, mouseY)) {
-						GlStateManager.disableLighting();
-						GlStateManager.disableDepthTest();
-						GlStateManager.colorMask(true, true, true, false);
-						fillGradient(xx + 1, yy + 1, xx + SLOT_SIZE - 1, yy + SLOT_SIZE - 1, -2130706433, -2130706433);
-						GlStateManager.colorMask(true, true, true, true);
-						GlStateManager.enableLighting();
-						GlStateManager.enableDepthTest();
-					}
+				int xx = x + 4 + i * SLOT_SIZE;
+				int yy = y + 4;
+				Identifier icon = (slot.get().isEmpty() ? slot.getSlotType().getIcon() : null);
+				drawSlot(xx, yy, Z_LEVEL, icon);
+				drawItemStack(xx + 1, yy + 1, slot.get());
+				
+				if (isWithinGlobalSpace(xx, yy, SLOT_SIZE, SLOT_SIZE, mouseX, mouseY)) {
+					GlStateManager.disableLighting();
+					GlStateManager.disableDepthTest();
+					GlStateManager.colorMask(true, true, true, false);
+					fillGradient(xx + 1, yy + 1, xx + SLOT_SIZE - 1, yy + SLOT_SIZE - 1, -2130706433, -2130706433);
+					GlStateManager.colorMask(true, true, true, true);
+					GlStateManager.enableLighting();
+					GlStateManager.enableDepthTest();
 				}
 				
 				if (this._highlightedSlots.contains(slot.getSlotType())) {
@@ -229,7 +219,7 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 				}
 			}
 		} else {
-			if ((this.originSlot == null) && (this.originX > -10000)) {
+			if ((this.originX > -10000)) {
 				int x = screen.getLeft() + this.originX;
 				int y = screen.getTop()  + this.originY;
 				

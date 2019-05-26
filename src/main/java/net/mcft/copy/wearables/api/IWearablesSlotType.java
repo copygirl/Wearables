@@ -36,9 +36,8 @@ public interface IWearablesSlotType
 	public int getSlotCount();
 	
 	
-	/** Gets the Vanilla {@link EquipmentSlot} this slot is equivalent with,
-	 *  such as {@link EquipmentSlot#CHEST} for {@code chest:armor/chestplate},
-	 *  or {@code null} if none. */
+	/** Gets the Vanilla {@link EquipmentSlot} this slot is equivalent with, such as
+	 *  {@link EquipmentSlot#CHEST} for {@code chest:armor/chestplate}, or {@code null} if none. */
 	public EquipmentSlot getVanilla();
 	
 	/** Returns whether this slot can be accessed through a Vanilla

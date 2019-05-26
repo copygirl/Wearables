@@ -30,18 +30,32 @@ public interface IWearablesSlot
 		{ return getSlotType().getOrder(); }
 	
 	
-	/** Gets the stack currently contained in this slot, or {@link ItemStack#EMPTY} if empty. */
+	/** Gets the {@link ItemStack} currently contained
+	 *  in this slot, or {@link ItemStack#EMPTY} if empty. */
 	public ItemStack get();
 	
-	/** Sets the stack contained in this slot, without checking
-	 *  if the specified stack is valid or can be equipped.
-	 *  @exception IllegalArgumentException Thrown if stack is null. */
+	/** Sets the {@link ItemStack} contained in this slot, without
+	 *  checking if the specified stack is valid or can be equipped. */
 	public void set(ItemStack value);
 	
-	/** Returns if the specified stack can be equipped in this slot. */
-	public boolean canEquip(ItemStack stack);
 	
-	/** Returns if the currently contained stack can be unequipped. */
+	/**
+	 * Returns if the specified {@link ItemStack} can be equipped in this slot.
+	 * Does not check if a currently equipped stack can be unequipped.
+	 * Returns {@code true} if the specified stack is {@code null}.
+	 */
+	public default boolean canEquip(ItemStack stack)
+	{
+		return stack.isEmpty()
+		    || IWearablesData.INSTANCE.getValidSlots(stack).contains(getSlotType())
+		    && IWearablesItem.from(stack.getItem()).canEquip(this, stack);
+	}
+	
+	/** Returns if the {@link ItemStack} currently contained in this slot can
+	 *  be unequipped. Returns {@code true} if the current stack is {@code null}. */
 	public default boolean canUnequip()
-		{ return !EnchantmentHelper.hasBindingCurse(get()); }
+	{
+		return !EnchantmentHelper.hasBindingCurse(get())
+		    && IWearablesItem.from(get().getItem()).canUnequip(this);
+	}
 }

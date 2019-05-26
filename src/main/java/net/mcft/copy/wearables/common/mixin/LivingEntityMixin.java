@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 import net.fabricmc.fabric.api.util.NbtType;
+
 import net.mcft.copy.wearables.api.IWearablesData;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesRegion;
@@ -63,6 +64,19 @@ public abstract class LivingEntityMixin
 	}
 	
 	
+	// Updating equipped items
+	
+	// Vanilla Minecraft updates its inventory items in tickMovement so we will, too!
+	@Inject(method="tickMovement", at=@At("HEAD"))
+	public void tickMovement(CallbackInfo info)
+	{
+		// TODO: Improve performance?
+		getEquippedWearables()
+			.map(WearablesSlotImpl.class::cast)
+			.forEach(WearablesSlotImpl::tick);
+	}
+	
+	
 	// IWearablesEntity implementation
 	
 	@Override
@@ -104,7 +118,7 @@ public abstract class LivingEntityMixin
 	public Stream<IWearablesSlot> getEquippedWearables()
 	{
 		return hasWearables()
-			? this._wearablesData.getEntries().map(this::toSlot)
+			? this._wearablesData.getEntries().map(this::wearables_toSlot)
 			: Stream.empty();
 	}
 	
@@ -121,11 +135,12 @@ public abstract class LivingEntityMixin
 	{
 		if (slotType == null) throw new IllegalArgumentException("slotType is null");
 		return hasWearables()
-			? this._wearablesData.getEntries(slotType.getFullName()).map(this::toSlot)
+			? this._wearablesData.getEntries(slotType.getFullName())
+			                     .map(this::wearables_toSlot)
 			: Stream.empty();
 	}
 	
 	
-	private IWearablesSlot toSlot(WearablesEntry entry)
+	private IWearablesSlot wearables_toSlot(WearablesEntry entry)
 		{ return getWearablesSlot(IWearablesData.INSTANCE.getSlotType(entry.slotTypeName), entry.index); }
 }

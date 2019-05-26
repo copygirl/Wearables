@@ -27,7 +27,6 @@ import net.mcft.copy.wearables.common.impl.WearablesDataImpl;
 import net.mcft.copy.wearables.common.impl.WearablesRegionImpl;
 import net.mcft.copy.wearables.common.impl.WearablesSlotTypeImpl;
 
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
@@ -95,18 +94,7 @@ public class DataManager
 		public void apply()
 		{
 			WearablesDataImpl wearablesData = (WearablesDataImpl)IWearablesData.INSTANCE;
-		
-			// Clear slotTypes on (currently hardcoded) regions.
-			for (WearablesRegionImpl region : wearablesData.regions.values()) region.slotTypes.clear();
-			// Clear all other data.
-			wearablesData.slotTypes.clear();
-			wearablesData.itemToValidSlots.clear();
-			
-			// Add built-in Vanilla slot types.
-			wearablesData.slotTypes.put( "head:armor/helmet"    , new WearablesSlotTypeImpl( "head:armor/helmet"    , EquipmentSlot.HEAD ));
-			wearablesData.slotTypes.put("chest:armor/chestplate", new WearablesSlotTypeImpl("chest:armor/chestplate", EquipmentSlot.CHEST));
-			wearablesData.slotTypes.put( "legs:armor/leggings"  , new WearablesSlotTypeImpl( "legs:armor/leggings"  , EquipmentSlot.LEGS ));
-			wearablesData.slotTypes.put( "feet:armor/boots"     , new WearablesSlotTypeImpl( "feet:armor/boots"     , EquipmentSlot.FEET ));
+			wearablesData.clear();
 			
 			// Add or modify WearablesSlotTypeImpl from SlotTypeData.
 			for (Map.Entry<String, SlotTypeData> slotTypeEntry : slotTypes.entrySet()) {
