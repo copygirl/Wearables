@@ -31,13 +31,22 @@ public class WearablesSlotImplVanilla
 	public void set(ItemStack value)
 	{
 		if (value == null) throw new NullPointerException("value is null");
-		
-		ItemStack previous = get();
-		if (ItemStack.areEqual(value, previous)) return;
-		
-		IWearablesItem.from(previous.getItem()).onUnequip(this);
+		if (ItemStack.areEqual(value, get())) return;
 		this.getEntity().setEquippedStack(_equipmentSlot, value);
+	}
+	
+	// FIXME: setEquippedStack isn't called for shift-click in inventory GUI.
+	//        But that's okay, we need to replace that behavior anyway to
+	//        check whether the item can be equipped in the first place.
+	
+	public void onBeforeSet()
+	{
+		IWearablesItem.from(get().getItem()).onUnequip(this);
+	}
+	
+	public void onAfterSet()
+	{
 		this._equippedTime = 0;
-		IWearablesItem.from(value.getItem()).onEquip(this);
+		IWearablesItem.from(get().getItem()).onEquip(this);
 	}
 }

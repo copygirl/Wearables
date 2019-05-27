@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.mcft.copy.wearables.api.IWearablesData;
 import net.mcft.copy.wearables.api.IWearablesRegion;
@@ -29,7 +30,8 @@ public final class WearablesDataImpl
 	
 	public final Map<Identifier, Set<IWearablesSlotType>> itemToValidSlots = new HashMap<>();
 	
-	private List<Set<IWearablesSlotType>> _vanillaSlotLookup;
+	private IWearablesSlotType[] _vanillaSlotLookup;
+	private List<Set<IWearablesSlotType>> _vanillaSlotSetLookup;
 	
 	
 	public void clear()
@@ -60,12 +62,22 @@ public final class WearablesDataImpl
 		// this.regions.get("back").position.put(CreativeInventoryScreen.class, new WearablesRegionImpl.Position(126,  9));
 		// this.regions.get("arms").position.put(CreativeInventoryScreen.class, new WearablesRegionImpl.Position(126, 28));
 		
-		_vanillaSlotLookup = Arrays.asList(
-			new HashSet<>(Arrays.asList(getSlotType( "feet:armor/boots"     ))),
-			new HashSet<>(Arrays.asList(getSlotType( "legs:armor/leggings"  ))),
-			new HashSet<>(Arrays.asList(getSlotType("chest:armor/chestplate"))),
-			new HashSet<>(Arrays.asList(getSlotType( "head:armor/helmet"    ))));
+		this._vanillaSlotLookup = new IWearablesSlotType[] {
+			getSlotType( "feet:armor/boots"     ), getSlotType( "legs:armor/leggings"  ),
+			getSlotType("chest:armor/chestplate"), getSlotType( "head:armor/helmet"    ) };
+		
+		this._vanillaSlotSetLookup = Arrays.stream(this._vanillaSlotLookup)
+			.map(slot -> new HashSet<>(Arrays.asList(slot)))
+			.collect(Collectors.toList());
 	}
+	
+	
+	public IWearablesSlotType getSlotFromVanilla(EquipmentSlot slot)
+		{ return _vanillaSlotLookup[slot.getEntitySlotId()]; }
+	
+	// TODO: Custom handlers should be implemented on an API level.
+	public Set<IWearablesSlotType> getSlotsFromVanilla(ArmorItem item)
+		{ return _vanillaSlotSetLookup.get(item.getSlotType().getEntitySlotId()); }
 	
 	
 	// IWearablesData implementation
@@ -103,10 +115,7 @@ public final class WearablesDataImpl
 		Identifier itemId = Registry.ITEM.getId(item);
 		Set<IWearablesSlotType> validSlots = itemToValidSlots.get(itemId);
 		return (validSlots != null)        ? validSlots
-		     : (item instanceof ArmorItem) ? getVanillaWearablesSlots((ArmorItem)item)
+		     : (item instanceof ArmorItem) ? getSlotsFromVanilla((ArmorItem)item)
 		                                   : Collections.emptySet();
 	}
-	
-	public Set<IWearablesSlotType> getVanillaWearablesSlots(ArmorItem item)
-		{ return _vanillaSlotLookup.get(item.getSlotType().getEntitySlotId()); }
 }
