@@ -221,7 +221,7 @@ public class WearablesRegionPopup
 					REGION_TEX.drawQuad(x + 4 + i * SLOT_SIZE, y + 4,
 					                    18, 18, 26, 32, Z_LEVEL);
 					GlStateManager.enableDepthTest();
-					GlStateManager.disableBlend();
+					// For some reason, disabling blending is bad.
 				}
 			}
 		} else {
@@ -243,7 +243,7 @@ public class WearablesRegionPopup
 				                    screen.getTop()  + this.originY,
 				                    18, 18, 26, 32, Z_LEVEL - (this.isVisible ? 0 : 50));
 				GlStateManager.enableLighting();
-				GlStateManager.disableBlend();
+				// For some reason, disabling blending is bad.
 			}
 		}
 	}
