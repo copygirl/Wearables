@@ -31,17 +31,21 @@ import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.GuiLighting;
 import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.container.Slot;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class WearablesRegionPopup extends DrawableHelper implements Drawable, Element
+public class WearablesRegionPopup
+	extends DrawableHelper
+	implements Drawable, Element
 {
 	public static final GuiTexture REGION_TEX = new GuiTexture("region", 64);
 	public static final int SLOT_SIZE = 18;
-	public static final int Z_LEVEL = 300;
+	public static final int Z_LEVEL   = 300;
 	
 	
 	private final List<IWearablesSlot> _slots = new ArrayList<>();
@@ -211,11 +215,13 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 				}
 				
 				if (this._highlightedSlots.contains(slot.getSlotType())) {
+					GlStateManager.enableBlend();
 					GlStateManager.disableDepthTest();
 					REGION_TEX.bind();
 					REGION_TEX.drawQuad(x + 4 + i * SLOT_SIZE, y + 4,
 					                    18, 18, 26, 32, Z_LEVEL);
 					GlStateManager.enableDepthTest();
+					GlStateManager.disableBlend();
 				}
 			}
 		} else {
@@ -232,9 +238,11 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 			if (!this._highlightedSlots.isEmpty()) {
 				REGION_TEX.bind();
 				GlStateManager.enableBlend();
+				GlStateManager.disableLighting();
 				REGION_TEX.drawQuad(screen.getLeft() + this.originX,
 				                    screen.getTop()  + this.originY,
 				                    18, 18, 26, 32, Z_LEVEL - (this.isVisible ? 0 : 50));
+				GlStateManager.enableLighting();
 				GlStateManager.disableBlend();
 			}
 		}
@@ -243,20 +251,27 @@ public class WearablesRegionPopup extends DrawableHelper implements Drawable, El
 	
 	private void drawSlot(int x, int y, int zLevel, Identifier icon)
 	{
+		GlStateManager.disableLighting();
 		REGION_TEX.bind();
 		REGION_TEX.drawQuad(x, y, SLOT_SIZE, SLOT_SIZE, 6, 32, zLevel);
 		if (icon != null) {
-			MinecraftClient.getInstance().getTextureManager().bindTexture(icon);
-			innerBlit(x + 1, x + 17, y + 1, y + 17, zLevel, 0.0F, 1.0F, 0.0F, 1.0F);
+			MinecraftClient client = MinecraftClient.getInstance();
+			Sprite sprite = client.getSpriteAtlas().getSprite(icon);
+			client.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
+			
+			blit(x + 1, y + 1, zLevel, 16, 16, sprite);
 		}
+		GlStateManager.enableLighting();
 	}
 	
 	private void drawItemStack(int x, int y, ItemStack stack)
 	{
 		if (stack.isEmpty()) return;
-		ClientPlayerEntity player = MinecraftClient.getInstance().player;
-		ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
-		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+		MinecraftClient client    = MinecraftClient.getInstance();
+		ClientPlayerEntity player = client.player;
+		ItemRenderer itemRenderer = client.getItemRenderer();
+		TextRenderer textRenderer = client.textRenderer;
+		
 		GlStateManager.enableDepthTest();
 		itemRenderer.zOffset = 200.0F;
 		itemRenderer.renderGuiItem(player, stack, x, y);

@@ -12,10 +12,17 @@ import net.minecraft.util.Identifier;
 public class WearablesSlotTypeImpl
 	implements IWearablesSlotType
 {
+	private static final String[] ICON_BY_VANILLA_SLOT = {
+		"item/empty_armor_slot_boots",
+		"item/empty_armor_slot_leggings",
+		"item/empty_armor_slot_chestplate",
+		"item/empty_armor_slot_helmet"
+	};
+	
 	private final IWearablesRegion _region;
 	private final String _fullName;
 	private final String _name;
-	private final Identifier _icon; // TODO: Use sprite atlas?
+	private final Identifier _icon;
 	private final EquipmentSlot _vanillaSlot;
 	
 	public int order     = 500;
@@ -39,8 +46,9 @@ public class WearablesSlotTypeImpl
 		this._fullName    = fullName;
 		this._name        = fullNameMatcher.group("name");
 		this._vanillaSlot = vanillaSlot;
-		this._icon        = new Identifier("wearables",
-			"textures/gui/icons/" + fullName.replace(':', '_').replace('/', '_') + ".png");
+		this._icon        = isVanilla()
+			? new Identifier(ICON_BY_VANILLA_SLOT[vanillaSlot.getEntitySlotId()])
+			: new Identifier("wearables", "gui/icons/" + fullName.replace(':', '_').replace('/', '_'));
 		
 		if (isVanilla()) order = 0;
 	}
