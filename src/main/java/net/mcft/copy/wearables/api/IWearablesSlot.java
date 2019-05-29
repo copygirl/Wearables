@@ -2,6 +2,7 @@ package net.mcft.copy.wearables.api;
 
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
 /** Interface for a specific slot on an entity into which a wearable item may be equipped. */
@@ -55,7 +56,8 @@ public interface IWearablesSlot
 	 *  be unequipped. Returns {@code true} if the current stack is {@code null}. */
 	public default boolean canUnequip()
 	{
-		return !EnchantmentHelper.hasBindingCurse(get())
+		return ((getEntity() instanceof PlayerEntity) && ((PlayerEntity)getEntity()).isCreative())
+		    || !EnchantmentHelper.hasBindingCurse(get())
 		    && IWearablesItem.from(get().getItem()).canUnequip(this);
 	}
 }
