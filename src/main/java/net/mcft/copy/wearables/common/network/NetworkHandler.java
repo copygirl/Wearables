@@ -1,5 +1,8 @@
 package net.mcft.copy.wearables.common.network;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
@@ -61,11 +64,30 @@ public class NetworkHandler
 			"Got WearablesUpdatePacket for non-IWearablesEntity '" + entity.getClass() + "'");
 		IWearablesEntity wearablesEntity = (IWearablesEntity)entity;
 		
-		for (WearablesEntry entry : packet.data) {
-			IWearablesSlotType slotType = IWearablesData.INSTANCE.getSlotType(entry.slotTypeName);
-			if (slotType == null) throw new RuntimeException(
-				"slotType '" + entry.slotTypeName + "' not found");
-			wearablesEntity.getWearablesSlot(slotType, entry.index).set(entry.stack);
-		}
+		if (packet.replaceAll) {
+			
+			// First of all, collect all the Wearables to be set.
+			Map<IWearablesSlot, ItemStack> map = packet.data.stream()
+				.collect(Collectors.toMap(entry -> getSlot(wearablesEntity, entry),
+				                          entry -> entry.stack));
+			
+			// Remove all equipped Wearables whose slots aren't in the packet.
+			wearablesEntity.getEquippedWearables()
+				.filter(slot -> !map.containsKey(slot))
+				.forEach(slot -> slot.set(ItemStack.EMPTY));
+			
+			// Set all the changed / newly equipped Wearables.
+			for (Map.Entry<IWearablesSlot, ItemStack> entry : map.entrySet())
+				entry.getKey().set(entry.getValue());
+			
+		} else for (WearablesEntry entry : packet.data)
+			getSlot(wearablesEntity, entry).set(entry.stack);
+	}
+	
+	private static IWearablesSlot getSlot(IWearablesEntity entity, WearablesEntry entry)
+	{
+		IWearablesSlotType slotType = IWearablesData.INSTANCE.getSlotType(entry.slotTypeName);
+		if (slotType == null) throw new RuntimeException("slotType '" + entry.slotTypeName + "' not found");
+		return entity.getWearablesSlot(slotType, entry.index);
 	}
 }

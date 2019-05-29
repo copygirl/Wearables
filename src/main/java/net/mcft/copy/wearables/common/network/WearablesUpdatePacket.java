@@ -17,7 +17,8 @@ import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
-public class WearablesUpdatePacket implements IPacket
+public class WearablesUpdatePacket
+	implements IPacket
 {
 	public static final Identifier ID = new Identifier(WearablesCommon.MOD_ID, "update");
 	@Override public Identifier getID() { return ID; }
@@ -26,37 +27,45 @@ public class WearablesUpdatePacket implements IPacket
 	public final List<WearablesEntry> data = new ArrayList<>();
 	
 	public int entityId;
+	public boolean replaceAll;
 	
 	
 	public WearablesUpdatePacket() {  }
 	
-	public WearablesUpdatePacket(Entity entity)
+	public WearablesUpdatePacket(Entity entity, boolean replaceAll)
 	{
-		this.entityId = entity.getEntityId();
+		this.entityId   = entity.getEntityId();
+		this.replaceAll = replaceAll;
 		((IWearablesEntity)entity).getEquippedWearables()
 			.filter(slot -> !slot.getSlotType().isVanilla())
 			.map(WearablesEntry::new)
-			.forEach(data::add);
+			.forEach(this.data::add);
 	}
 	
 	public WearablesUpdatePacket(WearablesSlotImpl slot)
 	{
-		this.entityId = slot.getEntity().getEntityId();
-		data.add(new WearablesEntry(slot));
+		this.entityId   = slot.getEntity().getEntityId();
+		this.replaceAll = false;
+		this.data.add(new WearablesEntry(slot));
 	}
 	
 	
-	/** If necessary, creates a WearablesUpdatePacket for all of the the specified entity's
-	 *  Wearables and sends it using the provided Consumer. Will not send a packet if the
-	 *  specified entity isn't an IWearablesEntity or has no equipped Wearables. */
-	public static void sendForEntity(Entity entity, Consumer<Packet<?>> sendPacket)
+	/**
+	 * If necessary, creates a WearablesUpdatePacket for all of the the specified
+	 * entity's Wearables and sends it using the provided Consumer.
+	 * 
+	 * @param entity     The entity for which to send an update packet.
+	 * @param sendIfNone If {@code false}, doesn't send a packet if the entity has no Wearables.
+	 * @param sendPacket Function to call to send the resulting packet, if any.
+	 */
+	public static void sendForEntity(Entity entity, boolean sendIfNone,
+	                                 Consumer<Packet<?>> sendPacket)
 	{
-		if (!(entity instanceof IWearablesEntity)) return;
-		IWearablesEntity wearablesEntity = (IWearablesEntity)entity;
-		if (!wearablesEntity.hasWearables()) return;
-		sendPacket.accept(NetUtil.toVanillaPacket(
-			ServerSidePacketRegistry.INSTANCE,
-			new WearablesUpdatePacket(entity)));
+		if ((entity instanceof IWearablesEntity) &&
+		    (sendIfNone || ((IWearablesEntity)entity).hasWearables()))
+			sendPacket.accept(NetUtil.toVanillaPacket(
+				ServerSidePacketRegistry.INSTANCE,
+				new WearablesUpdatePacket(entity, true)));
 	}
 	
 	
@@ -64,8 +73,9 @@ public class WearablesUpdatePacket implements IPacket
 	public void read(PacketByteBuf buffer)
 		throws IOException
 	{
-		data.clear();
-		this.entityId = buffer.readInt();
+		this.data.clear();
+		this.entityId   = buffer.readInt();
+		this.replaceAll = buffer.readBoolean();
 		int amount = buffer.readByte();
 		for (int i = 0; i < amount; i++)
 			data.add(WearablesEntry.createFromBuffer(buffer));
@@ -76,8 +86,9 @@ public class WearablesUpdatePacket implements IPacket
 		throws IOException
 	{
 		buffer.writeInt(this.entityId);
-		buffer.writeByte(data.size());
-		for (WearablesEntry entry : data)
+		buffer.writeBoolean(this.replaceAll);
+		buffer.writeByte(this.data.size());
+		for (WearablesEntry entry : this.data)
 			entry.write(buffer);
 	}
 }
