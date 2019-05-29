@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import net.mcft.copy.wearables.common.impl.WearablesDataImpl;
-
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 
 public interface IWearablesData
@@ -45,6 +45,15 @@ public interface IWearablesData
 	 * @exception IllegalArgumentException Thrown if fullName is {@code null} or empty.
 	 */
 	public IWearablesSlotType getSlotType(String fullName);
+	
+	/**
+	 * Returns the {@link IWearablesSlotType} equivalent to the specified Vanilla {@link EquipmentSlot}.
+	 * 
+	 * @param slot The Vanilla equipment slot, such as {@link EquipmentSlot#CHEST}.
+	 * @return A Wearables slot type that is associated with the Vanilla equipment slot.
+	 * @exception IllegalArgumentException Thrown if slot is {@code null} or not an {@link EquipmentSlot.Type#ARMOR ARMOR} type.
+	 */
+	public IWearablesSlotType getSlotType(EquipmentSlot slot);
 	
 	/**
 	 * Returns a set of {@link IWearablesSlotType IWearablesSlotTypes}

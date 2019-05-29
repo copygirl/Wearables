@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 
 /**
@@ -38,6 +39,9 @@ public interface IWearablesEntity
 	
 	
 	public IWearablesSlot getWearablesSlot(IWearablesSlotType slotType, int index);
+	
+	public default IWearablesSlot getWearablesSlot(EquipmentSlot slot)
+		{ return getWearablesSlot(IWearablesData.INSTANCE.getSlotType(slot), 0); }
 	
 	
 	public default Stream<IWearablesSlot> getAvailableWearablesSlots()

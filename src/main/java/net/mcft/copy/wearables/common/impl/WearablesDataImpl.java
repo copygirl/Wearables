@@ -72,9 +72,6 @@ public final class WearablesDataImpl
 	}
 	
 	
-	public IWearablesSlotType getSlotFromVanilla(EquipmentSlot slot)
-		{ return _vanillaSlotLookup[slot.getEntitySlotId()]; }
-	
 	// TODO: Custom handlers should be implemented on an API level.
 	public Set<IWearablesSlotType> getSlotsFromVanilla(ArmorItem item)
 		{ return _vanillaSlotSetLookup.get(item.getSlotType().getEntitySlotId()); }
@@ -107,6 +104,10 @@ public final class WearablesDataImpl
 			throw new IllegalArgumentException("fullName is null or empty");
 		return this.slotTypes.get(fullName);
 	}
+	
+	@Override
+	public IWearablesSlotType getSlotType(EquipmentSlot slot)
+		{ return _vanillaSlotLookup[slot.getEntitySlotId()]; }
 	
 	@Override
 	public Set<IWearablesSlotType> getValidSlots(ItemStack stack)

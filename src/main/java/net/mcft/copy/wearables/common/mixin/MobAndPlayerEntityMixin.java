@@ -46,7 +46,7 @@ public abstract class MobAndPlayerEntityMixin
 	
 	private WearablesSlotImplVanilla wearables_getSlot(EquipmentSlot slot)
 	{
-		IWearablesSlotType slotType = ((WearablesDataImpl)IWearablesData.INSTANCE).getSlotFromVanilla(slot);
+		IWearablesSlotType slotType = ((WearablesDataImpl)IWearablesData.INSTANCE).getSlotType(slot);
 		return (WearablesSlotImplVanilla)((IWearablesEntity)this).getWearablesSlot(slotType, 0);
 	}
 }
