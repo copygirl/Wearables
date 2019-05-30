@@ -5,9 +5,12 @@
   "package": "net.mcft.copy.wearables.common.mixin",
   "mixins": [
     "EntityTrackerEntryMixin",
+    "ISlotAccessor",
     "LivingEntityMixin",
     "MobAndPlayerEntityMixin",
-    "PlayerManagerMixin"
+    "PlayerEntityMixin",
+    "PlayerManagerMixin",
+    "ServerPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

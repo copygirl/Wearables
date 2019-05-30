@@ -47,17 +47,17 @@ public interface IWearablesSlot
 	 */
 	public default boolean canEquip(ItemStack stack)
 	{
-		return stack.isEmpty()
-		    || IWearablesData.INSTANCE.getValidSlots(stack).contains(getSlotType())
-		    && IWearablesItem.from(stack.getItem()).canEquip(this, stack);
+		return stack.isEmpty() ||
+		       (IWearablesData.INSTANCE.getValidSlots(stack).contains(getSlotType()) &&
+		        IWearablesItem.from(stack.getItem()).canEquip(this, stack));
 	}
 	
 	/** Returns if the {@link ItemStack} currently contained in this slot can
 	 *  be unequipped. Returns {@code true} if the current stack is {@code null}. */
 	public default boolean canUnequip()
 	{
-		return ((getEntity() instanceof PlayerEntity) && ((PlayerEntity)getEntity()).isCreative())
-		    || !EnchantmentHelper.hasBindingCurse(get())
-		    && IWearablesItem.from(get().getItem()).canUnequip(this);
+		return get().isEmpty() ||
+		       ((getEntity() instanceof PlayerEntity) && ((PlayerEntity)getEntity()).isCreative()) ||
+		       (!EnchantmentHelper.hasBindingCurse(get()) && IWearablesItem.from(get().getItem()).canUnequip(this));
 	}
 }
