@@ -36,7 +36,7 @@ public class WearablesUpdatePacket
 	{
 		this.entityId   = entity.getEntityId();
 		this.replaceAll = replaceAll;
-		((IWearablesEntity)entity).getEquippedWearables()
+		IWearablesEntity.from(entity).getEquippedWearables()
 			.filter(slot -> !slot.getSlotType().isVanilla())
 			.map(WearablesEntry::new)
 			.forEach(this.data::add);
@@ -62,7 +62,7 @@ public class WearablesUpdatePacket
 	                                 Consumer<Packet<?>> sendPacket)
 	{
 		if ((entity instanceof IWearablesEntity) &&
-		    (sendIfNone || ((IWearablesEntity)entity).hasWearables()))
+		    (sendIfNone || IWearablesEntity.from(entity).hasWearables()))
 			sendPacket.accept(NetUtil.toVanillaPacket(
 				ServerSidePacketRegistry.INSTANCE,
 				new WearablesUpdatePacket(entity, true)));

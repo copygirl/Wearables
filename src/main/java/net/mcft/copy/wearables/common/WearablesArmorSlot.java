@@ -45,7 +45,7 @@ public class WearablesArmorSlot extends Slot
 	 *  wrappers, whill will override the equipment and unequipment behavior. */
 	public static void replaceVanillaArmorSlots(PlayerEntity player, Container container)
 	{
-		IWearablesEntity wearablesEntity = (IWearablesEntity)player;
+		IWearablesEntity wearablesEntity = IWearablesEntity.from(player);
 		EquipmentSlot vanillaSlot;
 		for (int i = 0; i < container.slotList.size(); i++) {
 			Slot slot = container.slotList.get(i);

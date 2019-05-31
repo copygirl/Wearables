@@ -40,7 +40,7 @@ public class NetworkHandler
 		PlayerEntity player = context.getPlayer();
 		IWearablesSlotType slotType = IWearablesData.INSTANCE.getSlotType(packet.slotType);
 		if (slotType == null) throw new RuntimeException("slotType '" + packet.slotType + "' not found");
-		IWearablesSlot slot = ((IWearablesEntity)player).getWearablesSlot(slotType, packet.index);
+		IWearablesSlot slot = IWearablesEntity.from(player).getWearablesSlot(slotType, packet.index);
 		
 		// FIXME: Fix the runtime exceptions - resync player inventory and wearables.
 		if (!slot.canUnequip()) throw new RuntimeException();
@@ -62,7 +62,7 @@ public class NetworkHandler
 			"Got WearablesUpdatePacket for non-existent entity");
 		if (!(entity instanceof IWearablesEntity)) throw new RuntimeException(
 			"Got WearablesUpdatePacket for non-IWearablesEntity '" + entity.getClass() + "'");
-		IWearablesEntity wearablesEntity = (IWearablesEntity)entity;
+		IWearablesEntity wearablesEntity = IWearablesEntity.from(entity);
 		
 		if (packet.replaceAll) {
 			

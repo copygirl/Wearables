@@ -83,7 +83,7 @@ public class WearablesRegionPopup
 			this.originY    = (position != null) ? position.y : -10000;
 		}
 		
-		((IWearablesEntity)MinecraftClient.getInstance().player)
+		IWearablesEntity.from(MinecraftClient.getInstance().player)
 			.getAvailableWearablesSlots(region).forEach(this._slots::add);
 		this._slots.sort(Comparator.comparing(IWearablesSlot::getOrder)
 		                           .thenComparing(slot -> slot.getSlotType().getFullName()));

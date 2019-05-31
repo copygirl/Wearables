@@ -31,7 +31,7 @@ public abstract class InventoryScreenMixin
 	@Inject(method="init", at=@At("TAIL"))
 	protected void init(CallbackInfo info)
 	{
-		IWearablesEntity entity = (IWearablesEntity)playerInventory.player;
+		IWearablesEntity entity = IWearablesEntity.from(playerInventory.player);
 		for (IWearablesRegion region : entity.getWearablesRegions())
 			this.children.add(new WearablesRegionPopup(this, region));
 	}

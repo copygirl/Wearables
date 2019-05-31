@@ -1,9 +1,11 @@
 package net.mcft.copy.wearables.api;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 
@@ -11,6 +13,8 @@ import net.minecraft.entity.LivingEntity;
  * Implemented by all entities extending {@link LivingEntity} through mixin.
  * Allows accessing an entity's {@link IWearableSlot IWearableSlots}, getting
  * and setting which items are equipped through Wearables.
+ * <p>
+ * Use {@link IWearablesEntity#from} to safely cast to an IWearablesEntity.
  * <p>
  * TODO: Entity-type-specific regions and slots. (Creepers have no arms!)
  */
@@ -72,4 +76,21 @@ public interface IWearablesEntity
 	public Stream<IWearablesSlot> getEquippedWearables(IWearablesRegion region);
 	
 	public Stream<IWearablesSlot> getEquippedWearables(IWearablesSlotType slotType);
+	
+	
+	public static final IWearablesEntity DUMMY = new IWearablesEntity(){
+		@Override public boolean hasWearables() { return false; }
+		@Override public Collection<IWearablesRegion> getWearablesRegions() { return Collections.emptyList(); }
+		@Override public Collection<IWearablesSlotType> getWearablesSlotTypes() { return Collections.emptyList(); }
+		@Override public Collection<IWearablesSlotType> getWearablesSlotTypes(IWearablesRegion region) { return Collections.emptyList(); }
+		@Override public IWearablesSlot getWearablesSlot(IWearablesSlotType slotType, int index) { throw new UnsupportedOperationException(); }
+		@Override public Stream<IWearablesSlot> getEquippedWearables() { return Stream.empty(); }
+		@Override public Stream<IWearablesSlot> getEquippedWearables(IWearablesRegion region) { return Stream.empty(); }
+		@Override public Stream<IWearablesSlot> getEquippedWearables(IWearablesSlotType slotType) { return Stream.empty(); }
+	};
+	
+	/** Returns the specified {@link Entity} casted as
+	 *  {@link IWearablesEntity}, or {@link #DUMMY} if it isn't. */
+	public static IWearablesEntity from(Entity entity)
+		{ return (entity instanceof IWearablesEntity) ? (IWearablesEntity)entity : DUMMY; }
 }
