@@ -27,5 +27,8 @@ public abstract class PlayerManagerMixin
 	public void respawnPlayer(ServerPlayerEntity oldPlayer, DimensionType dimType, boolean boolean_1,
 	                          CallbackInfoReturnable<ServerPlayerEntity> info, BlockPos blockPos_1, boolean boolean_2,
 	                          ServerPlayerInteractionManager interactionManager, ServerPlayerEntity newPlayer)
-		{ WearablesUpdatePacket.sendForEntity(newPlayer, true, newPlayer.networkHandler::sendPacket); }
+	{
+		// TODO: Keep Wearables if keepInventory gamerule is on.
+		WearablesUpdatePacket.sendForEntity(newPlayer, true, newPlayer.networkHandler::sendPacket);
+	}
 }
