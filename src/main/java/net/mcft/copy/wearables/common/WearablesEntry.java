@@ -3,8 +3,8 @@ package net.mcft.copy.wearables.common;
 import java.io.IOException;
 
 import net.mcft.copy.wearables.api.IWearablesSlot;
+import net.mcft.copy.wearables.common.misc.INbtDeserializer;
 import net.mcft.copy.wearables.common.misc.INbtSerializable;
-import net.mcft.copy.wearables.common.misc.NbtUtil;
 import net.mcft.copy.wearables.common.network.INetSerializable;
 
 import net.minecraft.item.ItemStack;
@@ -29,24 +29,35 @@ public final class WearablesEntry
 		{ WearablesEntry entry = new WearablesEntry(); entry.read(buffer); return entry; }
 	
 	
-	// INbtSerializable implementation
+	// INbtSerializable / INbtDeserializer implementation
+	
+	public static final String SLOT_TYPE_TAG = "slotType";
+	public static final String INDEX_TAG     = "index";
+	public static final String STACK_TAG     = "stack";
 	
 	@Override
-	public CompoundTag serializeToTag()
-	{
-		return NbtUtil.createCompound(
-			"slotType", slotTypeName,
-			"index", index,
-			"stack", stack);
-	}
+	public CompoundTag createTag()
+		{ return new CompoundTag(); }
 	
 	@Override
-	public void deserializeFromTag(CompoundTag tag)
+	public void serializeToTag(CompoundTag tag)
 	{
-		this.slotTypeName = tag.getString("slotType");
-		this.index        = tag.getByte("index");
-		this.stack        = ItemStack.fromTag(tag.getCompound("stack"));
+		tag.putString(SLOT_TYPE_TAG, slotTypeName);
+		tag.putByte(INDEX_TAG, (byte)index);
+		tag.put(STACK_TAG, stack.toTag(new CompoundTag()));
 	}
+	
+	public static final INbtDeserializer<WearablesEntry, CompoundTag> DESERIALIZER =
+		new INbtDeserializer<WearablesEntry, CompoundTag>(){
+			@Override
+			public WearablesEntry deserializeFromTag(CompoundTag tag)
+			{
+				return new WearablesEntry(
+					tag.getString(SLOT_TYPE_TAG),
+					tag.getByte(INDEX_TAG),
+					ItemStack.fromTag(tag.getCompound(STACK_TAG)));
+			}
+		};
 	
 	
 	// INetworkSerializable implementation

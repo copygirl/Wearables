@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,6 +19,8 @@ import net.minecraft.nbt.*;
 public final class NbtUtil
 {
 	private NbtUtil() {  }
+	
+	// TODO: Rework this into multiple classes. Consider splitting into its own library mod.
 	
 	
 	public static final String TAG_INDEX = "index";
@@ -266,7 +267,7 @@ public final class NbtUtil
 	
 	/**
 	 * Returns the primitive value of a {@link Tag Tag}, casted to the return type.
-	 * @exception IllegalArgumentException Thrown if tag is null or not a primitive Tag.
+	 * @throws IllegalArgumentException Thrown if tag is null or not a primitive Tag.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getTagValue(Tag tag)
@@ -301,7 +302,7 @@ public final class NbtUtil
 	 * If the value is none of these, an exception is thrown.
 	 * 
 	 * @param value The value to be turned into a Tag.
-	 * @exception IllegalArgumentException Thrown if value is null or not a supported type.
+	 * @throws IllegalArgumentException Thrown if value is null or not a supported type.
 	 */
 	public static Tag createTag(Object value)
 	{
@@ -330,24 +331,24 @@ public final class NbtUtil
 	}
 	
 	
-	/** Returns the specified {@link INbtSerializable INbtSerializable}
-	 *  value instance deserialized from the specified {@link Tag Tag}. */
-	public static <N extends Tag, T extends INbtSerializable<N>> T asValue(N tag, T value)
+	/** Returns a value of type {@code T} from the specified
+	 *  {@link Tag} using the specified {@link INbtDeserializer}. */
+	public static <N extends Tag, T extends INbtSerializable<N>> T asValue(
+		N tag, INbtDeserializer<T, N> deserializer)
 	{
 		if (tag == null) throw new IllegalArgumentException("tag is null");
-		if (value == null) throw new IllegalArgumentException("value is null");
-		value.deserializeFromTag(tag);
-		return value;
+		if (deserializer == null) throw new IllegalArgumentException("deserializer is null");
+		return deserializer.deserializeFromTag(tag);
 	}
 	
-	/** Returns a list of {@link INbtSerializable INbtSerializable} values instantiated
-	 *  using the value supplier from the specified {@link ListTag ListTag}. */
+	/** Returns a list of values of type {@code T} from the specifie
+	 *  {@link ListTag} using the specified {@link INbtDeserializer}. */
 	@SuppressWarnings("unchecked")
 	public static <N extends Tag, T extends INbtSerializable<N>> List<T> asList(
-		ListTag list, Supplier<T> valueSupplier)
+		ListTag list, INbtDeserializer<T, N> deserializer)
 	{
 		return list.stream()
-			.map(tag -> asValue((N)tag, valueSupplier.get()))
+			.map(tag -> asValue((N)tag, deserializer))
 			.collect(Collectors.toList());
 	}
 	
