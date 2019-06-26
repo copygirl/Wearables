@@ -4,9 +4,9 @@
   "compatibilityLevel": "JAVA_8",
   "package": "net.mcft.copy.wearables.common.mixin",
   "mixins": [
+    "EntityMixin",
     "EntityTrackerEntryMixin",
     "ISlotAccessor",
-    "LivingEntityMixin",
     "MobAndPlayerEntityMixin",
     "PlayerEntityMixin",
     "PlayerManagerMixin",

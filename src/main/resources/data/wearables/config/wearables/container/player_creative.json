@@ -1,0 +1,12 @@
+{
+	"appliesTo": [ "net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen" ],
+	"regions": {
+		"head"  : { "position": [  53,  5 ] },
+		"chest" : { "position": [  53, 32 ] },
+		"legs"  : { "position": [ 107,  5 ] },
+		"feet"  : { "position": [ 107, 32 ] },
+		
+		"back" : { "position": [ 126,  9 ] },
+		"arms" : { "position": [ 126, 28 ] }
+	}
+}

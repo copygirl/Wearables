@@ -1,7 +1,7 @@
 package net.mcft.copy.wearables.api;
 
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
@@ -9,26 +9,31 @@ import net.minecraft.item.ItemStack;
 public interface IWearablesSlot
 {
 	/** Gets the entity this slot is attached to. */
-	public LivingEntity getEntity();
+	public Entity getEntity();
 	
 	/** Gets the {@link WearablesSlotType} of this slot. */
-	public IWearablesSlotType getSlotType();
+	public WearablesSlotType getSlotType();
 	
 	/** Gets the numeric index of the slot, differenciating it from other slots of the same type. */
 	public int getIndex();
 	
-	/** Gets the {@link WearablesRegion} of this slot. */
-	public default IWearablesRegion getRegion()
-		{ return getSlotType().getRegion(); }
+	/** Gets the "order" of this slot, whether it's "above" or "below" other slots.
+	 *  Smaller number is above, larger is below. Always 0 for Vanilla slots. Default is 500. */
+	public int getOrder();
 	
 	/**
-	 * Gets the "order" of this slot, whether it's "above" or "below" other slots.
-	 * Smaller number is above, larger is below. Always 0 for Vanilla slots. Default is 500.
+	 * Gets whether this slot is valid / supported by this entity.
+	 * This is {@code false} if the slot type is not supported or the
+	 * index is equal to or larger than the configured slot count.
 	 * <p>
-	 * TODO: Eventually, order may change on the fly. For example, an amulet could be worn above or below the chestplate.
+	 * Invalid slots might be returned by the methods
+	 * {@link IWearablesEntity#getEquippedWearables getEquippedWearables} and
+	 * {@link IWearablesEntity#getWearablesSlot getWearablesSlot(..., true)}.
+	 * <p>
+	 * An invalid slot still allows setting the stack, but
+	 * it should only ever be set to {@link ItemStack#EMPTY}.
 	 */
-	public default int getOrder()
-		{ return getSlotType().getOrder(); }
+	public boolean isValid();
 	
 	
 	/** Gets the {@link ItemStack} currently contained
@@ -42,22 +47,38 @@ public interface IWearablesSlot
 	
 	/**
 	 * Returns if the specified {@link ItemStack} can be equipped in this slot.
+	 * Always returns {@code true} if the specified stack is {@code null}.
+	 * <p>
 	 * Does not check if a currently equipped stack can be unequipped.
-	 * Returns {@code true} if the specified stack is {@code null}.
 	 */
 	public default boolean canEquip(ItemStack stack)
 	{
 		return stack.isEmpty() ||
-		       (IWearablesData.INSTANCE.getValidSlots(stack).contains(getSlotType()) &&
-		        IWearablesItem.from(stack.getItem()).canEquip(this, stack));
+		       (isValid() && IWearablesEntity.from(getEntity()).getValidSlots(stack.getItem()).contains(this)
+		                  && IWearablesItem.from(stack.getItem()).canEquip(this, stack));
 	}
 	
-	/** Returns if the {@link ItemStack} currently contained in this slot can
-	 *  be unequipped. Returns {@code true} if the current stack is {@code null}. */
+	/** Returns if the {@link ItemStack} currently contained in this slot can be
+	 *  unequipped. Always returns {@code true} if the current stack is {@code null}. */
 	public default boolean canUnequip()
 	{
 		return get().isEmpty() ||
 		       ((getEntity() instanceof PlayerEntity) && ((PlayerEntity)getEntity()).isCreative()) ||
 		       (!EnchantmentHelper.hasBindingCurse(get()) && IWearablesItem.from(get().getItem()).canUnequip(this));
 	}
+	
+	
+	/**
+	 * Intended to be called by {@link IWearablesSlotHandler} implementations to
+	 * run internal code meant to run before a stack is changed. For example, this
+	 * causes {@link IWearablesItem#onUnequip} to be called on the specified stack.
+	 */
+	public void invokeBeforeUnequip(ItemStack previousStack);
+	
+	/**
+	 * Intended to be called by {@link IWearablesSlotHandler} implementations to
+	 * run internal code meant to run after a stack is changed. For example, this
+	 * causes {@link IWearablesItem#onEquip} to be called on the specified stack.
+	 */
+	public void invokeAfterEquip(ItemStack currentStack);
 }

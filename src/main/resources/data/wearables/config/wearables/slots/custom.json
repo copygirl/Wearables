@@ -1,9 +1,0 @@
-{
-	"chest:neck/amulet": { "order": -500 },
-	"legs:waist/belt"  : { "order": -500 },
-	
-	"back:carry": { "order": 100 },
-	"back:tool" : { "slotCount": 2 },
-	
-	"arms:hands/gloves": { "order": 100 }
-}

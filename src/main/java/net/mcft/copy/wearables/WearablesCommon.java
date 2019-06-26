@@ -5,8 +5,14 @@ import org.apache.logging.log4j.Logger;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.mcft.copy.wearables.api.IWearablesItemHandler;
+import net.mcft.copy.wearables.api.IWearablesSlotHandler;
 import net.mcft.copy.wearables.common.data.DataManager;
 import net.mcft.copy.wearables.common.network.NetworkHandler;
+import net.mcft.copy.wearables.common.impl.item.VanillaArmorItemHandler;
+import net.mcft.copy.wearables.common.impl.slot.LivingEntityEquipmentSlotHandler;
+
+import net.minecraft.entity.LivingEntity;
 
 public class WearablesCommon
 	implements ModInitializer
@@ -23,5 +29,8 @@ public class WearablesCommon
 	{
 		DATA.registerReloadListener();
 		NETWORK.initializeCommon();
+		
+		IWearablesItemHandler.register(VanillaArmorItemHandler.INSTANCE);
+		IWearablesSlotHandler.register(LivingEntity.class, LivingEntityEquipmentSlotHandler.INSTANCE);
 	}
 }

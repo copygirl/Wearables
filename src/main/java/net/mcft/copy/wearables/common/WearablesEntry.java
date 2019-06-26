@@ -3,6 +3,7 @@ package net.mcft.copy.wearables.common;
 import java.io.IOException;
 
 import net.mcft.copy.wearables.api.IWearablesSlot;
+import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.common.misc.INbtDeserializer;
 import net.mcft.copy.wearables.common.misc.INbtSerializable;
 import net.mcft.copy.wearables.common.network.INetSerializable;
@@ -15,15 +16,15 @@ public final class WearablesEntry
 	implements INbtSerializable<CompoundTag>
 	         , INetSerializable
 {
-	public String slotTypeName;
+	public WearablesSlotType slotType;
 	public int index;
 	public ItemStack stack;
 	
 	public WearablesEntry() {  }
 	public WearablesEntry(IWearablesSlot slot)
-		{ this(slot.getSlotType().getFullName(), slot.getIndex(), slot.get()); }
-	public WearablesEntry(String slotTypeName, int index, ItemStack stack)
-		{ this.slotTypeName = slotTypeName; this.index = index; this.stack = stack; }
+		{ this(slot.getSlotType(), slot.getIndex(), slot.get()); }
+	public WearablesEntry(WearablesSlotType slotType, int index, ItemStack stack)
+		{ this.slotType = slotType; this.index = index; this.stack = stack; }
 	
 	public static WearablesEntry createFromBuffer(PacketByteBuf buffer) throws IOException
 		{ WearablesEntry entry = new WearablesEntry(); entry.read(buffer); return entry; }
@@ -42,18 +43,19 @@ public final class WearablesEntry
 	@Override
 	public void serializeToTag(CompoundTag tag)
 	{
-		tag.putString(SLOT_TYPE_TAG, slotTypeName);
+		tag.putString(SLOT_TYPE_TAG, slotType.fullName);
 		tag.putByte(INDEX_TAG, (byte)index);
 		tag.put(STACK_TAG, stack.toTag(new CompoundTag()));
 	}
 	
 	public static final INbtDeserializer<WearablesEntry, CompoundTag> DESERIALIZER =
-		new INbtDeserializer<WearablesEntry, CompoundTag>(){
+		new INbtDeserializer<WearablesEntry, CompoundTag>()
+		{
 			@Override
 			public WearablesEntry deserializeFromTag(CompoundTag tag)
 			{
 				return new WearablesEntry(
-					tag.getString(SLOT_TYPE_TAG),
+					new WearablesSlotType(tag.getString(SLOT_TYPE_TAG)),
 					tag.getByte(INDEX_TAG),
 					ItemStack.fromTag(tag.getCompound(STACK_TAG)));
 			}
@@ -66,16 +68,16 @@ public final class WearablesEntry
 	public void read(PacketByteBuf buffer)
 		throws IOException
 	{
-		this.slotTypeName = buffer.readString();
-		this.index        = buffer.readByte();
-		this.stack        = buffer.readItemStack();
+		this.slotType = new WearablesSlotType(buffer.readString());
+		this.index    = buffer.readByte();
+		this.stack    = buffer.readItemStack();
 	}
 	
 	@Override
 	public void write(PacketByteBuf buffer)
 		throws IOException
 	{
-		buffer.writeString(this.slotTypeName);
+		buffer.writeString(this.slotType.fullName);
 		buffer.writeByte(this.index);
 		buffer.writeItemStack(this.stack);
 	}

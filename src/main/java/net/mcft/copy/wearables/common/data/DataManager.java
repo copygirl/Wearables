@@ -2,39 +2,58 @@ package net.mcft.copy.wearables.common.data;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Type;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 
 import net.mcft.copy.wearables.WearablesCommon;
-import net.mcft.copy.wearables.api.IWearablesData;
-import net.mcft.copy.wearables.api.IWearablesSlotType;
-import net.mcft.copy.wearables.common.impl.WearablesDataImpl;
-import net.mcft.copy.wearables.common.impl.WearablesRegionImpl;
-import net.mcft.copy.wearables.common.impl.WearablesSlotTypeImpl;
+import net.mcft.copy.wearables.api.IWearablesItemHandler;
+import net.mcft.copy.wearables.api.WearablesRegion;
+import net.mcft.copy.wearables.api.WearablesSlotType;
+import net.mcft.copy.wearables.common.data.DataManager.RawContainerData.Region;
+import net.mcft.copy.wearables.common.data.EntityTypeData.SlotTypeData;
+import net.mcft.copy.wearables.common.data.WearablesData.ContainerData;
+import net.mcft.copy.wearables.common.data.WearablesData.ItemData;
+import net.mcft.copy.wearables.common.misc.Position;
 
+import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.registry.Registry;
 
+/** Loads mod configuration data from data packs. */
 public class DataManager
-	implements SimpleResourceReloadListener<DataManager.Data>
+	implements SimpleResourceReloadListener<DataManager.RawData>
 {
 	@Override
 	public Identifier getFabricId()
@@ -44,145 +63,242 @@ public class DataManager
 		{ ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(this); }
 	
 	@Override
-	public CompletableFuture<Data> load(ResourceManager manager, Profiler profiler, Executor executor)
-		{ return CompletableFuture.supplyAsync(() -> new Data(manager), executor); }
+	public CompletableFuture<RawData> load(ResourceManager manager, Profiler profiler, Executor executor)
+		{ return CompletableFuture.supplyAsync(() -> new RawData(manager), executor); }
 	
 	@Override
-	public CompletableFuture<Void> apply(Data data, ResourceManager manager, Profiler profiler, Executor executor)
+	public CompletableFuture<Void> apply(RawData data, ResourceManager manager, Profiler profiler, Executor executor)
 		{ return CompletableFuture.runAsync(data::apply, executor); }
 	
 	
-	public static class Data
+	public static class RawData
 	{
-		private static final Gson GSON = new GsonBuilder().create();
+		private static final Gson GSON = new GsonBuilder()
+			.registerTypeAdapter(Identifier.class       , (SimpleStringDeserializer<?>)Identifier::new)
+			.registerTypeAdapter(WearablesRegion.class  , (SimpleStringDeserializer<?>)WearablesRegion::new)
+			.registerTypeAdapter(WearablesSlotType.class, (SimpleStringDeserializer<?>)WearablesSlotType::new)
+			.registerTypeAdapter(Position.class         , PositionDeserializer.INSTANCE)
+			.enableComplexMapKeySerialization()
+			.create();
 		
-		public Map<String, SlotTypeData> slotTypes = new HashMap<>();
-		public Map<Identifier, ItemData> items = new HashMap<>();
+		public List<RawContainerData> containers = new ArrayList<>();
+		public List<RawEntityTypeData> entities = new ArrayList<>();
+		public List<RawItemDataMap> items = new ArrayList<>();
 		
-		public Data(ResourceManager manager)
+		public RawData(ResourceManager manager)
 		{
 			for (Identifier id : manager.findResources("config/wearables", path -> path.endsWith(".json"))) {
 				try {
 					InputStreamReader reader = new InputStreamReader(manager.getResource(id).getInputStream());
-					if (id.getPath().startsWith("config/wearables/slots/")) loadSlotTypesResource(id, reader);
-					else if (id.getPath().startsWith("config/wearables/items/")) loadItemsResource(id, reader);
+					if (id.getPath().startsWith("config/wearables/container/"))
+						containers.add(GSON.fromJson(reader, RawContainerData.class));
+					else if (id.getPath().startsWith("config/wearables/entity/"))
+						entities.add(GSON.fromJson(reader, RawEntityTypeData.class));
+					else if (id.getPath().startsWith("config/wearables/item/"))
+						items.add(GSON.fromJson(reader, RawItemDataMap.class));
 					else WearablesCommon.LOGGER.warn("[Wearables:DataManager] Unknown resource '{}'", id);
 				} catch (JsonIOException | JsonSyntaxException ex) {
 					WearablesCommon.LOGGER.error("[Wearables:DataManager] Error while parsing resource '{}'", id, ex);
 				} catch (IOException ex) {
 					WearablesCommon.LOGGER.error("[Wearables:DataManager] Error reading resource '{}'", id, ex);
+				} catch (Exception ex) {
+					WearablesCommon.LOGGER.error("[Wearables:DataManager] Error loading resource '{}'", id, ex);
 				}
 			}
 		}
 		
-		private <TKey, TValue extends Loadable<TKey>> void loadResourceMany(
-			Identifier id, InputStreamReader reader, Map<TKey, TValue> dstMap, Type type)
-		{
-			Map<String, TValue> map = GSON.fromJson(reader, type);
-			for (Map.Entry<String, TValue> entry : map.entrySet())
-				try { dstMap.put(entry.getValue().load(entry.getKey()), entry.getValue()); }
-				catch (Exception ex) { WearablesCommon.LOGGER.error("[Wearables:DataManager] Error loading resource '{}': {}", id, ex.getMessage()); }
-		}
-		
-		private void loadSlotTypesResource(Identifier id, InputStreamReader reader)
-			{ loadResourceMany(id, reader, slotTypes, new TypeToken<Map<String, SlotTypeData>>(){}.getType()); }
-		
-		private void loadItemsResource(Identifier id, InputStreamReader reader)
-			{ loadResourceMany(id, reader, items, new TypeToken<Map<String, ItemData>>(){}.getType()); }
-		
-		
+		@SuppressWarnings("unchecked")
 		public void apply()
 		{
-			WearablesDataImpl wearablesData = (WearablesDataImpl)IWearablesData.INSTANCE;
-			wearablesData.clear();
+			WearablesData data = WearablesData.INSTANCE;
+			data.containers.clear();
+			data.entities.clear();
+			data.items.clear();
+			data.version++;
 			
-			// Add or modify WearablesSlotTypeImpl from SlotTypeData.
-			for (Map.Entry<String, SlotTypeData> slotTypeEntry : slotTypes.entrySet()) {
-				String       slotTypeName = slotTypeEntry.getKey();
-				SlotTypeData slotTypeData = slotTypeEntry.getValue();
-				WearablesSlotTypeImpl slotType = wearablesData.slotTypes.get(slotTypeName);
-				if (slotType == null) wearablesData.slotTypes.put(slotTypeName, slotType = new WearablesSlotTypeImpl(slotTypeName));
-				
-				if (slotTypeData.order != null)
-					slotType.order = slotTypeData.order;
-				if (slotTypeData.slotCount != null)
-					slotType.slotCount = slotTypeData.slotCount;
-				if ((slotTypeData.minSlotCount != null) && (slotTypeData.minSlotCount > slotType.slotCount))
-					slotType.slotCount = slotTypeData.minSlotCount;
+			for (RawContainerData rawContainerData : this.containers) {
+				for (String containerClassName : rawContainerData.appliesTo) {
+					Class<?> containerClass;
+					try { containerClass = Class.forName(containerClassName); }
+					catch (ClassNotFoundException ex) {
+						WearablesCommon.LOGGER.info("[Wearables:DataManager] Could not find container screen class '{}'", containerClassName);
+						continue;
+					}
+					if (!AbstractContainerScreen.class.isAssignableFrom(containerClass)) {
+						WearablesCommon.LOGGER.error("[Wearables:DataManager] Container screen class '{}' is not an AbstractContainerScreen", containerClassName);
+						continue;
+					}
+					
+					ContainerData containerData = new ContainerData();
+					data.containers.put((Class<? extends AbstractContainerScreen<?>>)containerClass, containerData);
+					
+					for (Map.Entry<WearablesRegion, Region> entry : rawContainerData.regions.entrySet())
+						containerData.regionPositions.put(entry.getKey(), entry.getValue().position);
+				}
 			}
 			
-			// Add slot types to regions.
-			for (WearablesSlotTypeImpl slotType : wearablesData.slotTypes.values())
-				((WearablesRegionImpl)slotType.getRegion()).slotTypes.add(slotType);
+			Map<EntityType<?>, Map<WearablesRegion, Set<WearablesSlotType>>> masksData = new HashMap<>();
 			
-			// Add valid types for items.
-			for (Map.Entry<Identifier, ItemData> itemDataEntry : items.entrySet()) {
-				Identifier itemDataId = itemDataEntry.getKey();
-				ItemData   itemData   = itemDataEntry.getValue();
-				if ((itemData.validSlots == null) || (itemData.validSlots.length == 0)) continue;
-				
-				Set<IWearablesSlotType> validSlots = wearablesData.itemToValidSlots.get(itemDataId);
-				if (validSlots == null) wearablesData.itemToValidSlots.put(itemDataId, validSlots = new HashSet<>());
-				
-				for (String slotTypeName : itemData.validSlots) {
-					// Try to find a slot that matches the requested slotTypeName.
-					// If `chest:neck/amulet` is requested, but that doesn't exist, `chest:neck` is checked next.
-					while (true) {
-						IWearablesSlotType slotType = wearablesData.getSlotType(slotTypeName);
-						if (slotType != null) {
-							// Found something!
-							validSlots.add(slotType);
-							break;
-						}
-						int slashIndex = slotTypeName.lastIndexOf('/');
-						if (slashIndex >= 0) slotTypeName = slotTypeName.substring(0, slashIndex);
-						else break;
+			for (RawEntityTypeData rawEntityData : this.entities) {
+				for (Identifier entityTypeId : rawEntityData.appliesTo) {
+					EntityType<?> entityType = Registry.ENTITY_TYPE.get(entityTypeId);
+					if (entityType == null) {
+						WearablesCommon.LOGGER.info("[Wearables:DataManager] Could not find entity type '{}'", entityTypeId);
+						continue;
+					}
+					
+					EntityTypeData entityData = data.entities.computeIfAbsent(entityType, e -> new EntityTypeData());
+					
+					if (rawEntityData.mergeStrategy == MergeStrategy.REPLACE) {
+						entityData.regions.clear();
+						entityData.slotTypes.clear();
+						masksData.remove(entityType);
+					}
+					
+					if ((rawEntityData.regions != null) && !rawEntityData.regions.isEmpty()) {
+						entityData.regions.addAll(rawEntityData.regions.keySet());
+						
+						Map<WearablesRegion, Set<WearablesSlotType>> masksByRegion =
+							masksData.computeIfAbsent(entityType, e -> new HashMap<>());
+						for (Map.Entry<WearablesRegion, WearablesSlotType[]> entry : rawEntityData.regions.entrySet())
+							masksByRegion.computeIfAbsent(entry.getKey(), e -> new HashSet<>())
+							             .addAll(Arrays.asList(entry.getValue()));
+					}
+					
+					for (Map.Entry<WearablesSlotType, SlotTypeData> entry : rawEntityData.slots.entrySet()) {
+						WearablesSlotType slotType = entry.getKey();
+						SlotTypeData slotTypeData  = entry.getValue();
+						if (slotTypeData.slotCount > 0)
+							entityData.slotTypes.put(slotType, slotTypeData);
+						else entityData.slotTypes.remove(slotType);
 					}
 				}
 			}
 			
-			// Make valid slots sets unmodifiable.
-			for (Map.Entry<Identifier, Set<IWearablesSlotType>> entry : wearablesData.itemToValidSlots.entrySet())
-				entry.setValue(Collections.unmodifiableSet(entry.getValue()));
+			for (Map.Entry<EntityType<?>, Map<WearablesRegion, Set<WearablesSlotType>>> entityEntry : masksData.entrySet()) {
+				EntityTypeData entityData = data.entities.get(entityEntry.getKey());
+				for (Map.Entry<WearablesRegion, Set<WearablesSlotType>> entry : entityEntry.getValue().entrySet()) {
+					WearablesRegion region = entry.getKey();
+					Set<WearablesSlotType> slotTypesByRegion = entityData.slotTypesByRegion.get(region);
+					if (slotTypesByRegion == null) slotTypesByRegion = new HashSet<>();
+					
+					entityData.slotTypes.keySet().stream()
+						.filter(slotType -> entry.getValue().stream().anyMatch(slotType::matches))
+						.forEach(slotTypesByRegion::add);
+					
+					if (!entityData.slotTypesByRegion.containsKey(region) && !slotTypesByRegion.isEmpty())
+						entityData.slotTypesByRegion.put(region, slotTypesByRegion);
+				}
+			}
+			
+			for (RawItemDataMap rawItemDataMap : this.items) {
+				for (Map.Entry<String, ItemData> entry : rawItemDataMap.entrySet()) {
+					String key = entry.getKey();
+					if (key.isEmpty()) {
+						WearablesCommon.LOGGER.info("[Wearables:DataManager] Empty item key / identifier");
+						continue;
+					}
+					
+					if (key.charAt(0) == '!') {
+						key = key.substring(1);
+						if (!IWearablesItemHandler.VALID_SPECIAL_ITEMS.contains(key)) {
+							WearablesCommon.LOGGER.warn("[Wearables:DataManager] No special item handler for '{}'", key);
+							continue;
+						}
+						data.specialItems.put(key, entry.getValue());
+					} else {
+						if (!Identifier.isValid(key)) {
+							WearablesCommon.LOGGER.error("[Wearables:DataManager] Item identifier '{}' is invalid", key);
+							continue;
+						}
+						Identifier id = new Identifier(key);
+						Item item = Registry.ITEM.get(id);
+						if (item == null) {
+							WearablesCommon.LOGGER.info("[Wearables:DataManager] Could not find item '{}'", id);
+							continue;
+						}
+						data.items.put(item, entry.getValue());
+					}
+				}
+			}
 		}
 	}
 	
 	
-	public interface Loadable<T>
+	public static class RawContainerData
 	{
-		public T load(String key);
-	}
-	
-	public static class SlotTypeData
-		implements Loadable<String>
-	{
-		public Integer order;
-		public Integer slotCount;
-		public Integer minSlotCount;
+		public String[] appliesTo;
+		public Regions regions;
 		
-		@Override
-		public String load(String key)
+		@SuppressWarnings("serial")
+		public static class Regions
+			extends HashMap<WearablesRegion, Region> {  }
+		
+		public static class Region
+			{ public Position position; }
+	}
+	
+	public static class RawEntityTypeData
+	{
+		public Identifier[] appliesTo;
+		public MergeStrategy mergeStrategy;
+		public Regions regions;
+		public Slots slots;
+		
+		@SuppressWarnings("serial")
+		public static class Regions
+			extends HashMap<WearablesRegion, WearablesSlotType[]> {  }
+		
+		@SuppressWarnings("serial")
+		public static class Slots
+			extends HashMap<WearablesSlotType, SlotTypeData> {  }
+	}
+	
+	@SuppressWarnings("serial")
+	public static class RawItemDataMap
+		extends HashMap<String, ItemData> {  }
+	
+	public static enum MergeStrategy
+		{ COMBINE, REPLACE; }
+	
+	
+	@FunctionalInterface
+	public interface SimpleStringDeserializer<T>
+		extends Function<String, T>
+		      , JsonDeserializer<T>
+	{
+		public default T deserialize(JsonElement json, Type typeOfT,
+		                             JsonDeserializationContext context)
+			{ return this.apply(json.getAsString()); }
+	}
+	
+	public static class PositionDeserializer
+		implements JsonDeserializer<Position>
+	{
+		public static final PositionDeserializer INSTANCE = new PositionDeserializer();
+		private PositionDeserializer() {  }
+		
+		public Position deserialize(JsonElement json, Type typeOfT,
+		                            JsonDeserializationContext context)
 		{
-			if (!IWearablesSlotType.SLOT_TYPE_REGEX.matcher(key).matches())
-				throw new RuntimeException("Invalid slot type name '" + key + "'");
-			// TODO: More verification in SlotTypeData.
-			return key;
+			JsonArray array = json.getAsJsonArray();
+			if (array.size() != 2) throw new IllegalStateException("Position array isn't of size 2");
+			return new Position(array.get(0).getAsInt(), array.get(1).getAsInt());
 		}
 	}
 	
-	public static class ItemData
-		implements Loadable<Identifier>
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	public @interface Exclude {  }
+	
+	public class ExcludeByAnnotationStrategy
+		implements ExclusionStrategy
 	{
-		public String[] validSlots;
+		public boolean shouldSkipField(FieldAttributes f)
+			{ return f.getAnnotation(Exclude.class) != null; }
 		
-		@Override
-		public Identifier load(String key)
-		{
-			Identifier id;
-			try { id = new Identifier(key); }
-			catch (InvalidIdentifierException ex) { throw new RuntimeException("Invalid identifier '" + key + "'", ex); }
-			// TODO: More verification in ItemData.
-			return id;
-		}
+		public boolean shouldSkipClass(Class<?> clazz)
+			{ return false; }
 	}
 }

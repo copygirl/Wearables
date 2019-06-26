@@ -17,14 +17,14 @@ The initial motivation for this comes from my backpacks (*BetterStorage* and lat
 
 ## Assimilate! Combine! Enhance!
 
-Why not combine these two concepts - hardcoding sensible **equipment "regions"** with arbitrarily extensible **slots** - along with a slick (default) user interface?
+Why not combine these two concepts - using sensible **equipment "regions"** with arbitrarily extensible **slots** (called "*Wearables* slots") - along with a slick user interface?
 
 ![](docs/concept.png)
 
 
 ## Equipment Region
 
-This is the place on the body of the wearer which an equipment slot is generally associated with. There's four regions based on Vanilla slots as well as two new ones:
+This is the place on the body of the wearer which an equipment slot is generally associated with. There's four regions based on Vanilla slots as well as two new ones by default:
 
 - **Head:** Clothing, Armor, Face
 - **Chest:** *Cosmetic*, Armor, Clothing
@@ -44,13 +44,13 @@ An equipment region has slots that have been associated with it. More specific e
 - **Cosmetic:** Amulet, Medal, Scarf
 - **Waist:** Belt, Pouch
 
-As a concrete example, some slots that may be defined are `"chest:armor/chestplate"`, `"chest:neck/amulet"`, `"legs:waist/belt"` and `"arms:hands/gloves"`. Generally, the suggested format for additional is `region:bodypart/type`, in some cases it might also be `region:category/type`, such as for `"chest:armor/chestplate"` or `"chest:clothing/shirt"`.
+As a concrete example, some slots that may be defined are `chest/chestplate`, `neck/amulet`, `waist/belt` and `hands/gloves`. Generally, the suggested format for additional is `bodypart/type`, in some rare cases it might also be `bodypart/type/subtype`.
 
 ### Slot Hierarchy
 
-While the recommended number of parts (the text separated by `'/'`) for what items fit into which slots is 2, it could theoretically be more or less.
+While the recommended number of parts (the text separated by `'/'`) for what items fit into which slots is 2, it could theoretically be more, or even less.
 
-When there's two items types that fit into the slots `"chest:neck/amulet"` and `"chest:neck/scarf"`, but *Wearables* is configured to only have a single `"chest:neck"` slot, either item could fit into this slot. If however there's both a `"chest:neck"` slot and a `"chest:neck/amulet"` slot set up, amulets would only go into their specific slot while scarfs would only go into the more general one.
+When there's two items types that fit into the slots `neck/amulet` and `neck/scarf`, but *Wearables* is configured to only have a single `neck` slot, either item could fit into this slot. If however there's both a `neck` slot and a `neck/amulet` slot set up, amulets would only go into their specific slot while scarfs would only go into the more general one.
 
 
 ## Interaction / User Experience
@@ -66,7 +66,7 @@ I believe this would reduce the chances of being annoying, especially by avoidin
 
 ## API / Configuration
 
-Usability is not everything. Mod compatibility and extensibility is important as well! As such, any custom slot can be used by items! All that is needed would be to add the items to an item tag just like described in [Curios], such as `"chest:neck/amulet"` for an amulet or `"head:clothing/hat"` for a hat. This could be done through a data pack, so no custom mod is even required. (Unsure about how this data is stored. Perhaps custom data is used rather than item tags.)
+Usability is not everything. Mod compatibility and extensibility is important as well! As such, any custom slot can be used by items! All that is needed is to register any item in a data pack under `"config/wearables/item/"` as [*Wearables* does itself][DataItem].
 
 On the API side of things, slots may be registered to have custom behavior, be disabled by default, or for there to be multiple of them available for items to be placed into (such as rings).
 
@@ -75,3 +75,5 @@ In the future I'd also like to see the possibility of creating a dedicated, modp
 
 [Fabric]: https://fabricmc.net/
 [Curios]: https://github.com/TheIllusiveC4/Curios
+
+[DataItem]: src/main/resources/data/wearables/config/wearables/item/vanilla.json

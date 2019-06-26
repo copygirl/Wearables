@@ -7,10 +7,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
 
-import net.mcft.copy.wearables.api.IWearablesData;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesSlot;
-import net.mcft.copy.wearables.api.IWearablesSlotType;
 import net.mcft.copy.wearables.common.WearablesEntry;
 import net.mcft.copy.wearables.common.network.NetUtil;
 import net.mcft.copy.wearables.common.network.NetworkHandler;
@@ -38,20 +36,20 @@ public class NetworkHandler
 	public void onInteractPacket(PacketContext context, WearablesInteractPacket packet)
 	{
 		PlayerEntity player = context.getPlayer();
-		IWearablesSlotType slotType = IWearablesData.INSTANCE.getSlotType(packet.slotType);
-		if (slotType == null) throw new RuntimeException("slotType '" + packet.slotType + "' not found");
-		IWearablesSlot slot = IWearablesEntity.from(player).getWearablesSlot(slotType, packet.index);
+		IWearablesSlot slot = IWearablesEntity.from(player)
+			.getWearablesSlot(packet.slotType, packet.index);
 		
-		// FIXME: Fix the runtime exceptions - resync player inventory and wearables.
-		if (!slot.canUnequip()) throw new RuntimeException();
+		// FIXME: Cursor stack always empty while in creative mode?
+		// FIXME: Fix the runtime exceptions - resync player inventory and Wearables.
+		if (!slot.canUnequip()) throw new RuntimeException("Can't unequip '" + slot.get() + "' from '" + slot + "'");
 		ItemStack cursorStack     = player.inventory.getCursorStack();
 		ItemStack currentEquipped = slot.get();
-		if (cursorStack.isEmpty() && currentEquipped.isEmpty()) throw new RuntimeException();
-		if (!slot.canEquip(cursorStack)) throw new RuntimeException();
+		if (cursorStack.isEmpty() && currentEquipped.isEmpty()) throw new RuntimeException("Both stacks are empty");
+		if (!slot.canEquip(cursorStack)) throw new RuntimeException("Can't equip '" + cursorStack + "' into '" + slot + "'");
 		
 		// FIXME: Handle ItemStacks with amount > 1 properly.
-		player.inventory.setCursorStack(currentEquipped);
-		slot.set(cursorStack);
+		player.inventory.setCursorStack(currentEquipped.copy());
+		slot.set(cursorStack.copy());
 	}
 	
 	@Environment(EnvType.CLIENT)
@@ -60,8 +58,8 @@ public class NetworkHandler
 		Entity entity = context.getPlayer().world.getEntityById(packet.entityId);
 		if (entity == null) throw new RuntimeException(
 			"Got WearablesUpdatePacket for non-existent entity");
-		if (!(entity instanceof IWearablesEntity)) throw new RuntimeException(
-			"Got WearablesUpdatePacket for non-IWearablesEntity '" + entity.getClass() + "'");
+		if (!IWearablesEntity.is(entity)) throw new RuntimeException(
+			"Got WearablesUpdatePacket for non Wearables entity '" + entity.getClass() + "'");
 		IWearablesEntity wearablesEntity = IWearablesEntity.from(entity);
 		
 		if (packet.replaceAll) {
@@ -86,8 +84,6 @@ public class NetworkHandler
 	
 	private static IWearablesSlot getSlot(IWearablesEntity entity, WearablesEntry entry)
 	{
-		IWearablesSlotType slotType = IWearablesData.INSTANCE.getSlotType(entry.slotTypeName);
-		if (slotType == null) throw new RuntimeException("slotType '" + entry.slotTypeName + "' not found");
-		return entity.getWearablesSlot(slotType, entry.index);
+		return entity.getWearablesSlot(entry.slotType, entry.index, true);
 	}
 }

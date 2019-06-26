@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import net.mcft.copy.wearables.WearablesCommon;
 import net.mcft.copy.wearables.api.IWearablesSlot;
+import net.mcft.copy.wearables.api.WearablesSlotType;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
@@ -14,16 +15,15 @@ public class WearablesInteractPacket implements IPacket
 	@Override public Identifier getID() { return ID; }
 	
 	
-	public String slotType;
+	public WearablesSlotType slotType;
 	public int index;
 	
 	public WearablesInteractPacket() {  }
 	public WearablesInteractPacket(IWearablesSlot slot)
-		{ this(slot.getSlotType().getFullName(), slot.getIndex()); }
-	public WearablesInteractPacket(String slotType, int index)
+		{ this(slot.getSlotType(), slot.getIndex()); }
+	public WearablesInteractPacket(WearablesSlotType slotType, int index)
 	{
-		if ((slotType == null) || slotType.isEmpty())
-			throw new IllegalArgumentException("slotType is null or empty");
+		if (slotType == null) throw new IllegalArgumentException("slotType is null");
 		if (index < 0) throw new IllegalArgumentException("index is negative");
 		this.slotType = slotType;
 		this.index    = index;
@@ -33,7 +33,7 @@ public class WearablesInteractPacket implements IPacket
 	public void read(PacketByteBuf buffer)
 		throws IOException
 	{
-		this.slotType = buffer.readString();
+		this.slotType = new WearablesSlotType(buffer.readString());
 		this.index    = buffer.readByte();
 	}
 	
@@ -41,7 +41,7 @@ public class WearablesInteractPacket implements IPacket
 	public void write(PacketByteBuf buffer)
 		throws IOException
 	{
-		buffer.writeString(this.slotType);
+		buffer.writeString(this.slotType.fullName);
 		buffer.writeByte(this.index);
 	}
 }

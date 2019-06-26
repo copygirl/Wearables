@@ -1,0 +1,33 @@
+{
+	"appliesTo": [ "minecraft:player" ],
+	"mergeStrategy": "COMBINE",
+	"regions": {
+		"head"  : [ "head", "mouth", "nose", "eyes", "ears" ],
+		"chest" : [ "chest", "neck", "shoulders" ],
+		"legs"  : [ "legs", "waist", "knees" ],
+		"feet"  : [ "feet", "ankles" ],
+		"back"  : [ "back", "tail" ],
+		"arms"  : [ "arms", "hands", "wrists", "fingers" ]
+	},
+	"slots": {
+		"head/hat"    : { "order": -200 },
+		"head/helmet" : { "order":    0 },
+		
+		"neck/amulet"      : { "order": -500 },
+		"chest/chestplate" : { "order":    0 },
+		"chest/shirt"      : { "order":  800 },
+		
+		"waist/belt"    : { "order": -500 },
+		"legs/leggings" : { "order":    0 },
+		"legs/pants"    : { "order":  800 },
+		
+		"feet/boots" : { "order":   0 },
+		"feet/socks" : { "order": 800 },
+		
+		"back"      : { "order": 100 },
+		"back/tool" : { "order": 400, "slotCount": 2 },
+		
+		"hands/gloves" : { "order": 100 },
+		"fingers/ring" : { "order": 500, "slotCount": 2 }
+	}
+}

@@ -4,18 +4,17 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-/**
- * Implemented by {@link Item Items} to add additional
- * control over equipment rules and a tick handler.
- */
+/** Implemented by {@link Item Items} to add additional
+ *  control over equipment rules and a tick handler. */
 public interface IWearablesItem
 {
 	/**
-	 * Returns whether the specified {@link ItemStack} can be
-	 * unequipped from the specified {@link IWearablesSlot}.
+	 * Returns whether the specified {@link ItemStack} can be equipped in the
+	 * specified {@link IWearablesSlot} by the entity. This doesn't necessarily
+	 * prevent an item from being equipped through other means.
 	 * <p>
 	 * Note that which slots an item can be equipped into is controlled by
-	 * configuration stored in data packs under {@code config/wearables/items/}
+	 * configuration stored in data packs under {@code config/wearables/item/}
 	 * and not just this method.
 	 * 
 	 * @param slot The slot to be checked.
@@ -26,7 +25,9 @@ public interface IWearablesItem
 	public default boolean canEquip(IWearablesSlot slot, ItemStack stack) { return true; }
 	
 	/**
-	 * Returns whether this item can be unequipped from the specified {@link IWearablesSlot}.
+	 * Returns whether this item can be unequipped from the specified
+	 * {@link IWearablesSlot} by the entity. This doesn't necessarily prevent
+	 * the item from being unequipped through other means, such as death.
 	 * 
 	 * @param slot The slot to be checked.
 	 *             Use {@link IWearablesSlot#get()} to get the item to be
@@ -38,7 +39,8 @@ public interface IWearablesItem
 	
 	
 	/**
-	 * Called right after this item is equipped in the specified {@link IWearablesSlot}.
+	 * Called right after this item is equipped in the specified {@link IWearablesSlot},
+	 * both on the client (which isn't authoritative) and the server.
 	 * 
 	 * @param slot The slot the item got equipped to.
 	 *             Use {@link IWearablesSlot#get()} to get the full
@@ -66,9 +68,8 @@ public interface IWearablesItem
 	public default boolean doesTick() { return false; }
 	
 	/**
-	 * Called each tick while this item is equipped in the specified
-	 * {@link IWearablesSlot}.
-	 * Only called if {@link #doesTick()} returns true.
+	 * Called each tick while this item is equipped in the specified {@link IWearablesSlot}.
+	 * Only called if {@link #doesTick()} returns true (false by default!).
 	 * 
 	 * @param slot The slot the item is currently equipped in.
 	 *             Use {@link IWearablesSlot#get()} to get the full
@@ -83,14 +84,10 @@ public interface IWearablesItem
 	public default void onEquippedTick(IWearablesSlot slot, int equippedTime) {  }
 	
 	
-	public static final IWearablesItem DUMMY = new IWearablesItem(){  };
-	
-	/** Returns the specified {@link Item} casted as
+	/** Returns the specified {@link Item} casted as an
 	 *  {@link IWearablesItem}, or {@link #DUMMY} if it isn't. */
 	public static IWearablesItem from(Item item)
-	{
-		return (item instanceof IWearablesItem)
-			? (IWearablesItem)item
-			: DUMMY;
-	}
+		{ return (item instanceof IWearablesItem) ? (IWearablesItem)item : DUMMY; }
+	
+	public static final IWearablesItem DUMMY = new IWearablesItem(){};
 }

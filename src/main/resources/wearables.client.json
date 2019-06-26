@@ -5,6 +5,7 @@
   "package": "net.mcft.copy.wearables.client.mixin",
   "client": [
     "AbstractContainerScreenMixin",
+    "CreativeInventoryScreenMixin",
     "IContainerScreenAccessor",
     "InventoryScreenMixin"
   ],
