@@ -7,6 +7,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
@@ -96,7 +97,8 @@ public class WearablesRegionPopup
 		} while ((this._data == null) && AbstractContainerScreen.class.isAssignableFrom(clazz));
 		
 		IWearablesEntity wearablesEntity = IWearablesEntity.from(entity);
-		this.regions = this._data.regionPositions.entrySet().stream()
+		this.regions = Optional.ofNullable(this._data)
+			.map(data -> data.regionPositions.entrySet().stream()).orElse(Stream.empty())
 			.map(entry -> wearablesEntity.getSupportedWearablesSlots(entry.getKey())
 				.reduce((a, b) -> Math.abs(a.getOrder()) < Math.abs(b.getOrder()) ? a : b)
 				.map(slot -> new RegionEntry(entry.getKey(), entry.getValue(), slot, getIcon(slot.getSlotType()))))
