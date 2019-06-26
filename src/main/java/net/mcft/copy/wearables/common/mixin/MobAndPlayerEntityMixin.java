@@ -28,7 +28,7 @@ public abstract class MobAndPlayerEntityMixin
 	{
 		if (IWearablesEntity.is(this) && (slot.getType() == EquipmentSlot.Type.ARMOR)) {
 			ItemStack previous = getEquippedStack(slot);
-			if (ItemStack.areEqual(stack, previous)) info.cancel();
+			if (ItemStack.areItemsEqual(stack, previous)) info.cancel();
 			else IWearablesEntity.from(this).getWearablesSlot(slot).invokeBeforeUnequip(previous);
 		}
 	}
