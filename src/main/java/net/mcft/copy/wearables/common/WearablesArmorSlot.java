@@ -10,7 +10,8 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
-public class WearablesArmorSlot extends Slot
+public class WearablesArmorSlot
+	extends Slot
 {
 	private final Slot _base;
 	
@@ -42,7 +43,7 @@ public class WearablesArmorSlot extends Slot
 	
 	
 	/** Replaces Vanilla armor slots in the specified container by WearablesArmorSlot
-	 *  wrappers, whill will override the equipment and unequipment behavior. */
+	 *  wrappers, which will override the equipment and unequipment behavior. */
 	public static void replaceVanillaArmorSlots(PlayerEntity player, Container container)
 	{
 		IWearablesEntity wearablesEntity = IWearablesEntity.from(player);

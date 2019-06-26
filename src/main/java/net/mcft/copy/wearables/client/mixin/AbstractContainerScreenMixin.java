@@ -5,6 +5,8 @@ import net.fabricmc.api.Environment;
 
 import net.mcft.copy.wearables.client.IRegionPopupGetter;
 import net.mcft.copy.wearables.client.WearablesRegionPopup;
+import net.mcft.copy.wearables.client.WearablesRegionPopup.RegionEntry;
+import net.mcft.copy.wearables.common.misc.Position;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
@@ -22,7 +24,6 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-// TODO: Skip drawing slots that are handled by Wearables?
 @Environment(EnvType.CLIENT)
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin<T extends Container>
@@ -47,7 +48,6 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 	{
 		this.wearables_regionPopup = new WearablesRegionPopup(
 			(AbstractContainerScreen<?>)(Object)this, playerInventory.player);
-		this.children.add(this.wearables_regionPopup);
 	}
 	
 	
@@ -76,6 +76,16 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 			info.setReturnValue(true);
 	}
 	
+	@Inject(method="drawSlot", at=@At("HEAD"), cancellable=true)
+	private void drawSlot(Slot slot, CallbackInfo info)
+	{
+		// Skip rendering slots that are occupied by regions.
+		// This only works if the region is in the exact same position.
+		// TODO: Find a way to skip rendering slots that are handled by Wearables, independent of position.
+		Position pos = new Position(slot.xPosition, slot.yPosition);
+		for (RegionEntry region : this.wearables_regionPopup.regions)
+			if (region.pos.equals(pos)) { info.cancel(); return; }
+	}
 	
 	@Inject(method="render", at=@At("HEAD"))
 	public void renderAtHead(int mouseX, int mouseY, float tickDelta, CallbackInfo info)
