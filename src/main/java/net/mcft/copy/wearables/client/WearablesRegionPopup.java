@@ -10,6 +10,8 @@ import java.util.stream.IntStream;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 
+import org.lwjgl.opengl.GL11;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
@@ -252,12 +254,12 @@ public class WearablesRegionPopup
 	private void drawRegionSlots()
 	{
 		// Draw empty slots.
-		GlStateManager.disableDepthTest();
+		GlStateManager.depthFunc(GL11.GL_ALWAYS);
 		REGION_TEX.bind();
 		for (RegionEntry entry : this.regions)
 			if (entry.region != this.curRegion)
 				drawEmptySlot(entry.pos);
-		GlStateManager.enableDepthTest();
+		GlStateManager.depthFunc(GL11.GL_LEQUAL);
 		
 		// Draw slot icons.
 		this._client.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
@@ -276,11 +278,11 @@ public class WearablesRegionPopup
 		Position pos = this.pos.subtract(screen.getLeft(), screen.getTop());
 		
 		// Draw popup border.
-		GlStateManager.disableDepthTest();
+		GlStateManager.depthFunc(GL11.GL_ALWAYS);
 		REGION_TEX.bind();
 		REGION_TEX.drawBordered(pos.x, pos.y, this.width, this.height,
-		                        0, 0, Z_LEVEL, BORDER_SIZE, 30, 30, 2, false);
-		GlStateManager.enableDepthTest();
+		                        0, 0, Z_LEVEL, BORDER_SIZE, 30, 30, 2, true);
+		GlStateManager.depthFunc(GL11.GL_LEQUAL);
 		
 		// Draw empty slots.
 		for (SlotEntry entry : this.slots)
