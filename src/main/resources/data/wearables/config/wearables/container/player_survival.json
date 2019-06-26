@@ -1,12 +1,12 @@
 {
 	"appliesTo": [ "net.minecraft.client.gui.screen.ingame.InventoryScreen" ],
 	"regions": {
-		"head"  : { "position": [ 7,  7 ] },
-		"chest" : { "position": [ 7, 25 ] },
-		"legs"  : { "position": [ 7, 43 ] },
-		"feet"  : { "position": [ 7, 61 ] },
+		"head"  : { "position": [ 8,  8 ] },
+		"chest" : { "position": [ 8, 26 ] },
+		"legs"  : { "position": [ 8, 44 ] },
+		"feet"  : { "position": [ 8, 62 ] },
 		
-		"back" : { "position": [ 76, 25 ] },
-		"arms" : { "position": [ 76, 43 ] }
+		"back" : { "position": [ 77, 26 ] },
+		"arms" : { "position": [ 77, 44 ] }
 	}
 }

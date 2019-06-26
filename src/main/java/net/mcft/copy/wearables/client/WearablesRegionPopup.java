@@ -119,7 +119,7 @@ public class WearablesRegionPopup
 		Iterator<IWearablesSlot> iter = slots.iterator();
 		this.slots = IntStream.range(0, slots.size()).mapToObj(i -> {
 				IWearablesSlot slot = iter.next();
-				Position pos = new Position(BORDER_SIZE + i * SLOT_SIZE, BORDER_SIZE);
+				Position pos = new Position(BORDER_SIZE + 1 + i * SLOT_SIZE, BORDER_SIZE + 1);
 				return new SlotEntry(slot, pos, getIcon(slot.getSlotType()));
 			}).collect(Collectors.toList());
 		if (this.slots.isEmpty()) { hide(); return; }
@@ -133,8 +133,8 @@ public class WearablesRegionPopup
 			minAbsOrder = order;
 		}
 		
-		int x = screen.getLeft() + slotPos.x - BORDER_SIZE - SLOT_SIZE * centerIndex;
-		int y = screen.getTop()  + slotPos.y - BORDER_SIZE;
+		int x = screen.getLeft() + slotPos.x - BORDER_SIZE - 1 - SLOT_SIZE * centerIndex;
+		int y = screen.getTop()  + slotPos.y - BORDER_SIZE - 1;
 		this.pos    = new Position(x, y);
 		this.width  = BORDER_SIZE * 2 + SLOT_SIZE * this.slots.size();
 		this.height = BORDER_SIZE * 2 + SLOT_SIZE;
@@ -254,12 +254,10 @@ public class WearablesRegionPopup
 	private void drawRegionSlots()
 	{
 		// Draw empty slots.
-		GlStateManager.depthFunc(GL11.GL_ALWAYS);
 		REGION_TEX.bind();
 		for (RegionEntry entry : this.regions)
 			if (entry.region != this.curRegion)
 				drawEmptySlot(entry.pos);
-		GlStateManager.depthFunc(GL11.GL_LEQUAL);
 		
 		// Draw slot icons.
 		this._client.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
@@ -305,7 +303,7 @@ public class WearablesRegionPopup
 			GlStateManager.disableLighting();
 			GlStateManager.disableDepthTest();
 			GlStateManager.colorMask(true, true, true, false);
-			fillGradient(p.x + 1, p.y + 1, p.x + SLOT_SIZE - 1, p.y + SLOT_SIZE - 1, 0x80FFFFFF, 0x80FFFFFF);
+			fillGradient(p.x, p.y, p.x + SLOT_SIZE - 2, p.y + SLOT_SIZE - 2, 0x80FFFFFF, 0x80FFFFFF);
 			GlStateManager.colorMask(true, true, true, true);
 			GlStateManager.enableLighting();
 			GlStateManager.enableDepthTest();
@@ -314,10 +312,10 @@ public class WearablesRegionPopup
 	
 	
 	private void drawEmptySlot(Position pos)
-		{ REGION_TEX.drawQuad(pos.x, pos.y, SLOT_SIZE, SLOT_SIZE, 6, 32, Z_LEVEL); }
+		{ REGION_TEX.drawQuad(pos.x - 1, pos.y - 1, SLOT_SIZE, SLOT_SIZE, 6, 32, Z_LEVEL); }
 	
 	private void drawIcon(Position pos, Identifier icon)
-		{ blit(pos.x + 1, pos.y + 1, Z_LEVEL, 16, 16, this._client.getSpriteAtlas().getSprite(icon)); }
+		{ blit(pos.x, pos.y, Z_LEVEL, 16, 16, this._client.getSpriteAtlas().getSprite(icon)); }
 	
 	private final ItemRenderer _itemRenderer = this._client.getItemRenderer();
 	private final TextRenderer _textRenderer = this._client.textRenderer;
@@ -325,8 +323,8 @@ public class WearablesRegionPopup
 	{
 		if (stack.isEmpty()) return;
 		this._itemRenderer.zOffset = Z_LEVEL - 100.0F;
-		this._itemRenderer.renderGuiItem(this._player, stack, pos.x + 1, pos.y + 1);
-		this._itemRenderer.renderGuiItemOverlay(this._textRenderer, stack, pos.x + 1, pos.y + 1, null);
+		this._itemRenderer.renderGuiItem(this._player, stack, pos.x, pos.y);
+		this._itemRenderer.renderGuiItemOverlay(this._textRenderer, stack, pos.x, pos.y, null);
 		this._itemRenderer.zOffset = 0.0F;
 	}
 	

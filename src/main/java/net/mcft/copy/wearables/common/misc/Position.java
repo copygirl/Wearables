@@ -17,4 +17,21 @@ public final class Position
 		{ return subtract(other.x, other.y); }
 	public Position subtract(int x, int y)
 		{ return new Position(this.x - x, this.y - y); }
+	
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof Position)) return false;
+		Position pos = (Position)obj;
+		return (pos.x == this.x) && (pos.y == this.y);
+	}
+	
+	@Override
+	public int hashCode()
+		{ return this.x ^ this.y << 8; }
+	
+	@Override
+	public String toString()
+		{ return "[" + this.x + ":" + this.y + "]"; }
 }
