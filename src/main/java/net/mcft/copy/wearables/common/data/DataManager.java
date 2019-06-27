@@ -42,7 +42,6 @@ import net.mcft.copy.wearables.common.data.WearablesData.ContainerData;
 import net.mcft.copy.wearables.common.data.WearablesData.ItemData;
 import net.mcft.copy.wearables.common.misc.Position;
 
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.resource.ResourceManager;
@@ -107,7 +106,6 @@ public class DataManager
 			}
 		}
 		
-		@SuppressWarnings("unchecked")
 		public void apply()
 		{
 			WearablesData data = WearablesData.INSTANCE;
@@ -117,20 +115,9 @@ public class DataManager
 			data.version++;
 			
 			for (RawContainerData rawContainerData : this.containers) {
-				for (String containerClassName : rawContainerData.appliesTo) {
-					Class<?> containerClass;
-					try { containerClass = Class.forName(containerClassName); }
-					catch (ClassNotFoundException ex) {
-						WearablesCommon.LOGGER.info("[Wearables:DataManager] Could not find container screen class '{}'", containerClassName);
-						continue;
-					}
-					if (!AbstractContainerScreen.class.isAssignableFrom(containerClass)) {
-						WearablesCommon.LOGGER.error("[Wearables:DataManager] Container screen class '{}' is not an AbstractContainerScreen", containerClassName);
-						continue;
-					}
-					
+				for (String containerIdentifier : rawContainerData.appliesTo) {
 					ContainerData containerData = new ContainerData();
-					data.containers.put((Class<? extends AbstractContainerScreen<?>>)containerClass, containerData);
+					data.containers.put(containerIdentifier, containerData);
 					
 					for (Map.Entry<WearablesRegion, Region> entry : rawContainerData.regions.entrySet())
 						containerData.regionPositions.put(entry.getKey(), entry.getValue().position);

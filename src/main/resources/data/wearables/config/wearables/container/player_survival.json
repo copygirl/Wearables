@@ -1,5 +1,5 @@
 {
-	"appliesTo": [ "net.minecraft.client.gui.screen.ingame.InventoryScreen" ],
+	"appliesTo": [ "SurvivalInventoryScreen" ],
 	"regions": {
 		"head"  : { "position": [ 8,  8 ] },
 		"chest" : { "position": [ 8, 26 ] },

@@ -9,7 +9,6 @@ import net.mcft.copy.wearables.api.WearablesRegion;
 import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.common.misc.Position;
 
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 
@@ -17,7 +16,7 @@ public class WearablesData
 {
 	public static final WearablesData INSTANCE = new WearablesData();
 	
-	public final Map<Class<? extends AbstractContainerScreen<?>>, ContainerData> containers = new HashMap<>();
+	public final Map<String, ContainerData> containers = new HashMap<>();
 	public final Map<EntityType<?>, EntityTypeData> entities = new HashMap<>();
 	public final Map<Item, ItemData> items = new HashMap<>();
 	public final Map<String, ItemData> specialItems = new HashMap<>();

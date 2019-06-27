@@ -20,6 +20,7 @@ import net.mcft.copy.wearables.api.IWearablesContainer;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.api.WearablesRegion;
+import net.mcft.copy.wearables.api.WearablesScreenRegistry;
 import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
 import net.mcft.copy.wearables.common.data.EntityTypeData;
@@ -92,7 +93,9 @@ public class WearablesRegionPopup
 		
 		Class<?> clazz = screen.getClass();
 		do {
-			this._data = WearablesData.INSTANCE.containers.get(clazz);
+			this._data = WearablesScreenRegistry.find(clazz)
+				.map(WearablesData.INSTANCE.containers::get)
+				.orElse(null);
 			clazz = clazz.getSuperclass();
 		} while ((this._data == null) && AbstractContainerScreen.class.isAssignableFrom(clazz));
 		

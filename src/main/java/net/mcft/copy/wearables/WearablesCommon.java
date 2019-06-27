@@ -7,6 +7,7 @@ import net.fabricmc.api.ModInitializer;
 
 import net.mcft.copy.wearables.api.IWearablesItemHandler;
 import net.mcft.copy.wearables.api.IWearablesSlotHandler;
+
 import net.mcft.copy.wearables.common.data.DataManager;
 import net.mcft.copy.wearables.common.network.NetworkHandler;
 import net.mcft.copy.wearables.common.impl.item.VanillaArmorItemHandler;
