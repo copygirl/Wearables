@@ -10,6 +10,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
+// TODO: Generalize this so it can be used for any container and slot.
 public class WearablesArmorSlot
 	extends Slot
 {
