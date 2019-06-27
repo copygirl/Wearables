@@ -93,7 +93,10 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 		this.wearables_regionPopup.update(mouseX, mouseY);
 	}
 	
-	@Inject(method="render", at=@At(value="INVOKE", target="drawForeground", shift=Shift.BEFORE))
+	@Inject(method="render",
+	        at=@At(value="INVOKE",
+	               target="net/minecraft/client/gui/screen/ingame/AbstractContainerScreen.drawForeground(II)V",
+	               shift=Shift.BEFORE))
 	public void renderBeforeForeground(int mouseX, int mouseY, float tickDelta, CallbackInfo info)
 	{
 		this.wearables_regionPopup.render(mouseX, mouseY, tickDelta);
