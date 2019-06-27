@@ -1,5 +1,8 @@
 package net.mcft.copy.wearables.api;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+
 import net.minecraft.client.gui.screen.Screen;
 
 /**
@@ -11,6 +14,7 @@ import net.minecraft.client.gui.screen.Screen;
  * stored in data packs under {@code config/wearables/container/}, not
  * just ones which implement this interface.
  */
+@Environment(EnvType.CLIENT)
 public interface IWearablesContainer
 {
 	/** Returns whether the Wearables popup may be shown. */
