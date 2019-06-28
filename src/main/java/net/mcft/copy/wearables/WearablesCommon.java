@@ -7,12 +7,13 @@ import net.fabricmc.api.ModInitializer;
 
 import net.mcft.copy.wearables.api.IWearablesItemHandler;
 import net.mcft.copy.wearables.api.IWearablesSlotHandler;
-
+import net.mcft.copy.wearables.api.WearablesContainerRegistry;
 import net.mcft.copy.wearables.common.data.DataManager;
 import net.mcft.copy.wearables.common.network.NetworkHandler;
 import net.mcft.copy.wearables.common.impl.item.VanillaArmorItemHandler;
 import net.mcft.copy.wearables.common.impl.slot.LivingEntityEquipmentSlotHandler;
 
+import net.minecraft.container.PlayerContainer;
 import net.minecraft.entity.LivingEntity;
 
 public class WearablesCommon
@@ -33,5 +34,7 @@ public class WearablesCommon
 		
 		IWearablesItemHandler.register(VanillaArmorItemHandler.INSTANCE);
 		IWearablesSlotHandler.register(LivingEntity.class, LivingEntityEquipmentSlotHandler.INSTANCE);
+		
+		WearablesContainerRegistry.register("SurvivalContainer", PlayerContainer.class);
 	}
 }

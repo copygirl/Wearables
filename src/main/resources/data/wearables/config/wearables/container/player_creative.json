@@ -1,5 +1,5 @@
 {
-	"appliesTo": [ "CreativeInventoryScreen" ],
+	"appliesTo": [ "CreativeContainer" ],
 	"regions": {
 		"head"  : { "position": [  54,  6 ] },
 		"chest" : { "position": [  54, 33 ] },

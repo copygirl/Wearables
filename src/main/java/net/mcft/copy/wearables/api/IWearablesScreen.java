@@ -15,17 +15,17 @@ import net.minecraft.client.gui.screen.Screen;
  * just ones which implement this interface.
  */
 @Environment(EnvType.CLIENT)
-public interface IWearablesContainer
+public interface IWearablesScreen
 {
 	/** Returns whether the Wearables popup may be shown. */
 	public boolean allowWearablesPopup();
 	
 	
 	/** Returns the specified {@link Screen} casted as an
-	 *  {@link IWearablesContainer}, or {@link #DUMMY} if it isn't. */
-	public static IWearablesContainer from(Screen screen)
-		{ return (screen instanceof IWearablesContainer) ? (IWearablesContainer)screen : DUMMY; }
+	 *  {@link IWearablesScreen}, or {@link #DUMMY} if it isn't. */
+	public static IWearablesScreen from(Screen screen)
+		{ return (screen instanceof IWearablesScreen) ? (IWearablesScreen)screen : DUMMY; }
 	
-	public static final IWearablesContainer DUMMY = new IWearablesContainer()
+	public static final IWearablesScreen DUMMY = new IWearablesScreen()
 		{ @Override public boolean allowWearablesPopup() { return true; } };
 }

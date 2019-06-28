@@ -16,11 +16,11 @@ import org.lwjgl.opengl.GL11;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.mcft.copy.wearables.api.IWearablesContainer;
+import net.mcft.copy.wearables.api.IWearablesScreen;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesSlot;
+import net.mcft.copy.wearables.api.WearablesContainerRegistry;
 import net.mcft.copy.wearables.api.WearablesRegion;
-import net.mcft.copy.wearables.api.WearablesScreenRegistry;
 import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
 import net.mcft.copy.wearables.common.data.EntityTypeData;
@@ -63,8 +63,9 @@ public class WearablesRegionPopup
 	private final ClientPlayerEntity _player = this._client.player;
 	private final PlayerInventory _inventory = this._player.inventory;
 	
-	public final IContainerScreenAccessor<?> screen;
-	public final IWearablesContainer wearCont;
+	public final AbstractContainerScreen<?> screen;
+	public final IContainerScreenAccessor<?> accessor;
+	public final IWearablesScreen wearScreen;
 	public final Entity entity;
 	
 	private int _version;
@@ -81,9 +82,10 @@ public class WearablesRegionPopup
 	
 	public WearablesRegionPopup(AbstractContainerScreen<?> screen, Entity entity)
 	{
-		this.screen   = (IContainerScreenAccessor<?>)screen;
-		this.wearCont = IWearablesContainer.from(screen);
-		this.entity   = entity;
+		this.screen     = screen;
+		this.accessor   = (IContainerScreenAccessor<?>)screen;
+		this.wearScreen = IWearablesScreen.from(screen);
+		this.entity     = entity;
 		init();
 	}
 	
@@ -91,9 +93,9 @@ public class WearablesRegionPopup
 	{
 		this._version = WearablesData.INSTANCE.version;
 		
-		Class<?> clazz = screen.getClass();
+		Class<?> clazz = screen.getContainer().getClass();
 		do {
-			this._data = WearablesScreenRegistry.find(clazz)
+			this._data = WearablesContainerRegistry.find(clazz)
 				.map(WearablesData.INSTANCE.containers::get)
 				.orElse(null);
 			clazz = clazz.getSuperclass();
@@ -138,8 +140,8 @@ public class WearablesRegionPopup
 			minAbsOrder = order;
 		}
 		
-		int x = screen.getLeft() + slotPos.x - BORDER_SIZE - 1 - SLOT_SIZE * centerIndex;
-		int y = screen.getTop()  + slotPos.y - BORDER_SIZE - 1;
+		int x = accessor.getLeft() + slotPos.x - BORDER_SIZE - 1 - SLOT_SIZE * centerIndex;
+		int y = accessor.getTop()  + slotPos.y - BORDER_SIZE - 1;
 		this.pos    = new Position(x, y);
 		this.width  = BORDER_SIZE * 2 + SLOT_SIZE * this.slots.size();
 		this.height = BORDER_SIZE * 2 + SLOT_SIZE;
@@ -177,14 +179,14 @@ public class WearablesRegionPopup
 		{ return isWithinScreenSpace(slotPos.x, slotPos.y, SLOT_SIZE, SLOT_SIZE, pointX, pointY); }
 	
 	private boolean isWithinScreenSpace(int x, int y, int width, int height, double pointX, double pointY)
-		{ return isWithinGlobalSpace(x + screen.getLeft(), y + screen.getTop(), width, height, pointX, pointY); }
+		{ return isWithinGlobalSpace(x + accessor.getLeft(), y + accessor.getTop(), width, height, pointX, pointY); }
 	
 	private boolean isWithinGlobalSpace(int x, int y, int width, int height, double pointX, double pointY)
 		{ return (pointX >= x) && (pointX < x + width) && (pointY >= y) && (pointY < y + height); }
 	
 	private Optional<SlotEntry> findSlotAt(int mouseX, int mouseY)
 	{
-		Position pos = this.pos.subtract(screen.getLeft(), screen.getTop());
+		Position pos = this.pos.subtract(accessor.getLeft(), accessor.getTop());
 		return this.slots.stream().filter(entry -> isOverSlot(pos.add(entry.pos), mouseX, mouseY)).findFirst();
 	}
 	
@@ -234,11 +236,11 @@ public class WearablesRegionPopup
 	{
 		if (this._version != WearablesData.INSTANCE.version) init();
 		if (this._data == null) return;
-		if (!this.wearCont.allowWearablesPopup()) { hide(); return; }
+		if (!this.wearScreen.allowWearablesPopup()) { hide(); return; }
 		
 		if (this.isVisible && !isMouseOver(mouseX, mouseY)) hide();
 		
-		if (!this.isVisible && !screen.hoveredElement(mouseX, mouseY).isPresent())
+		if (!this.isVisible && !accessor.hoveredElement(mouseX, mouseY).isPresent())
 			for (RegionEntry entry : this.regions)
 				if (isOverSlot(entry.pos, mouseX, mouseY))
 					{ show(entry.region, entry.pos); break; }
@@ -247,7 +249,7 @@ public class WearablesRegionPopup
 	@Override
 	public void render(int mouseX, int mouseY, float tickDelta)
 	{
-		if (!this.wearCont.allowWearablesPopup()) return;
+		if (!this.wearScreen.allowWearablesPopup()) return;
 		
 		GuiLighting.enableForItems();
 		GlStateManager.disableLighting();
@@ -278,7 +280,7 @@ public class WearablesRegionPopup
 	
 	private void drawPopup(int mouseX, int mouseY)
 	{
-		Position pos = this.pos.subtract(screen.getLeft(), screen.getTop());
+		Position pos = this.pos.subtract(accessor.getLeft(), accessor.getTop());
 		
 		// Draw popup border.
 		GlStateManager.depthFunc(GL11.GL_ALWAYS);
