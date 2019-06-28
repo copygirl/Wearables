@@ -44,6 +44,7 @@ import net.mcft.copy.wearables.common.misc.Position;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
@@ -129,7 +130,7 @@ public class DataManager
 			for (RawEntityTypeData rawEntityData : this.entities) {
 				for (Identifier entityTypeId : rawEntityData.appliesTo) {
 					EntityType<?> entityType = Registry.ENTITY_TYPE.get(entityTypeId);
-					if (entityType == null) {
+					if (!Registry.ENTITY_TYPE.containsId(entityTypeId)) {
 						WearablesCommon.LOGGER.info("[Wearables:DataManager] Could not find entity type '{}'", entityTypeId);
 						continue;
 					}
@@ -194,13 +195,13 @@ public class DataManager
 						}
 						data.specialItems.put(key, entry.getValue());
 					} else {
-						if (!Identifier.isValid(key)) {
+						if (Identifier.tryParse(key) == null) {
 							WearablesCommon.LOGGER.error("[Wearables:DataManager] Item identifier '{}' is invalid", key);
 							continue;
 						}
 						Identifier id = new Identifier(key);
 						Item item = Registry.ITEM.get(id);
-						if (item == null) {
+						if (item == Items.AIR) {
 							WearablesCommon.LOGGER.info("[Wearables:DataManager] Could not find item '{}'", id);
 							continue;
 						}
