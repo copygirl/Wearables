@@ -1,15 +1,11 @@
 plugins {
-	id 'fabric-loom' version '0.2.3-SNAPSHOT'
-	id 'maven-publish'
+	id "fabric-loom" version "0.2.3-SNAPSHOT"
 	id "com.jfrog.artifactory" version "4.9.0"
+	id "maven-publish"
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
-
-if(rootProject.file('private.gradle').exists()) { //Publishing details
-	apply from: 'private.gradle'
-}
 
 archivesBaseName = project.archives_base_name
 version          = project.mod_version
@@ -28,12 +24,12 @@ dependencies {
 processResources {
 	inputs.property "version", project.version
 	
-	from(sourceSets.main.resources.srcDirs) {
+	from (sourceSets.main.resources.srcDirs) {
 		include "fabric.mod.json"
 		expand "version": project.version
 	}
 	
-	from(sourceSets.main.resources.srcDirs) {
+	from (sourceSets.main.resources.srcDirs) {
 		exclude "fabric.mod.json"
 	}
 }
@@ -54,33 +50,33 @@ jar {
 	from "UNLICENSE"
 }
 
-// configure the maven publication
+// Publishing Details
+if (rootProject.file("private.gradle").exists()) {
+	apply from: "private.gradle"
+}
+
+// Configure Maven Publication
 publishing {
 	publications {
-		maven(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			//artifact(jar) {
-			//	builtBy remapJar
-			//}
+		maven (MavenPublication) {
+			// Add all JARs that should be included when publishing to maven.
 			artifact ("${project.buildDir.absolutePath}/libs/${archivesBaseName}-${project.version}.jar") { //release jar - file location not provided anywhere in loom
 				classifier null
 				builtBy remapJar
 			}
-
 			artifact ("${project.buildDir.absolutePath}/libs/${archivesBaseName}-${project.version}-dev.jar") { //release jar - file location not provided anywhere in loom
 				classifier "dev"
 				builtBy remapJar
 			}
-
-			artifact(sourcesJar) {
+			artifact (sourcesJar) {
 				builtBy remapSourcesJar
 			}
 		}
 	}
 
-	// select the repositories you want to publish to
+	// Select the repositories you want to publish to.
 	repositories {
-		// uncomment to publish to the local maven
+		// Uncomment to publish to the local maven.
 		// mavenLocal()
 	}
 }
@@ -90,18 +86,12 @@ artifactory {
 		contextUrl = "http://server.bbkr.space:8081/artifactory/"
 		publish {
 			repository {
-				if (version.contains("SNAPSHOT")) {
-					repoKey = "libs-snapshot"
-				} else {
-					repoKey = "libs-release"
-				}
-
+				repoKey  = version.contains("SNAPSHOT") ? "libs-snapshot" : "libs-release"
 				username = artifactoryUsername
 				password = artifactoryPassword
 			}
 			defaults {
 				publications("maven")
-
 				publishArtifacts = true
 				publishPom = true
 			}

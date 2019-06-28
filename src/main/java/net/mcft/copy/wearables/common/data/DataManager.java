@@ -129,12 +129,12 @@ public class DataManager
 			
 			for (RawEntityTypeData rawEntityData : this.entities) {
 				for (Identifier entityTypeId : rawEntityData.appliesTo) {
-					EntityType<?> entityType = Registry.ENTITY_TYPE.get(entityTypeId);
 					if (!Registry.ENTITY_TYPE.containsId(entityTypeId)) {
 						WearablesCommon.LOGGER.info("[Wearables:DataManager] Could not find entity type '{}'", entityTypeId);
 						continue;
 					}
 					
+					EntityType<?> entityType  = Registry.ENTITY_TYPE.get(entityTypeId);
 					EntityTypeData entityData = data.entities.computeIfAbsent(entityType, e -> new EntityTypeData());
 					
 					if (rawEntityData.mergeStrategy == MergeStrategy.REPLACE) {
@@ -195,11 +195,11 @@ public class DataManager
 						}
 						data.specialItems.put(key, entry.getValue());
 					} else {
-						if (Identifier.tryParse(key) == null) {
+						Identifier id = Identifier.tryParse(key);
+						if (id == null) {
 							WearablesCommon.LOGGER.error("[Wearables:DataManager] Item identifier '{}' is invalid", key);
 							continue;
 						}
-						Identifier id = new Identifier(key);
 						Item item = Registry.ITEM.get(id);
 						if (item == Items.AIR) {
 							WearablesCommon.LOGGER.info("[Wearables:DataManager] Could not find item '{}'", id);

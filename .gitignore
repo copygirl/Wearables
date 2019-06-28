@@ -3,6 +3,8 @@
 .gradle/
 build/
 out/
+# Publishing Details
+private.gradle
 
 # idea
 
@@ -22,4 +24,3 @@ bin/
 # fabric
 
 run/
-private.gradle
