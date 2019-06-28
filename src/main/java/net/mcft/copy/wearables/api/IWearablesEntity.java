@@ -1,7 +1,6 @@
 package net.mcft.copy.wearables.api;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import net.mcft.copy.wearables.common.data.WearablesData;
@@ -130,26 +129,26 @@ public interface IWearablesEntity
 	
 	
 	/**
-	 * Creates and returns a set of {@link WearablesSlotType WearablesSlotTypes}
-	 * this entity supports into which the specified {@link Item} may be
-	 * equipped according to item configuration from loaded data packs.
+	 * Creates and returns a collection of {@link WearablesSlotType WearablesSlotTypes}
+	 * this entity supports into which the specified {@link Item} may be equipped
+	 * according to item configuration from loaded data packs.
 	 * 
 	 * @throws IllegalArgumentException Thrown if item is {@code null}.
-	 * @return A set of slot types that are valid for the specified item, or an empty
-	 *         set if none were found or this entity doesn't support Wearables.
+	 * @return A collection of slot types that are valid for the specified item, or an empty
+	 *         collection if none were found or this entity doesn't support Wearables.
 	 */
-	public Set<WearablesSlotType> getValidSlotTypes(Item item);
+	public Collection<WearablesSlotType> getValidSlotTypes(Item item);
 	
 	/**
-	 * Creates and returns a set of {@link IWearablesSlot IWearablesSlots}
-	 * this entity supports into which the specified {@link Item} may be
-	 * equipped according to item configuration from loaded data packs.
+	 * Creates and returns a collection of {@link IWearablesSlot IWearablesSlots}
+	 * this entity supports into which the specified {@link Item} may be equipped
+	 * according to item configuration from loaded data packs.
 	 * 
 	 * @throws IllegalArgumentException Thrown if item is {@code null}.
-	 * @return A set of slots that are valid for the specified item, or an empty
-	 *         set if none were found or this entity doesn't support Wearables.
+	 * @return A collection of slots that are valid for the specified item, or an empty
+	 *         collection if none were found or this entity doesn't support Wearables.
 	 */
-	public Set<IWearablesSlot> getValidSlots(Item item);
+	public Collection<IWearablesSlot> getValidSlots(Item item);
 	
 	
 	/**

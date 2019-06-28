@@ -119,7 +119,7 @@ public class WearablesEntityImpl
 	
 	
 	@Override
-	public Set<WearablesSlotType> getValidSlotTypes(Item item)
+	public Collection<WearablesSlotType> getValidSlotTypes(Item item)
 	{
 		if (item == null) throw new IllegalArgumentException("item is null");
 		
@@ -145,11 +145,11 @@ public class WearablesEntityImpl
 	}
 	
 	@Override
-	public Set<IWearablesSlot> getValidSlots(Item item)
+	public Collection<IWearablesSlot> getValidSlots(Item item)
 	{
 		return getValidSlotTypes(item).stream()
 			.flatMap(this::getSupportedWearablesSlots)
-			.collect(Collectors.toSet());
+			.collect(Collectors.toList());
 	}
 	
 	
