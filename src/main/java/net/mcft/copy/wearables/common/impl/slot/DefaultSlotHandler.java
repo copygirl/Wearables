@@ -46,7 +46,7 @@ public final class DefaultSlotHandler
 		Entry entry = data.get(slot.getSlotType(), slot.getIndex(), !value.isEmpty());
 		
 		slot.invokeBeforeUnequip(entry.getStack());
-		if (entry != null) entry.setStack(value);
+		if (!value.isEmpty()) entry.setStack(value);
 		slot.invokeAfterEquip(value);
 		((WearablesSlotImpl)slot).sync();
 	}
