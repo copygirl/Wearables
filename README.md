@@ -8,6 +8,25 @@ Only meant to be used by mod developers and similarly crazy people.
 ![](docs/screenshot.png)
 
 
+## Download
+
+Available right here through [GitHub Releases][Releases].  
+You know what to do, yet keep in mind the current status of the mod.
+
+*In the event that this API becomes self-aware, we are not responsible for any damage it causes.*
+
+
+### Set up as Dependency
+
+```gradle
+// Add the following to your repositories:
+maven { url "http://server.bbkr.space:8081/artifactory/libs-release/" }
+// Add this to your your dependencies:
+modCompile "net.mcft.copy:Wearables:${wearables_version}"
+// (Use modApi if you're using Loom 0.2.4 or later.)
+```
+
+
 ## Comparison to Existing Mods
 
 - ***Baubles***
@@ -56,5 +75,6 @@ Also defined per entity type, **equipment "regions"** only need to be used when 
 For now, just refer to the documentation.
 
 
-[Fabric]: https://fabricmc.net/
-[Curios]: https://github.com/TheIllusiveC4/Curios
+[Fabric]:   https://fabricmc.net/
+[Releases]: https://github.com/copygirl/Wearables/releases
+[Curios]:   https://github.com/TheIllusiveC4/Curios
