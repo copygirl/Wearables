@@ -7,7 +7,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
@@ -123,13 +129,11 @@ public class DataManager
 			
 			for (RawEntityTypeData rawEntityData : this.entities) {
 				for (Identifier entityTypeId : rawEntityData.appliesTo) {
-					Optional<EntityType<?>> type = Registry.ENTITY_TYPE.getOrEmpty(entityTypeId);
-					if (!type.isPresent()) {
+					EntityType<?> entityType = Registry.ENTITY_TYPE.getOrEmpty(entityTypeId).orElse(null);
+					if (entityType == null) {
 						WearablesCommon.LOGGER.info("[Wearables:DataManager] Could not find entity type '{}'", entityTypeId);
 						continue;
 					}
-					
-					EntityType<?> entityType  = type.get();
 					EntityTypeData entityData = data.entities.computeIfAbsent(entityType, e -> new EntityTypeData());
 					
 					if (rawEntityData.mergeStrategy == MergeStrategy.REPLACE) {
