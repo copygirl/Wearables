@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import net.mcft.copy.wearables.api.IWearablesEntity;
@@ -43,11 +44,11 @@ public interface IWearablesItemHandler
 	public Collection<String> getHandledSpecialItems();
 	
 	/**
-	 * Returns a "special item" string if the specified {@link Item}
-	 * is handled by this instance, or {@code null} if it isn't.
+	 * Returns a "special item" string if the specified {@link Item} is
+	 * handled by this instance, or {@link Optional#empty} if it isn't.
 	 * <p>
 	 * The returned string must be one contained in the
 	 * collection returned by {@link #getHandledSpecialItems}.
 	 */
-	public String getSpecialItems(Item item);
+	public Optional<String> getSpecialItem(Item item);
 }

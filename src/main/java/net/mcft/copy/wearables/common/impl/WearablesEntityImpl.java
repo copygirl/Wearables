@@ -124,7 +124,7 @@ public class WearablesEntityImpl
 		if (item == null) throw new IllegalArgumentException("item is null");
 		
 		ItemData itemData = IWearablesItemHandler.REGISTRY.stream()
-			.map(handler -> handler.getSpecialItems(item)).filter(Objects::nonNull).findFirst()
+			.map(handler -> handler.getSpecialItem(item)).filter(Optional::isPresent).map(Optional::get).findFirst()
 			.flatMap(specialItem -> Optional.ofNullable(WearablesData.INSTANCE.specialItems.get(specialItem)))
 			.orElseGet(() -> WearablesData.INSTANCE.items.get(item));
 		if (itemData == null) return Collections.emptySet();

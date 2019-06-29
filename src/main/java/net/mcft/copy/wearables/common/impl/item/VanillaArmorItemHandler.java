@@ -3,6 +3,7 @@ package net.mcft.copy.wearables.common.impl.item;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import net.mcft.copy.wearables.api.IWearablesItemHandler;
 
@@ -20,10 +21,10 @@ public class VanillaArmorItemHandler
 	
 	private VanillaArmorItemHandler()
 	{
-		this._lookup.put(EquipmentSlot.HEAD , "ItemArmor:helmet"    );
-		this._lookup.put(EquipmentSlot.CHEST, "ItemArmor:chestplate");
-		this._lookup.put(EquipmentSlot.LEGS , "ItemArmor:leggings"  );
-		this._lookup.put(EquipmentSlot.FEET , "ItemArmor:boots"     );
+		this._lookup.put(EquipmentSlot.HEAD , "ArmorItem:helmet"    );
+		this._lookup.put(EquipmentSlot.CHEST, "ArmorItem:chestplate");
+		this._lookup.put(EquipmentSlot.LEGS , "ArmorItem:leggings"  );
+		this._lookup.put(EquipmentSlot.FEET , "ArmorItem:boots"     );
 	}
 	
 	
@@ -32,10 +33,10 @@ public class VanillaArmorItemHandler
 		{ return this._lookup.values(); }
 	
 	@Override
-	public String getSpecialItems(Item item)
+	public Optional<String> getSpecialItem(Item item)
 	{
 		return (item instanceof ArmorItem) 
-			? this._lookup.get(((ArmorItem)item).getSlotType())
-			: null;
+			? Optional.of(this._lookup.get(((ArmorItem)item).getSlotType()))
+			: Optional.empty();
 	}
 }

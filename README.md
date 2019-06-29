@@ -44,7 +44,7 @@ modCompile "net.mcft.copy:Wearables:${wearables_version}"
 
 Any existing item in the game can be configured to be equippable in custom equipment slots. This behavior can be defined in JSON files found in the folder `config/wearables/item/` of any data pack.
 
-Special item handlers exist to deal with existing groups of items, such as `"!ItemArmor:chestplate"`. This allows adjusting the equipment behavior for Vanilla armor, so you may for example allow armor to be equipped in a set of cosmetic slots.
+Special item handlers exist to deal with existing groups of items, such as `"!ArmorItem:chestplate"`. This allows adjusting the equipment behavior for Vanilla armor, so you may for example allow armor to be equipped in a set of cosmetic slots.
 
 It is also possible to override Vanilla equipment rules, such as preventing an elytra from being equipped in the chestplate slot and instead requiring it to be equipped on the back.
 

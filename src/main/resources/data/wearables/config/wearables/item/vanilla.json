@@ -1,8 +1,8 @@
 {
-	"!ItemArmor:helmet"     : { "validSlots": [  "head/helmet"    ,  "head/hat"   ] },
-	"!ItemArmor:chestplate" : { "validSlots": [ "chest/chestplate", "chest/shirt" ] },
-	"!ItemArmor:leggings"   : { "validSlots": [  "legs/leggings"  ,  "legs/pants" ] },
-	"!ItemArmor:boots"      : { "validSlots": [  "feet/boots"     ,  "feet/socks" ] },
+	"!ArmorItem:helmet"     : { "validSlots": [  "head/helmet"    ,  "head/hat"   ] },
+	"!ArmorItem:chestplate" : { "validSlots": [ "chest/chestplate", "chest/shirt" ] },
+	"!ArmorItem:leggings"   : { "validSlots": [  "legs/leggings"  ,  "legs/pants" ] },
+	"!ArmorItem:boots"      : { "validSlots": [  "feet/boots"     ,  "feet/socks" ] },
 	
 	"minecraft:elytra"         : { "validSlots": [ "back/wings" ] },
 	"minecraft:carved_pumpkin" : { "validSlots": [ "head/hat"   ] }
