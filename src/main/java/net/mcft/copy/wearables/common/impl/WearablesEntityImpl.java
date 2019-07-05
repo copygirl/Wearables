@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -124,7 +123,8 @@ public class WearablesEntityImpl
 		if (item == null) throw new IllegalArgumentException("item is null");
 		
 		ItemData itemData = IWearablesItemHandler.REGISTRY.stream()
-			.map(handler -> handler.getSpecialItem(item)).filter(Optional::isPresent).map(Optional::get).findFirst()
+			.map(handler -> handler.getSpecialItem(item))
+			.filter(Optional::isPresent).map(Optional::get).findFirst()
 			.flatMap(specialItem -> Optional.ofNullable(WearablesData.INSTANCE.specialItems.get(specialItem)))
 			.orElseGet(() -> WearablesData.INSTANCE.items.get(item));
 		if (itemData == null) return Collections.emptySet();
