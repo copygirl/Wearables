@@ -1,0 +1,4 @@
+{
+	"appliesTo": [ "minecraft:horse" ],
+	"entries": [{ "region": "back", "position": [ 7, 7 ] }]
+}

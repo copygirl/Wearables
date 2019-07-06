@@ -1,12 +1,11 @@
 {
-	"appliesTo": [ "CreativeContainer" ],
-	"regions": {
-		"head"  : { "position": [  54,  6 ] },
-		"chest" : { "position": [  54, 33 ] },
-		"legs"  : { "position": [ 108,  6 ] },
-		"feet"  : { "position": [ 108, 33 ] },
-		
-		"back" : { "position": [ 127, 10 ] },
-		"arms" : { "position": [ 127, 29 ] }
-	}
+	"appliesTo": [ "minecraft:creative" ],
+	"entries": [
+		{ "region": "head" , "position": [  54,  6 ] },
+		{ "region": "chest", "position": [  54, 33 ] },
+		{ "region": "legs" , "position": [ 108,  6 ] },
+		{ "region": "feet" , "position": [ 108, 33 ] },
+		{ "region": "back" , "position": [ 127, 10 ] },
+		{ "region": "arms" , "position": [ 127, 29 ] }
+	]
 }

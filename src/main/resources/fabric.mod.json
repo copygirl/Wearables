@@ -26,8 +26,9 @@
     "client": [ "net.mcft.copy.wearables.WearablesClient" ]
   },
   "mixins": [
-    { "config": "wearables.common.json", "environment": "*" },
-    { "config": "wearables.client.json", "environment": "client" }
+    { "config": "wearables.client.json"   , "environment": "client" },
+    { "config": "wearables.common.json"   , "environment": "*" },
+    { "config": "wearables.container.json", "environment": "*" }
   ],
   
   "depends": {

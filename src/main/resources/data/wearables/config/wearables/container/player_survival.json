@@ -1,12 +1,11 @@
 {
-	"appliesTo": [ "SurvivalContainer" ],
-	"regions": {
-		"head"  : { "position": [ 8,  8 ] },
-		"chest" : { "position": [ 8, 26 ] },
-		"legs"  : { "position": [ 8, 44 ] },
-		"feet"  : { "position": [ 8, 62 ] },
-		
-		"back" : { "position": [ 77, 26 ] },
-		"arms" : { "position": [ 77, 44 ] }
-	}
+	"appliesTo": [ "minecraft:survival" ],
+	"entries": [
+		{ "region": "head" , "position": [  8,  8 ] },
+		{ "region": "chest", "position": [  8, 26 ] },
+		{ "region": "legs" , "position": [  8, 44 ] },
+		{ "region": "feet" , "position": [  8, 62 ] },
+		{ "region": "back" , "position": [ 77, 26 ] },
+		{ "region": "arms" , "position": [ 77, 44 ] }
+	]
 }

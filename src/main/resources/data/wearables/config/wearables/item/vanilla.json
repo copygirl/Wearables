@@ -5,5 +5,8 @@
 	"!ArmorItem:boots"      : { "validSlots": [  "feet/boots"     ,  "feet/socks" ] },
 	
 	"minecraft:elytra"         : { "validSlots": [ "back/wings" ] },
-	"minecraft:carved_pumpkin" : { "validSlots": [ "head/hat"   ] }
+	"minecraft:carved_pumpkin" : { "validSlots": [ "head/hat"   ] },
+	
+	"minecraft:iron_horse_armor" : { "validSlots": [ "body/armor"  ] },
+	"minecraft:saddle"           : { "validSlots": [ "back/saddle" ] }
 }

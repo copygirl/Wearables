@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.7.11",
+  "compatibilityLevel": "JAVA_8",
+  "package": "net.mcft.copy.wearables.common.mixin.container",
+  "mixins": [
+    "HorseContainerMixin",
+    "PlayerContainerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

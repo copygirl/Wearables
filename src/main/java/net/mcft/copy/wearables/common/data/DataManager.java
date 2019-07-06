@@ -36,9 +36,8 @@ import net.mcft.copy.wearables.WearablesCommon;
 import net.mcft.copy.wearables.api.IWearablesItemHandler;
 import net.mcft.copy.wearables.api.WearablesRegion;
 import net.mcft.copy.wearables.api.WearablesSlotType;
-import net.mcft.copy.wearables.common.data.DataManager.RawContainerData.Region;
+import net.mcft.copy.wearables.common.data.ContainerData.RegionEntry;
 import net.mcft.copy.wearables.common.data.EntityTypeData.SlotTypeData;
-import net.mcft.copy.wearables.common.data.WearablesData.ContainerData;
 import net.mcft.copy.wearables.common.data.WearablesData.ItemData;
 import net.mcft.copy.wearables.common.misc.Position;
 
@@ -116,12 +115,14 @@ public class DataManager
 			data.version++;
 			
 			for (RawContainerData rawContainerData : this.containers) {
-				for (String containerIdentifier : rawContainerData.appliesTo) {
-					ContainerData containerData = new ContainerData();
-					data.containers.put(containerIdentifier, containerData);
+				for (Identifier containerIdentifier : rawContainerData.appliesTo) {
+					ContainerData containerData = data.containers
+						.computeIfAbsent(containerIdentifier, id -> new ContainerData());
 					
-					for (Map.Entry<WearablesRegion, Region> entry : rawContainerData.regions.entrySet())
-						containerData.regionPositions.put(entry.getKey(), entry.getValue().position);
+					if (rawContainerData.mergeStrategy == MergeStrategy.REPLACE)
+						containerData.entries.clear();
+					
+					containerData.entries.addAll(rawContainerData.entries);
 				}
 			}
 			
@@ -134,7 +135,8 @@ public class DataManager
 						WearablesCommon.LOGGER.info("[Wearables:DataManager] Could not find entity type '{}'", entityTypeId);
 						continue;
 					}
-					EntityTypeData entityData = data.entities.computeIfAbsent(entityType, e -> new EntityTypeData());
+					EntityTypeData entityData = data.entities
+						.computeIfAbsent(entityType, e -> new EntityTypeData());
 					
 					if (rawEntityData.mergeStrategy == MergeStrategy.REPLACE) {
 						entityData.regions.clear();
@@ -214,15 +216,13 @@ public class DataManager
 	
 	public static class RawContainerData
 	{
-		public String[] appliesTo;
-		public Regions regions;
+		public Identifier[] appliesTo;
+		public MergeStrategy mergeStrategy;
+		public RegionEntries entries;
 		
 		@SuppressWarnings("serial")
-		public static class Regions
-			extends HashMap<WearablesRegion, Region> {  }
-		
-		public static class Region
-			{ public Position position; }
+		public static class RegionEntries
+			extends ArrayList<RegionEntry> {  }
 	}
 	
 	public static class RawEntityTypeData

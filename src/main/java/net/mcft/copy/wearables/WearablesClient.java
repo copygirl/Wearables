@@ -4,10 +4,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.mcft.copy.wearables.api.WearablesContainerRegistry;
 import net.mcft.copy.wearables.client.SlotIconSpriteHandler;
-
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen.CreativeContainer;
 
 @Environment(EnvType.CLIENT)
 public class WearablesClient
@@ -21,7 +18,5 @@ public class WearablesClient
 	{
 		SPRITES.registerSpriteCallback();
 		NETWORK.initializeClient();
-		
-		WearablesContainerRegistry.register("CreativeContainer", CreativeContainer.class);
 	}
 }

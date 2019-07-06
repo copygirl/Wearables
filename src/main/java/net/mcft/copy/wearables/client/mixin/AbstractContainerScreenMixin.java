@@ -3,6 +3,7 @@ package net.mcft.copy.wearables.client.mixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import net.mcft.copy.wearables.api.IWearablesContainer;
 import net.mcft.copy.wearables.client.IRegionPopupGetter;
 import net.mcft.copy.wearables.client.WearablesRegionPopup;
 import net.mcft.copy.wearables.client.WearablesRegionPopup.RegionEntry;
@@ -46,8 +47,9 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 	@Inject(method="init", at=@At("TAIL"))
 	protected void init(CallbackInfo info)
 	{
-		this.wearables_regionPopup = new WearablesRegionPopup(
-			(AbstractContainerScreen<?>)(Object)this, playerInventory.player);
+		if (getContainer() instanceof IWearablesContainer)
+			this.wearables_regionPopup = new WearablesRegionPopup(
+				(AbstractContainerScreen<?>)(Object)this);
 	}
 	
 	
@@ -55,6 +57,7 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 	private void isPointOverSlot(Slot slot, double pointX, double pointY,
 	                             CallbackInfoReturnable<Boolean> info)
 	{
+		if (this.wearables_regionPopup == null) return;
 		if (this.wearables_regionPopup.isMouseOver(pointX, pointY))
 			info.setReturnValue(false);
 	}
@@ -63,6 +66,7 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 	private void isClickOutsideBounds(double pointX, double pointY, int left, int top,
 	                                  int button, CallbackInfoReturnable<Boolean> info)
 	{
+		if (this.wearables_regionPopup == null) return;
 		if (info.getReturnValueZ() && this.wearables_regionPopup.isMouseOver(pointX, pointY))
 			info.setReturnValue(false);
 	}
@@ -72,6 +76,7 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 	private void mouseClicked(double mouseX, double mouseY, int button,
 	                          CallbackInfoReturnable<Boolean> info)
 	{
+		if (this.wearables_regionPopup == null) return;
 		if (this.wearables_regionPopup.mouseClicked(mouseX, mouseY, button))
 			info.setReturnValue(true);
 	}
@@ -79,17 +84,19 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 	@Inject(method="drawSlot", at=@At("HEAD"), cancellable=true)
 	private void drawSlot(Slot slot, CallbackInfo info)
 	{
+		if (this.wearables_regionPopup == null) return;
 		// Skip rendering slots that are occupied by regions.
 		// This only works if the region is in the exact same position.
 		// TODO: Find a way to skip rendering slots that are handled by Wearables, independent of position.
 		Position pos = new Position(slot.xPosition, slot.yPosition);
-		for (RegionEntry region : this.wearables_regionPopup.regions)
+		for (RegionEntry region : this.wearables_regionPopup.entries)
 			if (region.pos.equals(pos)) { info.cancel(); return; }
 	}
 	
 	@Inject(method="render", at=@At("HEAD"))
 	public void renderAtHead(int mouseX, int mouseY, float tickDelta, CallbackInfo info)
 	{
+		if (this.wearables_regionPopup == null) return;
 		this.wearables_regionPopup.update(mouseX, mouseY);
 	}
 	
@@ -99,6 +106,7 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 	               shift=Shift.BEFORE))
 	public void renderBeforeForeground(int mouseX, int mouseY, float tickDelta, CallbackInfo info)
 	{
+		if (this.wearables_regionPopup == null) return;
 		this.wearables_regionPopup.render(mouseX, mouseY, tickDelta);
 		GuiLighting.disable();
 	}

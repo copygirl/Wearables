@@ -23,7 +23,7 @@ public abstract class InventoryScreenMixin
 	                                  int button, CallbackInfoReturnable<Boolean> info)
 	{
 		WearablesRegionPopup popup = ((IRegionPopupGetter)this).getWearablesRegionPopup();
-		if (info.getReturnValueZ() && popup.isMouseOver(pointX, pointY))
+		if ((popup != null) && info.getReturnValueZ() && popup.isMouseOver(pointX, pointY))
 			info.setReturnValue(false);
 	}
 }

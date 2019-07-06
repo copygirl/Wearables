@@ -17,15 +17,16 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import net.mcft.copy.wearables.api.IWearablesScreen;
+import net.mcft.copy.wearables.WearablesCommon;
+import net.mcft.copy.wearables.api.IWearablesContainer;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesSlot;
-import net.mcft.copy.wearables.api.WearablesContainerRegistry;
 import net.mcft.copy.wearables.api.WearablesRegion;
 import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
+import net.mcft.copy.wearables.common.data.ContainerData;
 import net.mcft.copy.wearables.common.data.EntityTypeData;
 import net.mcft.copy.wearables.common.data.WearablesData;
-import net.mcft.copy.wearables.common.data.WearablesData.ContainerData;
 import net.mcft.copy.wearables.common.impl.slot.DefaultSlotHandler;
 import net.mcft.copy.wearables.common.misc.Position;
 import net.mcft.copy.wearables.common.network.NetUtil;
@@ -66,68 +67,79 @@ public class WearablesRegionPopup
 	public final AbstractContainerScreen<?> screen;
 	public final IContainerScreenAccessor<?> accessor;
 	public final IWearablesScreen wearScreen;
-	public final Entity entity;
+	public final IWearablesContainer container;
 	
 	private int _version;
 	private ContainerData _data;
 	
 	public boolean isVisible = false;
-	public List<RegionEntry> regions;
+	public List<RegionEntry> entries;
 	
 	public Position pos;
 	public int width, height;
-	public WearablesRegion curRegion;
+	public RegionEntry current;
 	public List<SlotEntry> slots;
 	
 	
-	public WearablesRegionPopup(AbstractContainerScreen<?> screen, Entity entity)
+	public WearablesRegionPopup(AbstractContainerScreen<?> screen)
 	{
+		if (screen == null) throw new IllegalArgumentException("screen is null");
+		if (!(screen.getContainer() instanceof IWearablesContainer)) throw new IllegalArgumentException(
+			"'" + screen.getContainer() + "' isn't a IWearablesContainer");
+		
 		this.screen     = screen;
 		this.accessor   = (IContainerScreenAccessor<?>)screen;
 		this.wearScreen = IWearablesScreen.from(screen);
-		this.entity     = entity;
+		this.container  = (IWearablesContainer)screen.getContainer();
+		
 		init();
 	}
 	
 	public void init()
 	{
 		this._version = WearablesData.INSTANCE.version;
+		this._data    = WearablesData.INSTANCE.containers.get(this.container.getWearablesIdentifier());
 		
-		Class<?> clazz = screen.getContainer().getClass();
-		do {
-			this._data = WearablesContainerRegistry.find(clazz)
-				.map(WearablesData.INSTANCE.containers::get)
-				.orElse(null);
-			clazz = clazz.getSuperclass();
-		} while ((this._data == null) && AbstractContainerScreen.class.isAssignableFrom(clazz));
-		
-		IWearablesEntity wearablesEntity = IWearablesEntity.from(entity);
-		this.regions = Optional.ofNullable(this._data)
-			.map(data -> data.regionPositions.entrySet().stream()).orElse(Stream.empty())
-			.map(entry -> wearablesEntity.getSupportedWearablesSlots(entry.getKey())
-				.reduce((a, b) -> Math.abs(a.getOrder()) < Math.abs(b.getOrder()) ? a : b)
-				.map(slot -> new RegionEntry(entry.getKey(), entry.getValue(), slot, getIcon(slot.getSlotType()))))
-			.filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+		this.entries = Optional.ofNullable(this._data)
+			.map(data -> data.entries.stream()).orElse(Stream.empty())
+			.map(entry -> {
+				Entity entity = Optional.ofNullable(entry.entityKey)
+					.map(key -> this.container.getWearablesEntityMap().get(key))
+					.orElseGet(() -> this.container.getWearablesDefaultEntity());
+				
+				if (entity == null) {
+					WearablesCommon.LOGGER.warn("[wearables:WearablesRegionPopup] Unknown entity key '{}'", entry.entityKey);
+					return Optional.<RegionEntry>empty();
+				}
+					
+				return IWearablesEntity.from(entity)
+					.getSupportedWearablesSlots(entry.region)
+					.reduce((a, b) -> Math.abs(a.getOrder()) < Math.abs(b.getOrder()) ? a : b)
+					.map(slot -> new RegionEntry(entry.region, slot, entry.position, getIcon(entity, slot.getSlotType())));
+			})
+			.filter(Optional::isPresent).map(Optional::get)
+			.collect(Collectors.toList());
 		
 		hide();
 	}
 	
-	public void show(WearablesRegion region, Position slotPos)
+	public void show(RegionEntry entry)
 	{
 		this.isVisible = true;
-		this.curRegion = region;
+		this.current   = entry;
 		
+		Entity entity = entry.centerSlot.getEntity();
 		IWearablesEntity wearablesEntity = IWearablesEntity.from(entity);
 		SortedSet<IWearablesSlot> slots = new TreeSet<>();
-		wearablesEntity.getSupportedWearablesSlots(region).forEach(slots::add);
-		wearablesEntity.getEquippedWearables(region).forEach(slots::add);
+		wearablesEntity.getSupportedWearablesSlots(entry.region).forEach(slots::add);
+		wearablesEntity.getEquippedWearables(entry.region).forEach(slots::add);
 		// TODO: Optionally filter for which slots are currently relevant.
 		
 		Iterator<IWearablesSlot> iter = slots.iterator();
 		this.slots = IntStream.range(0, slots.size()).mapToObj(i -> {
 				IWearablesSlot slot = iter.next();
 				Position pos = new Position(BORDER_SIZE + 1 + i * SLOT_SIZE, BORDER_SIZE + 1);
-				return new SlotEntry(slot, pos, getIcon(slot.getSlotType()));
+				return new SlotEntry(slot, pos, getIcon(entity, slot.getSlotType()));
 			}).collect(Collectors.toList());
 		if (this.slots.isEmpty()) { hide(); return; }
 		
@@ -140,16 +152,16 @@ public class WearablesRegionPopup
 			minAbsOrder = order;
 		}
 		
-		int x = accessor.getLeft() + slotPos.x - BORDER_SIZE - 1 - SLOT_SIZE * centerIndex;
-		int y = accessor.getTop()  + slotPos.y - BORDER_SIZE - 1;
+		int x = accessor.getLeft() + entry.pos.x - BORDER_SIZE - 1 - SLOT_SIZE * centerIndex;
+		int y = accessor.getTop()  + entry.pos.y - BORDER_SIZE - 1;
 		this.pos    = new Position(x, y);
 		this.width  = BORDER_SIZE * 2 + SLOT_SIZE * this.slots.size();
 		this.height = BORDER_SIZE * 2 + SLOT_SIZE;
 	}
 	
-	private Identifier getIcon(WearablesSlotType slotType)
+	private Identifier getIcon(Entity entity, WearablesSlotType slotType)
 	{
-		return Optional.ofNullable(EntityTypeData.from(this.entity).slotTypes.get(slotType))
+		return Optional.ofNullable(EntityTypeData.from(entity).slotTypes.get(slotType))
 		               .map(slotTypeData -> slotTypeData.handler)
 		               .orElse(DefaultSlotHandler.INSTANCE)
 		               .getIcon(slotType);
@@ -163,8 +175,8 @@ public class WearablesRegionPopup
 		this.pos   = null;
 		this.width = this.height = 0;
 		
-		this.curRegion = null;
-		this.slots     = null;
+		this.current = null;
+		this.slots   = null;
 	}
 	
 	
@@ -241,9 +253,9 @@ public class WearablesRegionPopup
 		if (this.isVisible && !isMouseOver(mouseX, mouseY)) hide();
 		
 		if (!this.isVisible && !accessor.hoveredElement(mouseX, mouseY).isPresent())
-			for (RegionEntry entry : this.regions)
+			for (RegionEntry entry : this.entries)
 				if (isOverSlot(entry.pos, mouseX, mouseY))
-					{ show(entry.region, entry.pos); break; }
+					{ show(entry); break; }
 	}
 	
 	@Override
@@ -262,19 +274,19 @@ public class WearablesRegionPopup
 	{
 		// Draw empty slots.
 		REGION_TEX.bind();
-		for (RegionEntry entry : this.regions)
-			if (entry.region != this.curRegion)
+		for (RegionEntry entry : this.entries)
+			if (entry != this.current)
 				drawEmptySlot(entry.pos);
 		
 		// Draw slot icons.
 		this._client.getTextureManager().bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEX);
-		for (RegionEntry entry : this.regions)
-			if ((entry.region != this.curRegion) && entry.centerSlot.get().isEmpty())
+		for (RegionEntry entry : this.entries)
+			if ((entry != this.current) && entry.centerSlot.get().isEmpty())
 				drawIcon(entry.pos, entry.icon);
 		
 		// Draw item stacks.
-		for (RegionEntry entry : this.regions)
-			if (entry.region != this.curRegion)
+		for (RegionEntry entry : this.entries)
+			if (entry != this.current)
 				drawItemStack(entry.pos, entry.centerSlot.get());
 	}
 	
@@ -339,12 +351,12 @@ public class WearablesRegionPopup
 	public static final class RegionEntry
 	{
 		public final WearablesRegion region;
-		public final Position pos;
 		public final IWearablesSlot centerSlot;
+		public final Position pos;
 		public final Identifier icon;
 		
-		public RegionEntry(WearablesRegion region, Position pos, IWearablesSlot slot, Identifier icon)
-			{ this.region = region; this.pos = pos; this.centerSlot = slot; this.icon = icon; }
+		public RegionEntry(WearablesRegion region, IWearablesSlot centerSlot, Position pos, Identifier icon)
+			{ this.region = region; this.pos = pos; this.centerSlot = centerSlot; this.icon = icon; }
 	}
 	
 	public static final class SlotEntry
