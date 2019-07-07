@@ -9,7 +9,7 @@ import net.mcft.copy.wearables.common.data.EntityTypeData;
 import net.mcft.copy.wearables.common.data.EntityTypeData.SlotTypeData;
 import net.mcft.copy.wearables.common.impl.slot.DefaultSlotHandler;
 import net.mcft.copy.wearables.common.network.NetUtil;
-import net.mcft.copy.wearables.common.network.WearablesUpdatePacket;
+import net.mcft.copy.wearables.common.network.WearablesUpdatePacketS2C;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
@@ -56,7 +56,7 @@ public class WearablesSlotImpl
 	public void sync()
 	{
 		if ((this._entity.world == null) || this._entity.world.isClient) return;
-		NetUtil.sendToPlayersTracking(this._entity, new WearablesUpdatePacket(this), true);
+		NetUtil.sendToPlayersTracking(this._entity, new WearablesUpdatePacketS2C(this), true);
 	}
 	
 	

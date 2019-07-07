@@ -16,8 +16,8 @@ import org.lwjgl.opengl.GL11;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.mcft.copy.wearables.api.IWearablesScreen;
 import net.mcft.copy.wearables.WearablesCommon;
+import net.mcft.copy.wearables.api.IWearablesScreen;
 import net.mcft.copy.wearables.api.IWearablesContainer;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesSlot;
@@ -25,12 +25,13 @@ import net.mcft.copy.wearables.api.WearablesRegion;
 import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.client.mixin.IContainerScreenAccessor;
 import net.mcft.copy.wearables.common.data.ContainerData;
+import net.mcft.copy.wearables.common.InteractionHandler.Action;
 import net.mcft.copy.wearables.common.data.EntityTypeData;
 import net.mcft.copy.wearables.common.data.WearablesData;
 import net.mcft.copy.wearables.common.impl.slot.DefaultSlotHandler;
 import net.mcft.copy.wearables.common.misc.Position;
 import net.mcft.copy.wearables.common.network.NetUtil;
-import net.mcft.copy.wearables.common.network.WearablesInteractPacket;
+import net.mcft.copy.wearables.common.network.WearablesInteractPacketC2S;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -214,28 +215,15 @@ public class WearablesRegionPopup
 		if (!entry.isPresent()) return true;
 		IWearablesSlot slot = entry.get().slot;
 		
-		// TODO: Handle pick keybind if it's a key, too!
-		// if (this._client.options.keyPickItem.matchesMouse(button)) {
-		// 	if (this._player.isCreative() && this._inventory.getCursorStack().isEmpty()) {
-		// 		ItemStack stack = slot.get().copy();
-		// 		stack.setAmount(stack.getMaxAmount());
-		// 		this._inventory.setCursorStack(stack);
-		// 	}
-		// 	return true;
-		// }
+		Action action;
+		if (button == 0) action = Action.LEFT;
+		else if (button == 1) action = Action.RIGHT;
+		else if (this._client.options.keyPickItem.matchesMouse(button)) action = Action.PICK_ITEM;
+		else return true;
 		
-		// FIXME: Handle different mouse buttons properly.
-		if (!slot.canUnequip()) return true;
-		ItemStack cursorStack     = this._inventory.getCursorStack();
-		ItemStack currentEquipped = slot.get();
-		if (cursorStack.isEmpty() && currentEquipped.isEmpty()) return true;
-		if (!slot.canEquip(cursorStack)) return true;
-		
-		// FIXME: Handle ItemStacks with amount > 1 properly.
-		this._inventory.setCursorStack(currentEquipped.copy());
-		slot.set(cursorStack.copy());
-		
-		NetUtil.sendToServer(new WearablesInteractPacket(slot));
+		ItemStack cursorStack = this._inventory.getCursorStack();
+		WearablesCommon.INTERACT.onInteract(this._player, slot, action, cursorStack);
+		NetUtil.sendToServer(new WearablesInteractPacketC2S(action, slot, cursorStack));
 		
 		return true;
 	}

@@ -1,6 +1,6 @@
 package net.mcft.copy.wearables.common.mixin;
 
-import net.mcft.copy.wearables.common.network.WearablesUpdatePacket;
+import net.mcft.copy.wearables.common.network.WearablesUpdatePacketS2C;
 
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.PlayerManager;
@@ -21,7 +21,7 @@ public abstract class PlayerManagerMixin
 {
 	@Inject(method="onPlayerConnect", at=@At("TAIL"))
 	public void onPlayerConnect(ClientConnection conn, ServerPlayerEntity player, CallbackInfo info)
-		{ WearablesUpdatePacket.sendForEntity(player, false, player.networkHandler::sendPacket); }
+		{ WearablesUpdatePacketS2C.sendForEntity(player, false, player.networkHandler::sendPacket); }
 	
 	@Inject(method="respawnPlayer", at=@At("TAIL"), locals=LocalCapture.CAPTURE_FAILHARD)
 	public void respawnPlayer(ServerPlayerEntity oldPlayer, DimensionType dimType, boolean boolean_1,
@@ -29,6 +29,6 @@ public abstract class PlayerManagerMixin
 	                          ServerPlayerInteractionManager interactionManager, ServerPlayerEntity newPlayer)
 	{
 		// TODO: Keep Wearables if keepInventory gamerule is on.
-		WearablesUpdatePacket.sendForEntity(newPlayer, true, newPlayer.networkHandler::sendPacket);
+		WearablesUpdatePacketS2C.sendForEntity(newPlayer, true, newPlayer.networkHandler::sendPacket);
 	}
 }

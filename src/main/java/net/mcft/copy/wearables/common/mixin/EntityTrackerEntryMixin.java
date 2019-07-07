@@ -2,7 +2,7 @@ package net.mcft.copy.wearables.common.mixin;
 
 import java.util.function.Consumer;
 
-import net.mcft.copy.wearables.common.network.WearablesUpdatePacket;
+import net.mcft.copy.wearables.common.network.WearablesUpdatePacketS2C;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
@@ -22,5 +22,5 @@ public abstract class EntityTrackerEntryMixin
 	
 	@Inject(method="sendPackets", at=@At("TAIL"))
 	public void sendPackets(Consumer<Packet<?>> sendPacket, CallbackInfo info)
-		{ WearablesUpdatePacket.sendForEntity(this.entity, false, sendPacket); }
+		{ WearablesUpdatePacketS2C.sendForEntity(this.entity, false, sendPacket); }
 }

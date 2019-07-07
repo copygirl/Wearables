@@ -7,6 +7,7 @@ import net.fabricmc.api.ModInitializer;
 
 import net.mcft.copy.wearables.api.IWearablesItemHandler;
 import net.mcft.copy.wearables.api.IWearablesSlotHandler;
+import net.mcft.copy.wearables.common.InteractionHandler;
 import net.mcft.copy.wearables.common.data.DataManager;
 import net.mcft.copy.wearables.common.network.NetworkHandler;
 import net.mcft.copy.wearables.common.impl.item.VanillaArmorItemHandler;
@@ -20,8 +21,9 @@ public class WearablesCommon
 	public static final String MOD_ID = "wearables";
 	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 	
-	public static final DataManager    DATA    = new DataManager();
-	public static final NetworkHandler NETWORK = new NetworkHandler();
+	public static final DataManager        DATA     = new DataManager();
+	public static final NetworkHandler     NETWORK  = new NetworkHandler();
+	public static final InteractionHandler INTERACT = new InteractionHandler();
 	
 	
 	@Override

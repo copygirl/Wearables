@@ -17,7 +17,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
-public class WearablesUpdatePacket
+public class WearablesUpdatePacketS2C
 	implements IPacket
 {
 	public static final Identifier ID = new Identifier(WearablesCommon.MOD_ID, "update");
@@ -30,9 +30,9 @@ public class WearablesUpdatePacket
 	public boolean replaceAll;
 	
 	
-	public WearablesUpdatePacket() {  }
+	public WearablesUpdatePacketS2C() {  }
 	
-	public WearablesUpdatePacket(Entity entity, boolean replaceAll)
+	public WearablesUpdatePacketS2C(Entity entity, boolean replaceAll)
 	{
 		this.entityId   = entity.getEntityId();
 		this.replaceAll = replaceAll;
@@ -43,7 +43,7 @@ public class WearablesUpdatePacket
 			.forEach(this.data::add);
 	}
 	
-	public WearablesUpdatePacket(WearablesSlotImpl slot)
+	public WearablesUpdatePacketS2C(WearablesSlotImpl slot)
 	{
 		this.entityId   = slot.getEntity().getEntityId();
 		this.replaceAll = false;
@@ -66,7 +66,7 @@ public class WearablesUpdatePacket
 		    (sendIfNone || IWearablesEntity.from(entity).hasWearables()))
 			sendPacket.accept(NetUtil.toVanillaPacket(
 				ServerSidePacketRegistry.INSTANCE,
-				new WearablesUpdatePacket(entity, true)));
+				new WearablesUpdatePacketS2C(entity, true)));
 	}
 	
 	

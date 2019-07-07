@@ -7,13 +7,15 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
 
+import net.mcft.copy.wearables.WearablesCommon;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.common.WearablesEntry;
+import net.mcft.copy.wearables.common.InteractionHandler.Result;
 import net.mcft.copy.wearables.common.network.NetUtil;
 import net.mcft.copy.wearables.common.network.NetworkHandler;
-import net.mcft.copy.wearables.common.network.WearablesInteractPacket;
-import net.mcft.copy.wearables.common.network.WearablesUpdatePacket;
+import net.mcft.copy.wearables.common.network.WearablesInteractPacketC2S;
+import net.mcft.copy.wearables.common.network.WearablesUpdatePacketS2C;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -23,37 +25,30 @@ public class NetworkHandler
 {
 	public void initializeCommon()
 	{
-		NetUtil.registerClientToServer(WearablesInteractPacket.class, this::onInteractPacket);
+		NetUtil.registerClientToServer(WearablesInteractPacketC2S.class, this::onInteractPacket);
 	}
 	
 	@Environment(EnvType.CLIENT)
 	public void initializeClient()
 	{
-		NetUtil.registerServerToClient(WearablesUpdatePacket.class, this::onUpdatePacket);
+		NetUtil.registerServerToClient(WearablesUpdatePacketS2C.class, this::onUpdatePacket);
 	}
 	
 	
-	public void onInteractPacket(PacketContext context, WearablesInteractPacket packet)
+	public void onInteractPacket(PacketContext context, WearablesInteractPacketC2S packet)
 	{
 		PlayerEntity player = context.getPlayer();
+		// FIXME: Currently can only change own wearable slots!
 		IWearablesSlot slot = IWearablesEntity.from(player)
 			.getWearablesSlot(packet.slotType, packet.index);
 		
-		// FIXME: Cursor stack always empty while in creative mode?
-		// FIXME: Fix the runtime exceptions - resync player inventory and Wearables.
-		if (!slot.canUnequip()) throw new RuntimeException("Can't unequip '" + slot.get() + "' from '" + slot + "'");
-		ItemStack cursorStack     = player.inventory.getCursorStack();
-		ItemStack currentEquipped = slot.get();
-		if (cursorStack.isEmpty() && currentEquipped.isEmpty()) throw new RuntimeException("Both stacks are empty");
-		if (!slot.canEquip(cursorStack)) throw new RuntimeException("Can't equip '" + cursorStack + "' into '" + slot + "'");
-		
-		// FIXME: Handle ItemStacks with amount > 1 properly.
-		player.inventory.setCursorStack(currentEquipped.copy());
-		slot.set(cursorStack.copy());
+		if (WearablesCommon.INTERACT.onInteract(player, slot, packet.action, packet.clientCursorStack) != Result.SUCCESS) {
+			// FIXME: Resync current container and Wearables slot.
+		}
 	}
 	
 	@Environment(EnvType.CLIENT)
-	public void onUpdatePacket(PacketContext context, WearablesUpdatePacket packet)
+	public void onUpdatePacket(PacketContext context, WearablesUpdatePacketS2C packet)
 	{
 		Entity entity = context.getPlayer().world.getEntityById(packet.entityId);
 		if (entity == null) throw new RuntimeException(
@@ -72,6 +67,7 @@ public class NetworkHandler
 			// Remove all equipped Wearables whose slots aren't in the packet.
 			wearablesEntity.getEquippedWearables()
 				.filter(slot -> !map.containsKey(slot))
+				.collect(Collectors.toList())
 				.forEach(slot -> slot.set(ItemStack.EMPTY));
 			
 			// Set all the changed / newly equipped Wearables.
