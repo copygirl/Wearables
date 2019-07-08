@@ -44,7 +44,6 @@ import net.minecraft.client.render.GuiLighting;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
@@ -63,7 +62,6 @@ public class WearablesRegionPopup
 	
 	private final MinecraftClient _client    = MinecraftClient.getInstance();
 	private final ClientPlayerEntity _player = this._client.player;
-	private final PlayerInventory _inventory = this._player.inventory;
 	
 	public final AbstractContainerScreen<?> screen;
 	public final IContainerScreenAccessor<?> accessor;
@@ -221,9 +219,8 @@ public class WearablesRegionPopup
 		else if (this._client.options.keyPickItem.matchesMouse(button)) action = Action.PICK_ITEM;
 		else return true;
 		
-		ItemStack cursorStack = this._inventory.getCursorStack();
-		WearablesCommon.INTERACT.onInteract(this._player, slot, action, cursorStack);
-		NetUtil.sendToServer(new WearablesInteractPacketC2S(action, slot, cursorStack));
+		WearablesCommon.INTERACT.onInteract(this._player, slot, action);
+		NetUtil.sendToServer(new WearablesInteractPacketC2S(action, slot));
 		
 		return true;
 	}

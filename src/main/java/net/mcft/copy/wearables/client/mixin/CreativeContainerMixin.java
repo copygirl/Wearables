@@ -15,6 +15,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Lazy;
 
+// FIXME: Currently unsupported, thus disabled.
 @Mixin(CreativeContainer.class)
 public abstract class CreativeContainerMixin
 	extends Container

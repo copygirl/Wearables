@@ -24,16 +24,14 @@ public class InteractionHandler
 		NO_CREATIVE
 	}
 	
-	public Result onInteract(PlayerEntity player, IWearablesSlot slot,
-	                         Action action, ItemStack clientCursorStack)
+	// FIXME: Somehow support creative container.
+	//        (Client-side only, no cursor stack on server, separate interaction packet.)
+	public Result onInteract(PlayerEntity player, IWearablesSlot slot, Action action)
 	{
 		PlayerInventory inventory = player.inventory;
 		ItemStack currentEquipped = slot.get();
-		ItemStack cursorStack     = player.isCreative()
-			? clientCursorStack : inventory.getCursorStack();
+		ItemStack cursorStack     = inventory.getCursorStack();
 		
-		// Note: PICK_ITEM doesn't need to be executed on the
-		//       server, as the cursor stack is not synchronized.
 		if (action == Action.PICK_ITEM) {
 			if (!player.isCreative()) return Result.NO_CREATIVE;
 			if (cursorStack.isEmpty()) inventory.setCursorStack(currentEquipped);

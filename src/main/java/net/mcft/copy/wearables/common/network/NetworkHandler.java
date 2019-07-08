@@ -42,7 +42,7 @@ public class NetworkHandler
 		IWearablesSlot slot = IWearablesEntity.from(player)
 			.getWearablesSlot(packet.slotType, packet.index);
 		
-		if (WearablesCommon.INTERACT.onInteract(player, slot, packet.action, packet.clientCursorStack) != Result.SUCCESS) {
+		if (WearablesCommon.INTERACT.onInteract(player, slot, packet.action) != Result.SUCCESS) {
 			// FIXME: Resync current container and Wearables slot.
 		}
 	}

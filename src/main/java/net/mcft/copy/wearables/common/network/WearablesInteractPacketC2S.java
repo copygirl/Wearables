@@ -7,7 +7,6 @@ import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.api.WearablesSlotType;
 import net.mcft.copy.wearables.common.InteractionHandler.Action;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
@@ -20,19 +19,16 @@ public class WearablesInteractPacketC2S implements IPacket
 	public Action action;
 	public WearablesSlotType slotType;
 	public int index;
-	public ItemStack clientCursorStack;
 	
 	public WearablesInteractPacketC2S() {  }
-	public WearablesInteractPacketC2S(Action action, IWearablesSlot slot, ItemStack clientCursorStack)
+	public WearablesInteractPacketC2S(Action action, IWearablesSlot slot)
 	{
 		if (action == null) throw new IllegalArgumentException("action is null");
 		if (slot == null) throw new IllegalArgumentException("slot is null");
-		if (clientCursorStack == null) throw new IllegalArgumentException("clientCursorStack is null");
 		if (slot.getIndex() > 127) throw new IllegalArgumentException("index is greater than 127");
 		this.action   = action;
 		this.slotType = slot.getSlotType();
 		this.index    = slot.getIndex();
-		this.clientCursorStack = clientCursorStack;
 	}
 	
 	@Override
@@ -42,7 +38,6 @@ public class WearablesInteractPacketC2S implements IPacket
 		this.action   = Action.values()[buffer.readByte()];
 		this.slotType = new WearablesSlotType(buffer.readString());
 		this.index    = buffer.readByte();
-		this.clientCursorStack = buffer.readItemStack();
 	}
 	
 	@Override
@@ -52,6 +47,5 @@ public class WearablesInteractPacketC2S implements IPacket
 		buffer.writeByte(this.action.ordinal());
 		buffer.writeString(this.slotType.fullName);
 		buffer.writeByte(this.index);
-		buffer.writeItemStack(this.clientCursorStack);
 	}
 }
