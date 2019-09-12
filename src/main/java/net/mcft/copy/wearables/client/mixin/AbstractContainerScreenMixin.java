@@ -3,7 +3,7 @@ package net.mcft.copy.wearables.client.mixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import net.mcft.copy.wearables.api.IWearablesContainer;
+import net.mcft.copy.wearables.api.IWearablesContainerId;
 import net.mcft.copy.wearables.client.IRegionPopupGetter;
 import net.mcft.copy.wearables.client.WearablesRegionPopup;
 import net.mcft.copy.wearables.client.WearablesRegionPopup.RegionEntry;
@@ -47,7 +47,7 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 	@Inject(method="init", at=@At("TAIL"))
 	protected void init(CallbackInfo info)
 	{
-		if (getContainer() instanceof IWearablesContainer)
+		if (getContainer() instanceof IWearablesContainerId)
 			this.wearables_regionPopup = new WearablesRegionPopup(
 				(AbstractContainerScreen<?>)(Object)this);
 	}

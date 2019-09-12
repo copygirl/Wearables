@@ -1,33 +1,42 @@
 package net.mcft.copy.wearables.api;
 
-import java.util.Map;
+import java.util.Collection;
 
+import com.google.common.collect.ImmutableList;
+
+import net.mcft.copy.wearables.common.impl.WearablesContainerImpl;
+import net.mcft.copy.wearables.common.misc.Position;
+
+import net.minecraft.container.Container;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
 
-/**
- * Implemented on containers which can support Wearables slots.
- * <p>
- * Actual slots are defined through data packs, in this case
- * {@code config/wearables/container}. This interface simply
- * defines which entities are exposed to the configuration.
- */
 public interface IWearablesContainer
 {
-	/** Returns an {@link Identifier} that can
-	 *  be used to refer to this container. */
-	public Identifier getWearablesIdentifier();
+	public Collection<RegionEntry> getRegions();
 	
 	
-	/** Returns the default entity for slots
-	 *  when not provided with an explicit key. */
-	public Entity getWearablesDefaultEntity();
+	public static IWearablesContainer from(Container container)
+		{ return new WearablesContainerImpl(container); }
 	
-	/**
-	 * Returns a map of all entities accessible through this
-	 * container mapped by the key the can be accessed by.
-	 * <p>
-	 * The same entity may occur multiple times under different keys.
-	 */
-	public Map<String, Entity> getWearablesEntityMap();
+	
+	public static class RegionEntry
+	{
+		public final Entity entity;
+		public final Position position;
+		public final WearablesRegion region;
+		public final ImmutableList<WearablesContainerSlot> slots;
+		
+		public RegionEntry(Entity entity, Position position, WearablesRegion region,
+		                   Collection<WearablesContainerSlot> slots)
+		{
+			if (entity == null) throw new IllegalArgumentException("entity is null");
+			if (position == null) throw new IllegalArgumentException("position is null");
+			if (region == null) throw new IllegalArgumentException("region is null");
+			if (slots == null) throw new IllegalArgumentException("slots is null");
+			this.entity   = entity;
+			this.position = position;
+			this.region   = region;
+			this.slots    = ImmutableList.copyOf(slots);
+		}
+	}
 }

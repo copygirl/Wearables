@@ -18,7 +18,7 @@ import net.fabricmc.api.Environment;
 
 import net.mcft.copy.wearables.WearablesCommon;
 import net.mcft.copy.wearables.api.IWearablesScreen;
-import net.mcft.copy.wearables.api.IWearablesContainer;
+import net.mcft.copy.wearables.api.IWearablesContainerId;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.api.WearablesRegion;
@@ -66,7 +66,7 @@ public class WearablesRegionPopup
 	public final AbstractContainerScreen<?> screen;
 	public final IContainerScreenAccessor<?> accessor;
 	public final IWearablesScreen wearScreen;
-	public final IWearablesContainer container;
+	public final IWearablesContainerId container;
 	
 	private int _version;
 	private ContainerData _data;
@@ -83,13 +83,13 @@ public class WearablesRegionPopup
 	public WearablesRegionPopup(AbstractContainerScreen<?> screen)
 	{
 		if (screen == null) throw new IllegalArgumentException("screen is null");
-		if (!(screen.getContainer() instanceof IWearablesContainer)) throw new IllegalArgumentException(
+		if (!(screen.getContainer() instanceof IWearablesContainerId)) throw new IllegalArgumentException(
 			"'" + screen.getContainer() + "' isn't a IWearablesContainer");
 		
 		this.screen     = screen;
 		this.accessor   = (IContainerScreenAccessor<?>)screen;
 		this.wearScreen = IWearablesScreen.from(screen);
-		this.container  = (IWearablesContainer)screen.getContainer();
+		this.container  = (IWearablesContainerId)screen.getContainer();
 		
 		init();
 	}

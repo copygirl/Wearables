@@ -11,8 +11,8 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.Item;
 
 /**
- * Allows accessing an entity's {@link IWearableSlot IWearableSlots}, getting
- * and setting which items are equipped through Wearables.
+ * Allows accessing an {@link Entity}'s {@link IWearableSlot IWearableSlots},
+ * getting and setting which items are equipped through Wearables.
  * <p>
  * Use {@link IWearablesEntity#is} to test whether an entity may support Wearables and
  * {@link IWearablesEntity#from} to safely get an IWearablesEntity. This is to account

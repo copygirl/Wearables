@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import net.mcft.copy.wearables.api.IWearablesContainer;
+import net.mcft.copy.wearables.api.IWearablesContainerId;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen.CreativeContainer;
@@ -19,7 +19,7 @@ import net.minecraft.util.Lazy;
 @Mixin(CreativeContainer.class)
 public abstract class CreativeContainerMixin
 	extends Container
-	implements IWearablesContainer
+	implements IWearablesContainerId
 {
 	private CreativeContainerMixin()
 		{ super(null, 0); }

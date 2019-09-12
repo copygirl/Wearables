@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import net.mcft.copy.wearables.api.IWearablesContainer;
+import net.mcft.copy.wearables.api.IWearablesContainerId;
 
 import net.minecraft.container.CraftingContainer;
 import net.minecraft.container.PlayerContainer;
@@ -20,10 +20,10 @@ import net.minecraft.util.Lazy;
 @Mixin(PlayerContainer.class)
 public abstract class PlayerContainerMixin
 	extends CraftingContainer<CraftingInventory>
-	implements IWearablesContainer
+	implements IWearablesContainerId
 {
 	@Shadow
-   private PlayerEntity owner;
+	private PlayerEntity owner;
 	
 	private PlayerContainerMixin()
 		{ super(null, 0); }

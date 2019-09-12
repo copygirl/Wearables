@@ -40,8 +40,7 @@ public class InteractionHandler
 		
 		// FIXME: Handle ItemStacks with amount > 1 properly.
 		if (!slot.canUnequip()) return Result.CANT_UNEQUIP;
-		if (cursorStack.isEmpty() && currentEquipped.isEmpty())
-			return Result.INVALID_ACTION;
+		if (cursorStack.isEmpty() && currentEquipped.isEmpty()) return Result.INVALID_ACTION;
 		if (!slot.canEquip(cursorStack)) return Result.CANT_EQUIP;
 		
 		inventory.setCursorStack(currentEquipped.copy());

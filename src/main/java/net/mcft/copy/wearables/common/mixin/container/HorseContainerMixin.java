@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import net.mcft.copy.wearables.api.IWearablesContainer;
+import net.mcft.copy.wearables.api.IWearablesContainerId;
 
 import net.minecraft.container.Container;
 import net.minecraft.container.HorseContainer;
@@ -19,7 +19,7 @@ import net.minecraft.util.Lazy;
 @Mixin(HorseContainer.class)
 public abstract class HorseContainerMixin
 	extends Container
-	implements IWearablesContainer
+	implements IWearablesContainerId
 {
 	@Shadow
    private HorseBaseEntity entity;
