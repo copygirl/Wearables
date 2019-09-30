@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class EntityMixin
 	implements WearablesEntityData.IAccessor
 {
-	private WearablesEntityData _wearablesData;
+	private WearablesEntityData _wearables_data;
 	
 	@Override
 	public WearablesEntityData getWearablesData(boolean create)
@@ -27,10 +27,10 @@ public abstract class EntityMixin
 		if (create) {
 			if (!IWearablesEntity.is((Entity)(Object)this))
 				throw new UnsupportedOperationException();
-			if (this._wearablesData == null)
-				this._wearablesData = new WearablesEntityData();
+			if (this._wearables_data == null)
+				this._wearables_data = new WearablesEntityData();
 		}
-		return this._wearablesData;
+		return this._wearables_data;
 	}
 	
 	
@@ -41,14 +41,14 @@ public abstract class EntityMixin
 	@Inject(method="toTag", at=@At("TAIL"))
 	public void toTag(CompoundTag entityData, CallbackInfoReturnable<CompoundTag> info)
 	{
-		if ((this._wearablesData != null) && !this._wearablesData.isEmpty())
-			entityData.put(WEARABLES_DATA_TAG, this._wearablesData.serializeToTag());
+		if ((this._wearables_data != null) && !this._wearables_data.isEmpty())
+			entityData.put(WEARABLES_DATA_TAG, this._wearables_data.serializeToTag());
 	}
 	
 	@Inject(method="fromTag", at=@At("TAIL"))
 	public void fromTag(CompoundTag entityData, CallbackInfo info)
 	{
-		this._wearablesData = entityData.containsKey(WEARABLES_DATA_TAG)
+		this._wearables_data = entityData.containsKey(WEARABLES_DATA_TAG)
 			? NbtUtil.asValue(entityData.getCompound(WEARABLES_DATA_TAG), WearablesEntityData.DESERIALIZER)
 			: null;
 	}

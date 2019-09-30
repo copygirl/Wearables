@@ -236,5 +236,5 @@ public interface IWearablesEntity
 	 * @throws IllegalArgumentException Thrown if entity is {@code null}.
 	 */
 	public static IWearablesEntity from(Entity entity)
-		{ return new WearablesEntityImpl(entity); }
+		{ return WearablesEntityImpl.from(entity); }
 }

@@ -7,44 +7,33 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
 
-import net.mcft.copy.wearables.WearablesCommon;
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.common.WearablesEntry;
-import net.mcft.copy.wearables.common.InteractionHandler.Result;
 import net.mcft.copy.wearables.common.network.NetUtil;
 import net.mcft.copy.wearables.common.network.NetworkHandler;
-import net.mcft.copy.wearables.common.network.WearablesInteractPacketC2S;
-import net.mcft.copy.wearables.common.network.WearablesUpdatePacketS2C;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
 public class NetworkHandler
 {
 	public void initializeCommon()
 	{
-		NetUtil.registerClientToServer(WearablesInteractPacketC2S.class, this::onInteractPacket);
 	}
 	
 	@Environment(EnvType.CLIENT)
 	public void initializeClient()
 	{
+		NetUtil.registerServerToClient(WearablesContainerPacketS2C.class, this::onContainerPacket);
 		NetUtil.registerServerToClient(WearablesUpdatePacketS2C.class, this::onUpdatePacket);
 	}
 	
 	
-	public void onInteractPacket(PacketContext context, WearablesInteractPacketC2S packet)
+	@Environment(EnvType.CLIENT)
+	public void onContainerPacket(PacketContext context, WearablesContainerPacketS2C packet)
 	{
-		PlayerEntity player = context.getPlayer();
-		// FIXME: Currently can only change own wearable slots!
-		IWearablesSlot slot = IWearablesEntity.from(player)
-			.getWearablesSlot(packet.slotType, packet.index);
 		
-		if (WearablesCommon.INTERACT.onInteract(player, slot, packet.action) != Result.SUCCESS) {
-			// FIXME: Resync current container and Wearables slot.
-		}
 	}
 	
 	@Environment(EnvType.CLIENT)

@@ -22,7 +22,7 @@ public abstract class HorseContainerMixin
 	implements IWearablesContainerId
 {
 	@Shadow
-   private HorseBaseEntity entity;
+	private HorseBaseEntity entity;
 	
 	private HorseContainerMixin()
 		{ super(null, 0); }

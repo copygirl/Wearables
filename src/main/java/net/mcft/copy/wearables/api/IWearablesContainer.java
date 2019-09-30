@@ -16,7 +16,7 @@ public interface IWearablesContainer
 	
 	
 	public static IWearablesContainer from(Container container)
-		{ return new WearablesContainerImpl(container); }
+		{ return WearablesContainerImpl.from(container); }
 	
 	
 	public static class RegionEntry

@@ -21,7 +21,6 @@ public class WearablesEntityData
 	public interface IAccessor
 		{ public WearablesEntityData getWearablesData(boolean create); }
 	
-	
 	public static WearablesEntityData from(Entity entity, boolean create)
 	{
 		WearablesEntityData data = ((IAccessor)entity).getWearablesData(create);

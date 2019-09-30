@@ -40,6 +40,9 @@ public class WearablesEntityImpl
 		this.entity = entity;
 	}
 	
+	public static IWearablesEntity from(Entity entity)
+		{ return new WearablesEntityImpl(entity); }
+	
 	
 	// IWearablesEntity implementation
 	

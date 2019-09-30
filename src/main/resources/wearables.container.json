@@ -4,6 +4,8 @@
   "compatibilityLevel": "JAVA_8",
   "package": "net.mcft.copy.wearables.common.mixin.container",
   "mixins": [
+    "ContainerAccessor",
+    "ContainerMixin",
     "HorseContainerMixin",
     "PlayerContainerMixin"
   ],
