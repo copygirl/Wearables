@@ -1,6 +1,7 @@
 package net.mcft.copy.wearables.common.network;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import net.fabricmc.api.EnvType;
@@ -9,12 +10,15 @@ import net.fabricmc.fabric.api.network.PacketContext;
 
 import net.mcft.copy.wearables.api.IWearablesEntity;
 import net.mcft.copy.wearables.api.IWearablesSlot;
+import net.mcft.copy.wearables.common.WearablesContainerData;
 import net.mcft.copy.wearables.common.WearablesEntry;
 import net.mcft.copy.wearables.common.network.NetUtil;
 import net.mcft.copy.wearables.common.network.NetworkHandler;
 
+import net.minecraft.container.Container;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 public class NetworkHandler
 {
@@ -33,7 +37,15 @@ public class NetworkHandler
 	@Environment(EnvType.CLIENT)
 	public void onContainerPacket(PacketContext context, WearablesContainerPacketS2C packet)
 	{
+		World world = context.getPlayer().world;
+		Container container = context.getPlayer().container;
+		if (container.syncId != packet.containerSyncId) return;
 		
+		WearablesContainerData.from(container)
+			.setRegionEntries(packet.regions.stream()
+				.map(entry -> entry.toRegionEntry(world))
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList()));
 	}
 	
 	@Environment(EnvType.CLIENT)

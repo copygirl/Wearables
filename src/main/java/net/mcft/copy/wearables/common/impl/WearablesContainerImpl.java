@@ -8,5 +8,5 @@ import net.minecraft.container.Container;
 public class WearablesContainerImpl
 {
 	public static IWearablesContainer from(Container container)
-		{ return ((WearablesContainerData.IAccessor)container).getWearablesData(); }
+		{ return ((WearablesContainerData.IAccessor)container).getWearablesData(true); }
 }
