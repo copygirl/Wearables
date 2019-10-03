@@ -9,9 +9,9 @@ public class WearablesContainerSlot
 {
 	public final IWearablesSlot wearablesSlot;
 	
-	public WearablesContainerSlot(IWearablesSlot wearablesSlot, int x, int y)
+	public WearablesContainerSlot(IWearablesSlot wearablesSlot)
 	{
-		super(null, 0, x, y);
+		super(null, 0, -10000, -10000);
 		if (wearablesSlot == null) throw new IllegalArgumentException("wearablesSlot is null");
 		this.wearablesSlot = wearablesSlot;
 	}

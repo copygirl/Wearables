@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import net.mcft.copy.wearables.WearablesCommon;
@@ -20,6 +19,7 @@ import net.mcft.copy.wearables.common.data.WearablesData;
 import net.mcft.copy.wearables.common.mixin.container.ContainerAccessor;
 
 import net.minecraft.container.Container;
+import net.minecraft.container.Slot;
 import net.minecraft.entity.Entity;
 
 public class WearablesContainerData
@@ -54,24 +54,17 @@ public class WearablesContainerData
 				Entity entity = Optional.ofNullable(entry.entityKey)
 					.map(key -> containerId.getWearablesEntityMap().get(key))
 					.orElseGet(() -> containerId.getWearablesDefaultEntity());
-				
 				if (entity == null) {
 					WearablesCommon.LOGGER.warn("[wearables:WearablesContainerData] Unknown entity key '{}'", entry.entityKey);
 					return null;
 				}
-				
 				IWearablesEntity wearablesEntity = IWearablesEntity.from(entity);
 				SortedSet<IWearablesSlot> sortedSlots = new TreeSet<>();
 				wearablesEntity.getSupportedWearablesSlots(entry.region).forEach(sortedSlots::add);
 				wearablesEntity.getEquippedWearables(entry.region).forEach(sortedSlots::add);
-				
-				AtomicInteger index = new AtomicInteger();
 				List<WearablesContainerSlot> containerSlots = sortedSlots.stream()
-					.map(slot -> new WearablesContainerSlot(slot,
-						entry.position.x + 4 + index.getAndIncrement() * 18,
-						entry.position.y + 4))
+					.map(WearablesContainerSlot::new)
 					.collect(Collectors.toList());
-				
 				return new RegionEntry(entity, entry.position, entry.region, containerSlots);
 			})
 			.filter(Objects::nonNull)
@@ -82,9 +75,23 @@ public class WearablesContainerData
 	{
 		ContainerAccessor accessor = (ContainerAccessor)this._container;
 		this._regions = regions;
-		this._regions.stream()
-			.flatMap(region -> region.slots.stream())
-			.forEach(accessor::invokeAddSlot);
+		for (RegionEntry entry : this._regions) {
+			Optional<Slot> existingSlot = this._container.slotList.stream()
+				.filter(slot -> (slot.xPosition == entry.position.x)
+				             && (slot.yPosition == entry.position.y))
+				.findFirst();
+			
+			entry.centerSlot.xPosition = entry.position.x;
+			entry.centerSlot.yPosition = entry.position.y;
+			if (existingSlot.isPresent()) {
+				entry.centerSlot.id = existingSlot.get().id;
+				this._container.slotList.set(existingSlot.get().id, entry.centerSlot);
+			}
+			
+			for (WearablesContainerSlot newSlot : entry.slots)
+				if ((newSlot != entry.centerSlot) || !existingSlot.isPresent())
+					accessor.invokeAddSlot(newSlot);
+		}
 	}
 	
 	

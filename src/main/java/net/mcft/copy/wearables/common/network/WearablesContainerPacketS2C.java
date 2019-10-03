@@ -1,7 +1,6 @@
 package net.mcft.copy.wearables.common.network;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,7 +8,6 @@ import java.util.stream.IntStream;
 
 import net.mcft.copy.wearables.WearablesCommon;
 import net.mcft.copy.wearables.api.IWearablesEntity;
-import net.mcft.copy.wearables.api.IWearablesSlot;
 import net.mcft.copy.wearables.api.WearablesContainerSlot;
 import net.mcft.copy.wearables.api.WearablesRegion;
 import net.mcft.copy.wearables.api.WearablesSlotType;
@@ -98,14 +96,11 @@ public class WearablesContainerPacketS2C
 				WearablesCommon.LOGGER.warn("[wearables:onContainerPacket] Unknown entity key '{}'", this.entityId);
 				return null;
 			}
-			List<WearablesContainerSlot> slots = new ArrayList<>();
-			for (NetSlotDefinition slot : this.slots) {
-				IWearablesSlot wearablesSlot = IWearablesEntity.from(entity)
-					.getWearablesSlot(slot.slotType, slot.index, true);
-				int x = this.position.x + 4 + slots.size() * 18;
-				int y = this.position.y + 4;
-				slots.add(new WearablesContainerSlot(wearablesSlot, x, y));
-			}
+			List<WearablesContainerSlot> slots = this.slots.stream()
+				.map(slot -> new WearablesContainerSlot(
+					IWearablesEntity.from(entity)
+						.getWearablesSlot(slot.slotType, slot.index, true)))
+				.collect(Collectors.toList());
 			return new RegionEntry(entity, this.position, this.region, slots);
 		}
 		
