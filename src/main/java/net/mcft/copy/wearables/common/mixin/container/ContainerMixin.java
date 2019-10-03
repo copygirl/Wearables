@@ -26,7 +26,8 @@ public abstract class ContainerMixin
 			this._wearables_data = new WearablesContainerData((Container)(Object)this);
 			this._wearables_data.computeAndAddRegionEntries();
 		}
-		if (listener instanceof ServerPlayerEntity)
+		if ((listener instanceof ServerPlayerEntity)
+		 && (this._wearables_data.getRegions() != null))
 			NetUtil.sendToPlayer((ServerPlayerEntity)listener,
 				new WearablesContainerPacketS2C(this._wearables_data));
 	}

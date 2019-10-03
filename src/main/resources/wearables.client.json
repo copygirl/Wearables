@@ -4,6 +4,8 @@
   "compatibilityLevel": "JAVA_8",
   "package": "net.mcft.copy.wearables.client.mixin",
   "client": [
+    "AbstractContainerScreenMixin",
+    "IContainerScreenAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
