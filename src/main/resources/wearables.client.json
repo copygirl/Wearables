@@ -5,7 +5,8 @@
   "package": "net.mcft.copy.wearables.client.mixin",
   "client": [
     "AbstractContainerScreenMixin",
-    "IContainerScreenAccessor"
+    "IContainerScreenAccessor",
+    "InventoryScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

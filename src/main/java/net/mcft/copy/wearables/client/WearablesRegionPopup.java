@@ -46,6 +46,10 @@ public class WearablesRegionPopup
 	extends DrawableHelper
 	implements Drawable, Element
 {
+	public interface IAccessor
+		{ public WearablesRegionPopup getWearablesRegionPopup(); }
+	
+	
 	public static final GuiTexture REGION_TEX = new GuiTexture("region", 64);
 	public static final int BORDER_SIZE = 4;
 	public static final int SLOT_SIZE   = 18;
