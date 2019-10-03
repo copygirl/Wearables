@@ -51,8 +51,9 @@ public abstract class AbstractContainerScreenMixin<T extends Container>
 	private void isPointOverSlot(Slot slot, double pointX, double pointY,
 	                             CallbackInfoReturnable<Boolean> info)
 	{
-		if (this._wearables_regionPopup == null) return;
-		if (this._wearables_regionPopup.isMouseOverBorder(pointX, pointY))
+		if ((this._wearables_regionPopup != null)
+		 && (this._wearables_regionPopup.isMouseOver(pointX, pointY))
+		 && !this._wearables_regionPopup.current.slots.contains(slot))
 			info.setReturnValue(false);
 	}
 	

@@ -152,21 +152,13 @@ public class WearablesRegionPopup
 			this.pos.x, this.pos.y, this.width, this.height, pointX, pointY);
 	}
 	
-	public boolean isMouseOverBorder(double pointX, double pointY)
-	{
-		return this.isVisible
-		    && isWithinScreenSpace(this.pos.x, this.pos.y, this.width, this.height, pointX, pointY)
-		    && !isWithinScreenSpace(this.pos.x + BORDER_SIZE, this.pos.y + BORDER_SIZE,
-		                            this.width - BORDER_SIZE, this.height - BORDER_SIZE, pointX, pointY);
-	}
-	
 	private boolean isOverSlot(Position slotPos, double pointX, double pointY)
-		{ return isWithinScreenSpace(slotPos.x, slotPos.y, SLOT_SIZE, SLOT_SIZE, pointX, pointY); }
+		{ return isWithinScreenSpace(slotPos.x - 1, slotPos.y - 1, SLOT_SIZE, SLOT_SIZE, pointX, pointY); }
 	
 	private boolean isWithinScreenSpace(int x, int y, int width, int height, double pointX, double pointY)
-		{ return isWithinGlobalSpace(x + accessor.getLeft(), y + accessor.getTop(), width, height, pointX, pointY); }
+		{ return isWithin(x + accessor.getLeft(), y + accessor.getTop(), width, height, pointX, pointY); }
 	
-	private boolean isWithinGlobalSpace(int x, int y, int width, int height, double pointX, double pointY)
+	private boolean isWithin(int x, int y, int width, int height, double pointX, double pointY)
 		{ return (pointX >= x) && (pointX < x + width) && (pointY >= y) && (pointY < y + height); }
 	
 	
