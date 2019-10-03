@@ -121,7 +121,9 @@ public class WearablesSlotImpl
 	public void set(ItemStack value)
 	{
 		if (value == null) throw new NullPointerException("value is null");
-		if (ItemStack.areItemsEqual(value, get())) return;
+		ItemStack current = get();
+		if (ItemStack.areItemsEqual(value, current)
+		 && ItemStack.areTagsEqual(value, current)) return;
 		_handler.set(getEntity(), this, value);
 	}
 	
