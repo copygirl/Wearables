@@ -9,7 +9,8 @@
     "ISlotAccessor",
     "MobAndPlayerEntityMixin",
     "PlayerEntityMixin",
-    "PlayerManagerMixin"
+    "PlayerManagerMixin",
+    "ServerPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

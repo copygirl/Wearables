@@ -62,6 +62,7 @@ public class WearablesContainerData
 				SortedSet<IWearablesSlot> sortedSlots = new TreeSet<>();
 				wearablesEntity.getSupportedWearablesSlots(entry.region).forEach(sortedSlots::add);
 				wearablesEntity.getEquippedWearables(entry.region).forEach(sortedSlots::add);
+				if (sortedSlots.size() == 0) return null;
 				List<WearablesContainerSlot> containerSlots = sortedSlots.stream()
 					.map(WearablesContainerSlot::new)
 					.collect(Collectors.toList());
@@ -98,5 +99,6 @@ public class WearablesContainerData
 	// IWearablesContainer implementation
 	
 	@Override
-	public Collection<RegionEntry> getRegions() { return this._regions; }
+	public Collection<RegionEntry> getRegions()
+		{ return this._regions; }
 }

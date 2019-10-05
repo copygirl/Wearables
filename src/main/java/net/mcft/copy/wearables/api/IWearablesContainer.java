@@ -34,6 +34,7 @@ public interface IWearablesContainer
 			if (position == null) throw new IllegalArgumentException("position is null");
 			if (region == null) throw new IllegalArgumentException("region is null");
 			if (slots == null) throw new IllegalArgumentException("slots is null");
+			if (slots.size() == 0) throw new IllegalArgumentException("slots is empty");
 			this.entity     = entity;
 			this.position   = position;
 			this.region     = region;
