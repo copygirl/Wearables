@@ -1,7 +1,0 @@
-{
-	"appliesTo": [ "minecraft:horse" ],
-	"entries": [
-		{ "region": "back", "position": [ 8, 18 ] },
-		{ "region": "body", "position": [ 8, 36 ] }
-	]
-}

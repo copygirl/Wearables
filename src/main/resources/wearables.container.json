@@ -6,7 +6,6 @@
   "mixins": [
     "ContainerAccessor",
     "ContainerMixin",
-    "HorseContainerMixin",
     "PlayerContainerMixin"
   ],
   "injectors": {
