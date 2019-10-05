@@ -2,11 +2,11 @@
 	"appliesTo": [ "minecraft:horse" ],
 	"mergeStrategy": "COMBINE",
 	"regions": {
-		"body": [ "body" ],
-		"back": [ "back", "tail" ]
+		"back": [ "back" ],
+		"body": [ "body", "tail" ]
 	},
 	"slots": {
-		"body/armor"  : { "order": 0 },
-		"back/saddle" : { "order": 0 }
+		"back/saddle" : { "order": 0 },
+		"body/armor"  : { "order": 0 }
 	}
 }
